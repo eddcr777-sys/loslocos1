@@ -1,9 +1,11 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Navbar from './components/input/Navbar';
+import MainLayout from './components/layout/MainLayout';
 import HomePage from './pages/HomePage/HomePage';
 import AboutPage from './pages/AboutPage/AboutPage';
 import ProfilePage from './pages/ProfilePage/ProfilePage';
+import SearchPage from './pages/SearchPage/SearchPage';
+import NotificationsPage from './pages/NotificationsPage/NotificationsPage';
 import LoginPage from './pages/ProfilePage/LoginPage';
 import RegisterPage from './pages/ProfilePage/RegisterPage';
 import WelcomePage from './pages/ProfilePage/WelcomePage';
@@ -21,8 +23,7 @@ const AppContent = () => {
   
 
   return (
-    <>
-      {user && <Navbar />}
+    <MainLayout>
       <Routes>
         <Route
           path="/home"
@@ -45,6 +46,22 @@ const AppContent = () => {
           }
         />
         <Route
+          path="/search"
+          element={
+            <ProtectedRoute>
+              <SearchPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/notifications"
+          element={
+            <ProtectedRoute>
+              <NotificationsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/profile/:userId"
           element={
             <ProtectedRoute>
@@ -53,7 +70,7 @@ const AppContent = () => {
           }
         />
       </Routes>
-    </>
+    </MainLayout>
   );
 };
 

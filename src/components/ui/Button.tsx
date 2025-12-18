@@ -28,21 +28,23 @@ const Button: React.FC<ButtonProps> = ({
   // Variants
   const variants: Record<string, React.CSSProperties> = {
     primary: {
-      backgroundColor: '#1d9bf0', // Twitter/Social Blue
-      color: '#fff',
+      backgroundColor: 'var(--accent-color)',
+      color: '#ffffff',
+      border: '1px solid transparent',
     },
     secondary: {
-      backgroundColor: '#eff3f4',
-      color: '#0f1419',
+      backgroundColor: '#f1f5f9', // slate-100
+      color: 'var(--text-primary)',
+      border: '1px solid transparent',
     },
     outline: {
         backgroundColor: 'transparent',
-        border: '1px solid #cfd9de',
-        color: '#1d9bf0'
+        border: '1px solid var(--border-color)',
+        color: 'var(--text-primary)'
     },
     ghost: {
         backgroundColor: 'transparent',
-        color: '#536471'
+        color: 'var(--text-secondary)'
     }
   };
 

@@ -5,10 +5,11 @@ import { useAuth } from '../../context/AuthContext';
 
 interface CommentSectionProps {
   postId: string;
+  postOwnerId?: string; // Optional for compatibility but recommended for notifications
   onCommentsChange?: (count: number) => void;
 }
 
-const CommentSection: React.FC<CommentSectionProps> = ({ postId, onCommentsChange }) => {
+const CommentSection: React.FC<CommentSectionProps> = ({ postId, postOwnerId, onCommentsChange }) => {
   const { user } = useAuth();
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');

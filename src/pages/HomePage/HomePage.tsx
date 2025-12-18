@@ -2,7 +2,7 @@ import React from 'react';
 import { useFeed } from '../../context/FeedContext';
 import CreatePost from '../../components/posts/CreatePost';
 import Post from '../../components/posts/Post';
-import './HomePage.css';
+import './HomePage.css'; 
 
 function HomePage() {
   const { posts, loading, refreshFeed } = useFeed();

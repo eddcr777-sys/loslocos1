@@ -42,9 +42,19 @@ const Post: React.FC<PostProps> = ({ post }) => {
       return;
     }
     const { data, error } = await api.toggleLike(post.id, user.id);
-    if (!error && data) {
-      setLiked(data.liked);
-      setLikes((prev: number) => data.liked ? prev + 1 : prev - 1);
+    if (!error && data?.liked) {
+      setLiked(true);
+      setLikes(likes + 1);
+      // Trigger Notification
+      await api.createNotification({
+          user_id: post.user_id, // Owner of post
+          actor_id: user.id,     // Liker
+          type: 'like',
+          entity_id: post.id
+      });
+    } else if (!error && !data?.liked) {
+      setLiked(false);
+      setLikes(likes - 1);
     }
   };
 
@@ -55,41 +65,48 @@ const Post: React.FC<PostProps> = ({ post }) => {
 
   return (
     <Card className="post-card">
-      <div className="post-header">
-        <Link to={`/profile/${post.user_id}`} className="post-author-info" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}>
-          <Avatar src={post.profiles?.avatar_url} alt={post.profiles?.full_name} size="medium" />
-          <div style={{ marginLeft: '10px' }}>
-            <span className="post-author-name">{post.profiles?.full_name || 'Anónimo'}</span>
-            <span className="post-timestamp">{timeAgo(post.created_at)}</span>
-          </div>
-        </Link>
-      </div>
+      <div className="post-padded-content">
+        <div className="post-header">
+          <Link to={`/profile/${post.user_id}`} className="post-author-info" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}>
+            <Avatar src={post.profiles?.avatar_url} alt={post.profiles?.full_name} size="medium" />
+            <div style={{ marginLeft: '10px' }}>
+              <span className="post-author-name">{post.profiles?.full_name || 'Anónimo'}</span>
+              <span className="post-timestamp">{timeAgo(post.created_at)}</span>
+            </div>
+          </Link>
+        </div>
 
-      <div className="post-content">
-        <p>{post.content}</p>
-        {post.image_url && (
-            <img src={post.image_url} alt="Post content" className="post-image" />
+        {post.content && (
+          <div className="post-content-text">
+            <p>{post.content}</p>
+          </div>
         )}
       </div>
 
-      <div className="post-actions">
-        <Button 
-            variant={liked ? 'primary' : 'ghost'} 
-            onClick={handleLike}
-            size="small"
-        >
-          {liked ? '❤️ Me gusta' : '♡ Me gusta'} ({likes})
-        </Button>
-        <Button 
-            variant="ghost" 
-            onClick={() => setShowComments(!showComments)}
-            size="small"
-        >
-          💬 Comentarios ({commentsCount})
-        </Button>
+      {post.image_url && (
+          <img src={post.image_url} alt="Contenido de la publicación" className="post-image" />
+      )}
+
+      <div className="post-padded-content">
+        <div className="post-actions">
+          <Button 
+              variant={liked ? 'primary' : 'ghost'} 
+              onClick={handleLike}
+              size="small"
+          >
+            {liked ? '❤️ Me gusta' : '♡ Me gusta'} ({likes})
+          </Button>
+          <Button 
+              variant="ghost" 
+              onClick={() => setShowComments(!showComments)}
+              size="small"
+          >
+            💬 Comentarios ({commentsCount})
+          </Button>
+        </div>
       </div>
 
-      {showComments && <CommentSection postId={post.id} onCommentsChange={handleCommentsUpdate} />}
+      {showComments && <div className="post-padded-content"><CommentSection postId={post.id} postOwnerId={post.user_id} onCommentsChange={handleCommentsUpdate} /></div>}
     </Card>
   );
 };

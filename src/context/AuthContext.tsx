@@ -21,6 +21,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   loading: boolean;
   refreshProfile: () => Promise<void>;
+  unreadNotifications: number;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -64,10 +65,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       
       setLoading(false);
+      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Realtime Notifications Logic
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+
+  useEffect(() => {
+    if (!user) return;
+
+    // 1. Fetch initial unread count
+    const fetchUnread = async () => {
+        const { count } = await supabase
+            .from('notifications')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', user.id)
+            .eq('read', false);
+        setUnreadNotifications(count || 0);
+    };
+    fetchUnread();
+
+    // 2. Subscribe to new notifications
+    const channel = supabase
+        .channel('public:notifications')
+        .on(
+            'postgres_changes',
+            {
+                event: 'INSERT',
+                schema: 'public',
+                table: 'notifications',
+                filter: `user_id=eq.${user.id}`
+            },
+            (payload) => {
+                console.log('New notification!', payload);
+                setUnreadNotifications(prev => prev + 1);
+                // Optional: Play sound or toast here
+            }
+        )
+        .subscribe();
+
+    return () => {
+        supabase.removeChannel(channel);
+    };
+  }, [user]);
 
   const register = useCallback(async ({ email, password, name }: RegisterCredentials) => {
     try {
@@ -112,8 +155,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   const value = useMemo(() => ({
-    session, user, profile, register, login, logout, loading, refreshProfile
-  }), [session, user, profile, loading, register, login, logout, refreshProfile]);
+    session, user, profile, register, login, logout, loading, refreshProfile, unreadNotifications
+  }), [session, user, profile, loading, register, login, logout, refreshProfile, unreadNotifications]);
 
   return (
     <AuthContext.Provider value={value}>

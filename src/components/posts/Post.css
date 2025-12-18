@@ -1,80 +1,77 @@
 .post-card {
-  background-color: #fff;
-  border: 1px solid #e1e8ed;
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  overflow: hidden;
+  /* Ensure images don't bleed out */
+  display: flex;
+  flex-direction: column;
 }
 
+.post-padded-content {
+  padding: 1rem;
+}
+
+/* Header */
 .post-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 .post-author-info {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 0.75rem;
+  transition: opacity 0.2s;
 }
 
-.post-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
+.post-author-info:hover {
+  opacity: 0.8;
 }
 
 .post-author-name {
-  font-weight: bold;
-  color: #14171a;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 1rem;
   display: block;
 }
 
 .post-timestamp {
-  font-size: 0.85rem;
-  color: #657786;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
 }
 
-.post-content {
+/* Content */
+.post-content-text {
+  margin-bottom: 0.75rem;
   font-size: 1rem;
-  line-height: 1.5;
-  color: #14171a;
-  margin-bottom: 1rem;
+  color: #334155;
+  /* Slate-700 */
+  line-height: 1.6;
 }
 
+.post-content-text p {
+  margin: 0;
+}
+
+/* Image */
 .post-image {
   width: 100%;
-  border-radius: 8px;
-  margin-top: 0.5rem;
-  margin-bottom: 1rem;
-  border: 1px solid #eee;
+  height: auto;
+  max-height: 600px;
+  object-fit: contain;
+  /* Show full image */
+  background-color: #f1f5f9;
+  /* Subtle background for aspect ratio gaps */
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
 }
 
+/* Actions */
 .post-actions {
   display: flex;
-  gap: 1rem;
-  border-top: 1px solid #eee;
-  padding-top: 1rem;
+  gap: 1.5rem;
+  padding-top: 0.5rem;
 }
 
-.action-button {
-  background: none;
-  border: none;
-  color: #657786;
-  font-size: 0.9rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  transition: background 0.2s;
-}
-
-.action-button:hover {
-  background-color: #f0f8ff;
-  color: #007bff;
-}
+/* Comment Section Overrides (if needed) */
+/* Reset any complex nested styles if they exist */

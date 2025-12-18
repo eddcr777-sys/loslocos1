@@ -1,12 +1,24 @@
 .home-container {
-  display: flex;
-  justify-content: center;
-  padding: 2rem;
-  background-color: #f5f8fa;
-  min-height: 100vh;
+  background-color: #f0f2f5;
+  /* Un fondo gris claro, típico de redes sociales */
+  min-height: calc(100vh - 60px);
+  /* 60px es la altura aproximada de la Navbar */
+  padding-top: 24px;
 }
 
 .feed-container {
-  width: 100%;
-  max-width: 600px;
+  max-width: 680px;
+  /* Ancho máximo para el feed en web, como Facebook/Instagram */
+  margin: 0 auto;
+  /* Centra el feed en la pantalla */
+}
+
+/* Media Query para pantallas más pequeñas (móviles) */
+@media (max-width: 768px) {
+  .home-container {
+    padding-top: 0;
+    /* Sin padding superior en móviles */
+    background-color: #fff;
+    /* El fondo blanco se ve mejor de borde a borde */
+  }
 }

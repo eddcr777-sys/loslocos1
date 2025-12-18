@@ -208,5 +208,124 @@ export const api = {
             .getPublicUrl(filePath);
 
         return { data: publicUrl, error: null };
+    },
+
+    // --- NOTIFICATIONS ---
+    getNotifications: async (userId: string) => {
+        const { data, error } = await supabase
+            .from('notifications')
+            .select(`
+                *,
+                actor:actor_id (full_name, avatar_url)
+            `)
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false });
+        return { data, error };
+    },
+
+    createNotification: async (notification: { user_id: string; actor_id: string; type: string; entity_id?: string }) => {
+        if (notification.user_id === notification.actor_id) return; // Don't notify self
+
+        const { error } = await supabase
+            .from('notifications')
+            .insert(notification);
+        return { error };
+    },
+
+    markNotificationRead: async (notificationId: string) => {
+        const { error } = await supabase
+            .from('notifications')
+            .update({ read: true })
+            .eq('id', notificationId);
+        return { error };
+    },
+
+    // --- SEARCH / EXPLORE ---
+    searchUsers: async (query: string) => {
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .ilike('full_name', `%${query}%`)
+            .limit(20);
+        return { data, error };
+    },
+
+    // --- TRENDS ---
+    getTrendingPosts: async () => {
+        // In a real app, this would use a materialized view or complex query.
+        // For now, we'll fetch the most recent 50 posts and client-side sort by likes,
+        // OR rely on a 'likes_count' column if we had triggers.
+        // Let's optimize by selecting posts joined with likes count.
+
+        // Simpler approach for MVP: Fetch posts and order by a heuristic or just random/recent
+        // If we want "Trending" by likes, we need to count them.
+        // Supabase standard query doesn't easily sort by computed count without a view.
+        // Let's just fetch recent posts for now as "Trending" implies "New & Hot".
+
+        const { data, error } = await supabase
+            .from('posts')
+            .select(`
+                *,
+                profiles (id, full_name, avatar_url),
+                likes (count)
+             `)
+            .order('created_at', { ascending: false })
+            .limit(10); // Just top 10 recent for now, we can refine sorting later
+
+        return { data, error };
+    },
+
+    // --- FOLLOW SYSTEM ---
+    followUser: async (targetId: string, currentId: string) => {
+        const { error } = await supabase
+            .from('followers')
+            .insert({ follower_id: currentId, following_id: targetId });
+        return { error };
+    },
+
+    unfollowUser: async (targetId: string, currentId: string) => {
+        const { error } = await supabase
+            .from('followers')
+            .delete()
+            .match({ follower_id: currentId, following_id: targetId });
+        return { error };
+    },
+
+    getFollowStatus: async (targetId: string, currentId: string) => {
+        const { data, error } = await supabase
+            .from('followers')
+            .select('*')
+            .match({ follower_id: currentId, following_id: targetId })
+            .single();
+        // If data exists, then following. error 'PGRST116' means no rows found (not following)
+        return { following: !!data, error: error && error.code !== 'PGRST116' ? error : null };
+    },
+
+    getFollowCounts: async (userId: string) => {
+        const { count: followersCount, error: error1 } = await supabase
+            .from('followers')
+            .select('*', { count: 'exact', head: true })
+            .eq('following_id', userId);
+
+        const { count: followingCount, error: error2 } = await supabase
+            .from('followers')
+            .select('*', { count: 'exact', head: true })
+            .eq('follower_id', userId);
+
+        return {
+            followers: followersCount || 0,
+            following: followingCount || 0,
+            error: error1 || error2
+        };
+    },
+
+    // Get specific user profile (public)
+    getProfileById: async (userId: string) => {
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', userId)
+            .single();
+        return { data, error };
     }
 };

@@ -46,7 +46,7 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated }) => {
 
   if (!isExpanded) {
       return (
-          <Card onClick={() => setIsExpanded(true)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <Card onClick={() => setIsExpanded(true)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '1rem', padding: '12px 16px' }}>
               <div style={{ flex: 1, backgroundColor: '#f0f2f5', padding: '10px 15px', borderRadius: '20px', color: '#65676b' }}>
                   ¿Qué estás pensando?
               </div>
@@ -56,7 +56,7 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated }) => {
   }
 
   return (
-    <Card>
+    <Card style={{ padding: '16px' }}>
       <div style={styles.header}>
           <h3>Crear publicación</h3>
           <button onClick={() => setIsExpanded(false)} style={styles.closeButton}>X</button>

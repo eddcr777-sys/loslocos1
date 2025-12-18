@@ -20,13 +20,13 @@ const Card: React.FC<CardProps> = ({ children, className = '', style, onClick })
 };
 
 const defaultStyles: React.CSSProperties = {
-  backgroundColor: '#fff',
-  border: '1px solid #e1e8ed',
-  borderRadius: '12px',
-  padding: '1.5rem',
+  backgroundColor: 'var(--surface-color)',
+  border: '1px solid var(--border-color)',
+  borderRadius: 'var(--radius-md)',
+  padding: '0', 
   marginBottom: '1.5rem',
-  boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
-  transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+  boxShadow: 'var(--shadow-sm)',
+  transition: 'box-shadow 0.2s ease',
 };
 
 
