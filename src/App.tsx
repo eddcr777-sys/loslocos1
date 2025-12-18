@@ -17,6 +17,9 @@ import RedirectIfAuthenticated from './components/auth/RedirectIfAuthenticated';
 const AppContent = () => {
   const { user } = useAuth();
 
+
+  
+
   return (
     <>
       {user && <Navbar />}
