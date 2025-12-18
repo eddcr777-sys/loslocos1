@@ -1,0 +1,12 @@
+.home-container {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+  background-color: #f5f8fa;
+  min-height: 100vh;
+}
+
+.feed-container {
+  width: 100%;
+  max-width: 600px;
+}
