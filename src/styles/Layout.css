@@ -124,7 +124,12 @@
 @media (max-width: 768px) {
     .main-layout {
         display: block;
-        max-width: 100%;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        /* Remove horizontal padding on container */
+        overflow-x: hidden;
+        /* Prevent horizontal scroll */
     }
 
     .sidebar {
@@ -134,7 +139,9 @@
     .main-content {
         width: 100%;
         border-right: none;
-        padding-bottom: calc(var(--bottom-nav-height) + 10px);
+        padding: 0;
+        /* Let children handle padding or use small padding */
+        padding-bottom: calc(var(--bottom-nav-height) + 20px);
     }
 
     .right-sidebar {

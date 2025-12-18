@@ -5,6 +5,16 @@
   flex-direction: column;
 }
 
+@media (max-width: 768px) {
+  .post-card {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    margin-bottom: 0.5rem;
+    /* Closer together */
+  }
+}
+
 .post-padded-content {
   padding: 1rem;
 }
