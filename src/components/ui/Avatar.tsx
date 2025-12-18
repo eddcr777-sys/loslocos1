@@ -7,7 +7,7 @@ interface AvatarProps {
   style?: React.CSSProperties;
 }
 
-const Avatar: React.FC<AvatarProps> = ({ src, alt = 'User', size = 'medium', style }) => {
+const Avatar: React.FC<AvatarProps> = ({ src, alt = 'Usuario', size = 'medium', style }) => {
   const sizeMap = {
     small: '32px',
     medium: '48px',
@@ -26,7 +26,7 @@ const Avatar: React.FC<AvatarProps> = ({ src, alt = 'User', size = 'medium', sty
 
   return (
     <img 
-      src={src || 'https://via.placeholder.com/150?text=User'} 
+      src={src || 'https://via.placeholder.com/150?text=Usuario'} 
       alt={alt} 
       style={finalStyle} 
     />

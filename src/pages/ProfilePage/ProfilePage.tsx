@@ -39,6 +39,7 @@ const ProfilePage = () => {
     if (avatarFile) {
         const { data, error } = await api.uploadImage(avatarFile, 'avatars'); // Use avatars bucket
         if (error) {
+            console.error("Avatar upload error:", error);
             alert('Error uploading avatar: ' + error.message);
             return;
         }

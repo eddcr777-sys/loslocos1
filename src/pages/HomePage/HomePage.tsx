@@ -18,9 +18,11 @@ function HomePage() {
         <CreatePost onPostCreated={refreshFeed} />
         
         {loading ? (
-          <p>Loading feed...</p>
+          <p>Cargando publicaciones...</p>
         ) : (
-          posts.map((post) => (
+          [...posts]
+            .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+            .map((post) => (
             <Post key={post.id} post={post} />
           ))
         )}

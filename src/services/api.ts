@@ -14,7 +14,8 @@ export interface Post {
     image_url: string | null;
     created_at: string;
     profiles: Profile; // Joined data
-    likes: { count: number }; // Joined data
+    likes: any; // Joined data (puede ser array u objeto)
+    comments?: any; // Joined data (conteo)
     user_has_liked?: boolean;
 }
 
@@ -56,7 +57,8 @@ export const api = {
             .select(`
         *,
         profiles (id, full_name, avatar_url),
-        likes (count)
+        likes (count),
+        comments (count)
       `)
             .order('created_at', { ascending: false });
 
@@ -70,7 +72,8 @@ export const api = {
             .select(`
         *,
         profiles (id, full_name, avatar_url),
-        likes (count)
+        likes (count),
+        comments (count)
       `)
             .eq('user_id', userId)
             .order('created_at', { ascending: false });
@@ -176,6 +179,14 @@ export const api = {
       `)
             .single();
         return { data, error };
+    },
+
+    deleteComment: async (commentId: string) => {
+        const { error } = await supabase
+            .from('comments')
+            .delete()
+            .eq('id', commentId);
+        return { error };
     },
 
     // --- STORAGE ---

@@ -23,7 +23,8 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated }) => {
     if (image) {
       const { data, error } = await api.uploadImage(image);
       if (error) {
-        alert('Error uploading image');
+        console.error("Upload error:", error);
+        alert(`Error al subir la imagen: ${error.message}`);
         setLoading(false);
         return;
       }
@@ -34,7 +35,7 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated }) => {
     
     setLoading(false);
     if (error) {
-    alert('Error creating post: ' + error.message);
+    alert('Error al crear la publicación: ' + error.message);
     } else {
       setContent('');
       setImage(null);
@@ -47,9 +48,9 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated }) => {
       return (
           <Card onClick={() => setIsExpanded(true)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '1rem' }}>
               <div style={{ flex: 1, backgroundColor: '#f0f2f5', padding: '10px 15px', borderRadius: '20px', color: '#65676b' }}>
-                  What's on your mind?
+                  ¿Qué estás pensando?
               </div>
-              <Button size="small">Create Post</Button>
+              <Button size="small">Crear publicación</Button>
           </Card>
       );
   }
@@ -57,12 +58,12 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated }) => {
   return (
     <Card>
       <div style={styles.header}>
-          <h3>Create Post</h3>
+          <h3>Crear publicación</h3>
           <button onClick={() => setIsExpanded(false)} style={styles.closeButton}>X</button>
       </div>
       <form onSubmit={handleSubmit}>
         <textarea
-          placeholder="What's on your mind?"
+          placeholder="¿Qué estás pensando?"
           value={content}
           onChange={(e) => setContent(e.target.value)}
           style={styles.textarea}
@@ -77,10 +78,10 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated }) => {
             id="file-upload"
           />
           <label htmlFor="file-upload" style={styles.fileLabel}>
-            {image ? '📷 Image selected' : '📷 Add Photo'}
+            {image ? '📷 Imagen seleccionada' : '📷 Añadir foto'}
           </label>
           <Button type="submit" disabled={loading || (!content && !image)}>
-            {loading ? 'Posting...' : 'Post'}
+            {loading ? 'Publicando...' : 'Publicar'}
           </Button>
         </div>
       </form>
