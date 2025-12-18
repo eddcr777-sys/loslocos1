@@ -24,7 +24,7 @@ const NotificationsPage = () => {
   if (loading) return <div style={{ padding: '2rem' }}>Cargando notificaciones...</div>;
 
   return (
-    <div style={{ padding: '1rem', maxWidth: '600px', margin: '0 auto' }}>
+    <div style={{ padding: '1rem', width: '100%', maxWidth: '600px', margin: '0 auto', boxSizing: 'border-box' }}>
       <h1>Notificaciones</h1>
       
       {notifications.length === 0 ? (

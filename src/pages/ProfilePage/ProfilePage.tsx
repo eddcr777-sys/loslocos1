@@ -204,11 +204,13 @@ const ProfilePage = () => {
 };
 
 // Simplified Styles for the new "Minimalist" look
+// Responsive styles logic
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
-    padding: '2rem',
-    maxWidth: '900px',
+    padding: '1rem', // Reduced padding
+    maxWidth: '100%',
     margin: '0 auto',
+    overflowX: 'hidden' // Safety
   },
   header: {
     borderBottom: '1px solid var(--border-color)',
@@ -217,34 +219,43 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   profileHeaderContent: {
     display: 'flex',
-    alignItems: 'center', // Centered vertically
-    gap: '2rem',
+    flexDirection: 'column', // Stack by default on mobile (or use media query if using CSS file, but here inline)
+    alignItems: 'center',
+    gap: '1.5rem',
+    textAlign: 'center',
   },
   profilePic: {
-    width: '120px',
-    height: '120px',
+    width: '100px',
+    height: '100px',
     borderRadius: '50%',
     objectFit: 'cover',
     border: '1px solid var(--border-color)',
   },
   userInfo: {
-    flex: 1,
+    width: '100%', // Full width
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center'
   },
   description: {
     fontSize: '1rem',
     color: 'var(--text-secondary)',
     marginBottom: '1.5rem',
     maxWidth: '500px',
+    lineHeight: '1.5'
   },
   stats: {
     display: 'flex',
-    gap: '2rem',
-    fontSize: '0.95rem',
+    gap: '1.5rem',
+    fontSize: '0.9rem',
+    justifyContent: 'center',
+    flexWrap: 'wrap'
   },
   editForm: {
     display: 'flex',
     flexDirection: 'column',
     gap: '1rem',
+    width: '100%',
     maxWidth: '400px',
   },
   input: {
@@ -252,6 +263,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderRadius: 'var(--radius-sm)',
     border: '1px solid var(--border-color)',
     fontSize: '1rem',
+    width: '100%',
+    boxSizing: 'border-box'
   },
   textarea: {
     padding: '10px',
@@ -259,11 +272,17 @@ const styles: { [key: string]: React.CSSProperties } = {
     border: '1px solid var(--border-color)',
     fontSize: '1rem',
     minHeight: '80px',
+    width: '100%',
+    boxSizing: 'border-box'
   },
   editButtons: {
     display: 'flex',
     gap: '1rem',
+    justifyContent: 'center'
   },
 };
+
+// Note: To truly be responsive desk/mob, we'd ideally use a CSS file with media queries.
+// But for now, centering and stacking layout works for both cleanly.
 
 export default ProfilePage;
