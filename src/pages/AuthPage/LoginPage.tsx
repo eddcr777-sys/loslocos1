@@ -2,82 +2,51 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
-const RegisterPage = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: ''
-  });
+const LoginPage = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
-  const { register } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
 
-    if (!formData.name || !formData.email || !formData.password) {
-      setErrorMsg('Por favor completa todos los campos.');
-      return;
-    }
-
-    // Llamamos a register pasando el nombre, email y password
-    const { error } = await register({ 
-      email: formData.email, 
-      password: formData.password, 
-      name: formData.name 
-    });
+    const { error } = await login({ email, password });
 
     if (error) {
-      setErrorMsg('Error al registrarse: ' + error.message);
+      setErrorMsg('Error al iniciar sesión: ' + error.message);
     } else {
-      // Si es exitoso, redirigimos al home
       navigate('/home');
     }
   };
 
   return (
     <div style={styles.container}>
-      <h2>Crear Cuenta</h2>
+      <h2>Iniciar Sesión</h2>
       {errorMsg && <p style={{ color: 'red' }}>{errorMsg}</p>}
       
       <form onSubmit={handleSubmit} style={styles.form}>
         <input
-          type="text"
-          name="name"
-          placeholder="Nombre completo"
-          value={formData.name}
-          onChange={handleChange}
-          style={styles.input}
-        />
-        <input
           type="email"
-          name="email"
           placeholder="Correo electrónico"
-          value={formData.email}
-          onChange={handleChange}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           style={styles.input}
         />
         <input
           type="password"
-          name="password"
           placeholder="Contraseña"
-          value={formData.password}
-          onChange={handleChange}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
           style={styles.input}
         />
-        <button type="submit" style={styles.button}>Registrarse</button>
+        <button type="submit" style={styles.button}>Entrar</button>
       </form>
-      
+
       <p style={{ marginTop: '1rem' }}>
-        ¿Ya tienes cuenta? <Link to="/login">Inicia sesión aquí</Link>
+        ¿No tienes cuenta? <Link to="/register">Regístrate aquí</Link>
       </p>
     </div>
   );
@@ -91,7 +60,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     justifyContent: 'center',
     height: '100vh',
     padding: '20px',
-    textAlign: 'center',
   },
   form: {
     display: 'flex',
@@ -109,7 +77,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   button: {
     padding: '10px',
     fontSize: '1rem',
-    backgroundColor: '#28a745',
+    backgroundColor: '#007bff',
     color: 'white',
     border: 'none',
     borderRadius: '5px',
@@ -117,4 +85,4 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
 };
 
-export default RegisterPage;
+export default LoginPage;

@@ -75,13 +75,10 @@
 /* Mobile optimizations: Remove borders for a cleaner look */
 @media (max-width: 768px) {
   .post-card {
-    border: none !important;
+    border: 1px solid var(--border-color);
   }
 
   .post-image {
     border: none;
   }
 }
-
-/* Comment Section Overrides (if needed) */
-/* Reset any complex nested styles if they exist */
