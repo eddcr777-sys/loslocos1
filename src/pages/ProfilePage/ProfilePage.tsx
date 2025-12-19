@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { api, Post } from '../../services/api';
-import PhotosSection from './PhotosSection';
 import PostsSection from './PostsSection';
 import { useParams } from 'react-router-dom';
 import Button from '../../components/ui/Button';
@@ -128,6 +127,11 @@ const ProfilePage = () => {
   return (
     <div style={styles.container}>
       <header style={styles.header}>
+        {isOwnProfile && !isEditing && (
+          <div style={{ position: 'absolute', top: 0, right: 0 }}>
+            <Button variant="outline" size="small" onClick={() => setIsEditing(true)}>Editar Perfil</Button>
+          </div>
+        )}
         <div style={styles.profileHeaderContent}>
           <img 
             src={viewProfile.avatar_url || 'https://via.placeholder.com/150'} 
@@ -165,7 +169,7 @@ const ProfilePage = () => {
               </form>
             ) : (
               <>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
                     <h1 style={{ margin: 0 }}>{viewProfile.full_name || 'Usuario'}</h1>
                     {!isOwnProfile && (
                         <Button 
@@ -175,9 +179,6 @@ const ProfilePage = () => {
                         >
                             {isFollowing ? 'Siguiendo' : 'Seguir'}
                         </Button>
-                    )}
-                    {isOwnProfile && (
-                        <Button variant="outline" size="small" onClick={() => setIsEditing(true)}>Editar Perfil</Button>
                     )}
                 </div>
                 
@@ -195,27 +196,26 @@ const ProfilePage = () => {
       </header>
       <main>
         <div style={styles.contentSections}>
-          {/* We can hide PhotosSection to simplify or keep it */}
-           <PostsSection posts={userPosts} loading={loadingPosts} />
+          <PostsSection posts={userPosts} loading={loadingPosts} />
         </div>
       </main>
     </div>
   );
 };
 
-// Simplified Styles for the new "Minimalist" look
-// Responsive styles logic
+
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
-    padding: '1rem', // Reduced padding
+    padding: '1rem', 
     maxWidth: '100%',
     margin: '0 auto',
-    overflowX: 'hidden' // Safety
+    overflowX: 'hidden' 
   },
   header: {
     borderBottom: '1px solid var(--border-color)',
     paddingBottom: '2rem',
     marginBottom: '2rem',
+    position: 'relative',
   },
   profileHeaderContent: {
     display: 'flex',
