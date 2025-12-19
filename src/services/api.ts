@@ -5,6 +5,7 @@ export interface Profile {
     full_name: string;
     avatar_url: string;
     bio: string;
+    user_type?: 'common' | 'popular' | 'admin';
 }
 
 export interface Post {
@@ -50,13 +51,21 @@ export const api = {
         return { data, error };
     },
 
+    getAllProfiles: async () => {
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .order('full_name', { ascending: true });
+        return { data, error };
+    },
+
     // --- POSTS ---
     getPosts: async () => {
         const { data, error } = await supabase
             .from('posts')
             .select(`
         *,
-        profiles (id, full_name, avatar_url),
+        profiles (id, full_name, avatar_url, user_type),
         likes (count),
         comments (count)
       `)
@@ -71,7 +80,7 @@ export const api = {
             .from('posts')
             .select(`
         *,
-        profiles (id, full_name, avatar_url),
+        profiles (id, full_name, avatar_url, user_type),
         likes (count),
         comments (count)
       `)
@@ -154,7 +163,7 @@ export const api = {
             .from('comments')
             .select(`
         *,
-        profiles (id, full_name, avatar_url)
+        profiles (id, full_name, avatar_url, user_type)
       `)
             .eq('post_id', postId)
             .order('created_at', { ascending: true });
@@ -175,7 +184,7 @@ export const api = {
             })
             .select(`
         *,
-        profiles (id, full_name, avatar_url)
+        profiles (id, full_name, avatar_url, user_type)
       `)
             .single();
         return { data, error };
@@ -216,7 +225,7 @@ export const api = {
             .from('notifications')
             .select(`
                 *,
-                actor:actor_id (full_name, avatar_url)
+                actor:actor_id (full_name, avatar_url, user_type)
             `)
             .eq('user_id', userId)
             .order('created_at', { ascending: false });
@@ -266,7 +275,7 @@ export const api = {
             .from('posts')
             .select(`
                 *,
-                profiles (id, full_name, avatar_url),
+                profiles (id, full_name, avatar_url, user_type),
                 likes (count)
              `)
             .order('created_at', { ascending: false })

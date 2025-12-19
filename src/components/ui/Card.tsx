@@ -25,8 +25,7 @@ const defaultStyles: React.CSSProperties = {
   borderRadius: 'var(--radius-md)',
   padding: '0', 
   marginBottom: '1.5rem',
-  boxShadow: 'var(--shadow-sm)',
-  transition: 'box-shadow 0.2s ease',
+  boxShadow: 'none',
 };
 
 

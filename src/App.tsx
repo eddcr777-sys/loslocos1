@@ -14,6 +14,8 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import './styles/App.css';
 import ProtectedRoute from './pages/ProfilePage/ProtectedRoute';
 import RedirectIfAuthenticated from './components/auth/RedirectIfAuthenticated';
+import AdminPage from './components/auth/AdminPage';
+import AdminRoute from './components/auth/AdminRoute';
 
 // Componente interno que usa el contexto de autenticación
 const AppContent = () => {
@@ -67,6 +69,14 @@ const AppContent = () => {
             <ProtectedRoute>
               <ProfilePage />
             </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminPage />
+            </AdminRoute>
           }
         />
       </Routes>

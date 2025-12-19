@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { api } from '../../services/api';
 import Avatar from '../../components/ui/Avatar';
 import Card from '../../components/ui/Card';
+import VerificationBadge from '../../components/ui/VerificationBadge';
 
 const SearchPage = () => {
   const [query, setQuery] = useState('');
@@ -56,7 +57,10 @@ const SearchPage = () => {
             <Card style={{ marginBottom: 0, padding: '1rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
               <Avatar src={user.avatar_url} size="medium" />
               <div>
-                <strong style={{ display: 'block', color: '#0f172a' }}>{user.full_name}</strong>
+                <strong style={{ display: 'flex', alignItems: 'center', color: '#0f172a' }}>
+                  {user.full_name}
+                  <VerificationBadge type={user.user_type} />
+                </strong>
                 <span style={{ color: '#64748b', fontSize: '0.9rem' }}>Ver perfil</span>
               </div>
             </Card>

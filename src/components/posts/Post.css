@@ -5,16 +5,6 @@
   flex-direction: column;
 }
 
-@media (max-width: 768px) {
-  .post-card {
-    border-radius: 0;
-    border-left: none;
-    border-right: none;
-    margin-bottom: 0.5rem;
-    /* Closer together */
-  }
-}
-
 .post-padded-content {
   padding: 1rem;
 }
@@ -68,10 +58,9 @@
   width: 100%;
   height: auto;
   max-height: 600px;
-  object-fit: contain;
-  /* Show full image */
-  background-color: #f1f5f9;
-  /* Subtle background for aspect ratio gaps */
+  object-fit: cover;
+  /* Estilo Instagram: imagen inmersiva */
+  background-color: #fff;
   border-top: 1px solid var(--border-color);
   border-bottom: 1px solid var(--border-color);
 }
@@ -81,6 +70,17 @@
   display: flex;
   gap: 1.5rem;
   padding-top: 0.5rem;
+}
+
+/* Mobile optimizations: Remove borders for a cleaner look */
+@media (max-width: 768px) {
+  .post-card {
+    border: none !important;
+  }
+
+  .post-image {
+    border: none;
+  }
 }
 
 /* Comment Section Overrides (if needed) */

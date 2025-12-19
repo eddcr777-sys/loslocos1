@@ -4,6 +4,7 @@ import { api, Post } from '../../services/api';
 import PostsSection from './PostsSection';
 import { useParams } from 'react-router-dom';
 import Button from '../../components/ui/Button';
+import VerificationBadge from '../../components/ui/VerificationBadge';
 
 const ProfilePage = () => {
   const { user, profile: currentUserProfile, refreshProfile } = useAuth();
@@ -170,7 +171,10 @@ const ProfilePage = () => {
             ) : (
               <>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
-                    <h1 style={{ margin: 0 }}>{viewProfile.full_name || 'Usuario'}</h1>
+                    <h1 style={{ margin: 0, display: 'flex', alignItems: 'center' }}>
+                      {viewProfile.full_name || 'Usuario'}
+                      <VerificationBadge type={viewProfile.user_type} size={24} />
+                    </h1>
                     {!isOwnProfile && (
                         <Button 
                             onClick={handleFollowToggle} 

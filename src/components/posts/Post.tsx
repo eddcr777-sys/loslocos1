@@ -8,6 +8,7 @@ import Avatar from '../ui/Avatar';
 import Button from '../ui/Button';
 import './Post.css';
 import { timeAgo } from '../../utils/dateUtils';
+import VerificationBadge from '../ui/VerificationBadge';
 
 interface PostProps {
   post: PostType;
@@ -70,7 +71,10 @@ const Post: React.FC<PostProps> = ({ post }) => {
           <Link to={`/profile/${post.user_id}`} className="post-author-info" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}>
             <Avatar src={post.profiles?.avatar_url} alt={post.profiles?.full_name} size="medium" />
             <div style={{ marginLeft: '10px' }}>
-              <span className="post-author-name">{post.profiles?.full_name || 'Anónimo'}</span>
+              <span className="post-author-name">
+                {post.profiles?.full_name || 'Anónimo'}
+                <VerificationBadge type={post.profiles?.user_type} />
+              </span>
               <span className="post-timestamp">{timeAgo(post.created_at)}</span>
             </div>
           </Link>

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { api, Comment } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import VerificationBadge from '../ui/VerificationBadge';
 
 interface CommentSectionProps {
   postId: string;
@@ -125,12 +126,16 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, postOwnerId, on
               <div style={styles.commentBody}>
                   <div style={styles.commentBubble}>
                       <Link to={`/profile/${comment.user_id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                        <strong style={styles.author}>{comment.profiles?.full_name || 'Anónimo'}</strong>
+                        <strong style={styles.author}>
+                          {comment.profiles?.full_name || 'Anónimo'}
+                          <VerificationBadge type={comment.profiles?.user_type} size={14} />
+                        </strong>
                       </Link>
                       <p style={styles.commentText}>
                         {parentComment && (
                           <Link to={`/profile/${parentComment.user_id}`} style={styles.mention}>
-                            @{parentComment.profiles?.full_name || 'Anónimo'}
+                            @{parentComment.profiles?.full_name || 'Anónimo'} 
+                            <VerificationBadge type={parentComment.profiles?.user_type} size={12} />
                           </Link>
                         )}
                         {comment.content}

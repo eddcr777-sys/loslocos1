@@ -1,6 +1,6 @@
 .home-container {
-  background-color: #f0f2f5;
-  /* Un fondo gris claro, típico de redes sociales */
+  background-color: #ffffff;
+  /* Fondo blanco para un estilo minimalista */
   min-height: calc(100vh - 60px);
   /* 60px es la altura aproximada de la Navbar */
   padding-top: 24px;
@@ -17,8 +17,10 @@
 @media (max-width: 768px) {
   .home-container {
     padding-top: 0;
-    /* Sin padding superior en móviles */
-    background-color: #fff;
-    /* El fondo blanco se ve mejor de borde a borde */
+  }
+
+  .feed-container {
+    padding: 10px;
+    /* Margen lateral para que no se peguen a los bordes */
   }
 }
