@@ -1,19 +1,22 @@
 import React from 'react';
-import { Post as PostType } from '../../services/api';
+import { api, Post as PostType } from '../../services/api';
 import CommentSection from './CommentSection';
 import { useAuth } from '../../context/AuthContext';
 import Card from '../ui/Card';
+import Button from '../ui/Button';
 import PostHeader from './components/PostHeader';
 import PostContent from './components/PostContent';
 import PostActions from './components/PostActions';
 import { usePost } from '../../hooks/usePost';
+import {Heart, MessageCircle, Trash2} from 'lucide-react';
 import './Post.css';
 
 interface PostProps {
   post: PostType;
+  onPostDeleted?: () => void;
 }
 
-const Post: React.FC<PostProps> = ({ post }) => {
+const Post: React.FC<PostProps> = ({ post, onPostDeleted }) => {
   const { user } = useAuth();
   const {
     likes,
@@ -25,9 +28,21 @@ const Post: React.FC<PostProps> = ({ post }) => {
     handleCommentsUpdate
   } = usePost(post, user);
 
+  const handleDelete = async () => {
+    if (!window.confirm('¿Estás seguro de que quieres eliminar esta publicación?')) return;
+
+    const { error } = await api.deletePost(post.id);
+    if (error) {
+      console.error('Error al eliminar el post:', error);
+      alert('Error al eliminar la publicación: ' + error.message);
+    } else {
+      if (onPostDeleted) onPostDeleted();
+    }
+  };
+
   return (
     <Card className="post-card">
-      <div className="post-padded-content">
+      <div className="post-padded-content" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <PostHeader 
           userId={post.user_id}
           avatarUrl={post.profiles?.avatar_url}
@@ -35,6 +50,11 @@ const Post: React.FC<PostProps> = ({ post }) => {
           userType={post.profiles?.user_type}
           createdAt={post.created_at}
         />
+        {user?.id === post.user_id && (
+          <Button variant="ghost" size="small" onClick={handleDelete} style={{ padding: '8px', color: '#ef4444' }} title="Eliminar publicación">
+            <Trash2 size={18} />
+          </Button>
+        )}
       </div>
 
       <PostContent 

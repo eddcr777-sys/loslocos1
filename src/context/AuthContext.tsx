@@ -22,6 +22,8 @@ interface AuthContextType {
   loading: boolean;
   refreshProfile: () => Promise<void>;
   unreadNotifications: number;
+  decrementUnreadNotifications: () => void;
+  clearUnreadNotifications: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -102,7 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             (payload) => {
                 console.log('New notification!', payload);
                 setUnreadNotifications(prev => prev + 1);
-                // Optional: Play sound or toast here
+              
             }
         )
         .subscribe();
@@ -111,6 +113,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         supabase.removeChannel(channel);
     };
   }, [user]);
+
+  const decrementUnreadNotifications = useCallback(() => {
+    setUnreadNotifications((prev) => (prev > 0 ? prev - 1 : 0));
+  }, []);
+
+  const clearUnreadNotifications = useCallback(() => {
+    setUnreadNotifications(0);
+  }, []);
 
   const register = useCallback(async ({ email, password, name }: RegisterCredentials) => {
     try {
@@ -155,8 +165,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   const value = useMemo(() => ({
-    session, user, profile, register, login, logout, loading, refreshProfile, unreadNotifications
-  }), [session, user, profile, loading, register, login, logout, refreshProfile, unreadNotifications]);
+    session, user, profile, register, login, logout, loading, refreshProfile, unreadNotifications,
+    decrementUnreadNotifications, clearUnreadNotifications
+  }), [session, user, profile, loading, register, login, logout, refreshProfile, unreadNotifications, decrementUnreadNotifications, clearUnreadNotifications]);
 
   return (
     <AuthContext.Provider value={value}>

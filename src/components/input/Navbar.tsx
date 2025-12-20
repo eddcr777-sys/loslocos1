@@ -2,9 +2,10 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../../styles/Navbar.css';
 import { useAuth } from '../../context/AuthContext';
+import Logo from '../ui/logo';
 
 const Navbar: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, unreadNotifications } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -12,15 +13,10 @@ const Navbar: React.FC = () => {
     navigate('/login');
   };
 
-  // Si no hay usuario, no mostrar el navbar
-  if (!user) {
-    return null;
-  }
-
   return (
     <header className="navbar-header">
       <div className="navbar-logo">
-        <Link to="/home">MiApp</Link>
+        <Logo size="small" to={user ? '/home' : '/'} />
       </div>
       <nav className="navbar-nav">
         <ul>
@@ -28,9 +24,17 @@ const Navbar: React.FC = () => {
           <li><Link to="/about">Acerca de</Link></li>
           {user ? (
             <>
-              <li><Link to="/profile">Perfil</Link></li>
               <li>
-                <button onClick={handleLogout} className="logout-button">Logout</button>
+                <Link to="/notifications">
+                  Notificaciones
+                  {unreadNotifications > 0 && <span className="notification-badge">{unreadNotifications}</span>}
+                </Link>
+              </li>
+              <li><Link to={`/profile/${user.id}`}>Perfil</Link></li>
+              <li>
+                <button onClick={handleLogout} className="logout-button">
+                  Logout
+                </button>
               </li>
             </>
           ) : (

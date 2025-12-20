@@ -17,7 +17,7 @@ const Sidebar = () => {
   return (
     <aside className="sidebar">
       <div className="sidebar-logo">
-        MiApp
+        UniFeed
       </div>
       
       <nav className="sidebar-nav">

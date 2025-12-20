@@ -3,10 +3,12 @@ import { api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import Avatar from '../../components/ui/Avatar';
 import Card from '../../components/ui/Card';
+import Button from '../../components/ui/Button';
+import { Check, CheckCheck } from 'lucide-react';
 import { timeAgo } from '../../utils/dateUtils';
 
 const NotificationsPage = () => {
-  const { user } = useAuth();
+  const { user, decrementUnreadNotifications, clearUnreadNotifications } = useAuth();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -21,11 +23,59 @@ const NotificationsPage = () => {
     setLoading(false);
   };
 
+  const handleMarkAsRead = async (id: string) => {
+    try {
+      await api.markNotificationRead(id);
+      setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
+      decrementUnreadNotifications();
+    } catch (error) {
+      console.error('Error al marcar como leída:', error);
+    }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    if (!user) return;
+    try {
+      await api.markAllNotificationsAsRead(user.id);
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+      clearUnreadNotifications();
+    } catch (error) {
+      console.error('Error al marcar todas como leídas:', error);
+    }
+  };
+
   if (loading) return <div style={{ padding: '2rem' }}>Cargando notificaciones...</div>;
 
   return (
     <div style={{ padding: '1rem', width: '100%', maxWidth: '600px', margin: '0 auto', boxSizing: 'border-box' }}>
-      <h1>Notificaciones</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <h1 style={{ margin: 0 }}>Notificaciones</h1>
+        {notifications.some((n) => !n.read) && (
+          <Button variant="ghost" size="small" onClick={handleMarkAllAsRead}>
+            <CheckCheck size={16} />
+            Marcar todas leídas
+          </Button>
+        )}
+      </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
       
       {notifications.length === 0 ? (
         <div style={{ textAlign: 'center', color: '#64748b', marginTop: '2rem' }}>
@@ -41,12 +91,31 @@ const NotificationsPage = () => {
                   <p style={{ margin: 0, fontSize: '0.95rem' }}>
                     <strong>{notif.actor?.full_name || 'Alguien'}</strong>
                     {notif.type === 'like' && ' le gustó tu publicación.'}
+
+
+
                     {notif.type === 'comment' && ' comentó en tu publicación.'}
+
+
+
                     {notif.type === 'follow' && ' comenzó a seguirte.'}
                   </p>
                   <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{timeAgo(notif.created_at)}</span>
                 </div>
-                {!notif.read && <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#2563eb' }} />}
+                {!notif.read && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#2563eb' }} />
+                    <Button
+                      variant="ghost"
+                      size="small"
+                      onClick={() => handleMarkAsRead(notif.id)}
+                      title="Marcar como leída"
+                      style={{ padding: '4px', minWidth: 'auto', height: '32px', width: '32px', borderRadius: '50%' }}
+                    >
+                      <Check size={16} />
+                    </Button>
+                  </div>
+                )}
               </div>
             </Card>
           ))}

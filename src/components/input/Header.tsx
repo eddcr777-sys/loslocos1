@@ -6,12 +6,11 @@ const Header = () => {
   return (
     <header className="app-header">
       <div className="logo">
-        <Link to="/">MiApp</Link>
+        <Link to="/">miApp</Link>
       </div>
       <nav>
         <ul>
           <li><Link to="/">Inicio</Link></li>
-          {/* Aquí puedes agregar más enlaces en el futuro */}
         </ul>
       </nav>
     </header>

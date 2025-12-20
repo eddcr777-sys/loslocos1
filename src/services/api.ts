@@ -328,6 +328,18 @@ export const api = {
         };
     },
 
+        markAllNotificationsAsRead: async (userId: string) => {
+    // Actualiza todas las notificaciones del usuario a leídas (read: true)
+    const { error } = await supabase
+      .from('notifications')
+      .update({ read: true })
+      .eq('user_id', userId); // Asegúrate de que la columna de usuario se llame 'user_id' (o 'recipient_id' según tu esquema)
+
+    if (error) {
+      throw error;
+    }
+  },
+
     // Get specific user profile (public)
     getProfileById: async (userId: string) => {
         const { data, error } = await supabase
@@ -338,3 +350,4 @@ export const api = {
         return { data, error };
     }
 };
+
