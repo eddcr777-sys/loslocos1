@@ -1,95 +1,78 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import MainLayout from './components/layout/MainLayout';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import MainLayout from './MainLayout'; // Usando el layout responsivo con Outlet
 import HomePage from './pages/HomePage/HomePage';
 import AboutPage from './pages/AboutPage/AboutPage';
 import ProfilePage from './pages/ProfilePage/ProfilePage';
 import SearchPage from './pages/SearchPage/SearchPage';
 import NotificationsPage from './pages/NotificationsPage/NotificationsPage';
+import TrendsPage from './pages/TrendsPage/TrendsPage';
+import PostDetailPage from './pages/NotificationsPage/PostDetailPage';
 import LoginPage from './pages/AuthPage/LoginPage';
 import RegisterPage from './pages/AuthPage/RegisterPage';
 import WelcomePage from './pages/AuthPage/WelcomePage';
 import { FeedProvider } from './context/FeedContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import './styles/App.css';
-import ProtectedRoute from './components/auth/ProtectedRoute';
-import RedirectIfAuthenticated from './components/auth/RedirectIfAuthenticated';
 import AdminPage from './components/auth/AdminPage';
 import AdminRoute from './components/auth/AdminRoute';
 
-// Componente interno que usa el contexto de autenticación
-const AppContent = () => {
+/**
+ * Protege una ruta. Si el usuario no está autenticado,
+ * lo redirige a la página de login.
+ */
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
-
-
-  
-
-  return (
-    <MainLayout>
-      <Routes>
-        <Route
-          path="/home"
-          element={
-            <ProtectedRoute>
-              <HomePage />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/" element={<RedirectIfAuthenticated><WelcomePage /></RedirectIfAuthenticated>} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <ProfilePage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/search"
-          element={
-            <ProtectedRoute>
-              <SearchPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/notifications"
-          element={
-            <ProtectedRoute>
-              <NotificationsPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/profile/:userId"
-          element={
-            <ProtectedRoute>
-              <ProfilePage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin"
-          element={
-            <AdminRoute>
-              <AdminPage />
-            </AdminRoute>
-          }
-        />
-      </Routes>
-    </MainLayout>
-  );
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+  return <>{children}</>;
 };
+
+/**
+ * Si el usuario ya está autenticado, lo redirige a /home
+ * para evitar que vea las páginas de bienvenida, login o registro.
+ */
+const RedirectIfAuthenticated = ({ children }: { children: React.ReactNode }) => {
+  const { user } = useAuth();
+  if (user) {
+    return <Navigate to="/home" replace />;
+  }
+  return <>{children}</>;
+};
+
+const AppRoutes = () => (
+  <Routes>
+    {/* Rutas públicas (se redirigen si el usuario está logueado) */}
+    <Route path="/" element={<RedirectIfAuthenticated><WelcomePage /></RedirectIfAuthenticated>} />
+    <Route path="/login" element={<RedirectIfAuthenticated><LoginPage /></RedirectIfAuthenticated>} />
+    <Route path="/register" element={<RedirectIfAuthenticated><RegisterPage /></RedirectIfAuthenticated>} />
+    <Route path="/about" element={<AboutPage />} />
+
+    {/* Rutas protegidas que usan el MainLayout responsivo */}
+    <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
+      <Route path="/home" element={<HomePage />} />
+      <Route path="/profile" element={<ProfilePage />} />
+      <Route path="/profile/:userId" element={<ProfilePage />} />
+      <Route path="/search" element={<SearchPage />} />
+      <Route path="/notifications" element={<NotificationsPage />} />
+      <Route path="/post/:postId" element={<PostDetailPage />} />
+      <Route path="/trends" element={<TrendsPage />} />
+    </Route>
+
+    {/* Rutas de Administrador (también usan el layout) */}
+    <Route element={<AdminRoute><MainLayout /></AdminRoute>}>
+      <Route path="/admin" element={<AdminPage />} />
+    </Route>
+  </Routes>
+);
 
 function App() {
   return (
     <Router>
       <AuthProvider>
         <FeedProvider>
-          <AppContent />
+          <AppRoutes />
         </FeedProvider>
       </AuthProvider>
     </Router>

@@ -1,0 +1,171 @@
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { User, MessageSquare, TrendingUp, Star } from 'lucide-react';
+import { supabase } from '../../utils/supabaseClient';
+import './TrendsAside.css';
+
+const TrendsAside = () => {
+  const [featuredUser, setFeaturedUser] = useState<any>(null);
+  const [featuredPost, setFeaturedPost] = useState<any>(null);
+  const [trendingTopics, setTrendingTopics] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTrendsData = async () => {
+      try {
+        // Usamos 'day' como periodo por defecto para el widget lateral
+        const now = new Date();
+        const startDate = new Date();
+        startDate.setDate(now.getDate() - 1);
+        const isoDate = startDate.toISOString();
+
+        const { data: postsData, error } = await supabase
+          .from('posts')
+          .select(`
+            *,
+            profiles (full_name, username, avatar_url, faculty),
+            likes (user_id)
+          `)
+          .gte('created_at', isoDate)
+          .limit(500);
+
+        if (error) throw error;
+
+        if (!postsData || postsData.length === 0) {
+            setLoading(false);
+            return;
+        }
+
+        // 1. Usuario Destacado (Más activo)
+        const userPostCounts: Record<string, number> = {};
+        postsData.forEach(post => {
+            const uid = post.user_id;
+            userPostCounts[uid] = (userPostCounts[uid] || 0) + 1;
+        });
+        
+        if (Object.keys(userPostCounts).length > 0) {
+            const topUserId = Object.keys(userPostCounts).reduce((a, b) => userPostCounts[a] > userPostCounts[b] ? a : b);
+            const topUserProfile = postsData.find(p => p.user_id === topUserId)?.profiles;
+
+            if (topUserProfile) {
+                setFeaturedUser({
+                    id: topUserId,
+                    name: (topUserProfile as any).full_name || 'Usuario',
+                    handle: (topUserProfile as any).username ? `@${(topUserProfile as any).username}` : '@usuario',
+                    faculty: (topUserProfile as any).faculty || 'Comunidad',
+                    reason: 'Usuario del día'
+                });
+            }
+        }
+
+        // 2. Post Destacado (Más likes)
+        const sortedByLikes = [...postsData].sort((a, b) => {
+            const likesA = a.likes ? a.likes.length : 0;
+            const likesB = b.likes ? b.likes.length : 0;
+            return likesB - likesA;
+        });
+
+        if (sortedByLikes.length > 0) {
+            const topPost = sortedByLikes[0];
+            setFeaturedPost({
+                id: topPost.id,
+                author: (topPost.profiles as any)?.full_name || 'Usuario',
+                content: topPost.content,
+                likes: (topPost.likes as any)?.length || 0,
+                reason: 'Post destacado'
+            });
+        }
+
+        // 3. Temas (Hashtags)
+        const hashtagCounts: Record<string, number> = {};
+        postsData.forEach(post => {
+            const tags = post.content?.match(/#[a-zA-Z0-9_ñáéíóú]+/g);
+            if (tags) {
+                tags.forEach((tag: string) => {
+                    hashtagCounts[tag] = (hashtagCounts[tag] || 0) + 1;
+                });
+            }
+        });
+
+        const sortedTopics = Object.entries(hashtagCounts)
+            .map(([name, count]) => ({ name, posts: `${count} posts` }))
+            .sort((a, b) => parseInt(b.posts) - parseInt(a.posts))
+            .slice(0, 3);
+        
+        setTrendingTopics(sortedTopics);
+
+      } catch (error) {
+        console.error('Error fetching trends aside:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTrendsData();
+    const interval = setInterval(fetchTrendsData, 60000); // Actualizar cada minuto
+
+    return () => clearInterval(interval);
+  }, []);
+
+  if (loading) return null; // O un skeleton loader simple
+
+  return (
+    <aside className="trends-aside">
+      <div className="trends-widget">
+        <h2 className="trends-title">Tendencias para ti</h2>
+        
+        <div className="trends-list">
+          {/* Usuario Destacado */}
+          {featuredUser && (
+            <Link to={`/profile/${featuredUser.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <div className="trend-item featured-item">
+                    <div className="trend-header">
+                    <Star size={16} className="trend-icon" />
+                    <span className="trend-label">{featuredUser.reason}</span>
+                    </div>
+                    <div className="trend-content">
+                    <span className="trend-name">{featuredUser.name}</span>
+                    <span className="trend-meta">{featuredUser.handle} • {featuredUser.faculty}</span>
+                    </div>
+                </div>
+            </Link>
+          )}
+
+          {/* Publicación Destacada */}
+          {featuredPost && (
+            <div className="trend-item featured-item">
+                <div className="trend-header">
+                <MessageSquare size={16} className="trend-icon" />
+                <span className="trend-label">{featuredPost.reason}</span>
+                </div>
+                <div className="trend-content">
+                <span className="trend-name">{featuredPost.author}</span>
+                <p className="trend-snippet">"{featuredPost.content?.substring(0, 50)}{featuredPost.content?.length > 50 ? '...' : ''}"</p>
+                <span className="trend-meta">{featuredPost.likes} likes</span>
+                </div>
+            </div>
+          )}
+
+          {/* Hashtags / Temas */}
+          {trendingTopics.map((trend, index) => (
+            <Link key={index} to={`/search?q=${trend.name.replace('#', '')}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <div className="trend-item">
+                <div className="trend-header">
+                    <TrendingUp size={16} className="trend-icon" />
+                    <span className="trend-name-small">{trend.name}</span>
+                </div>
+                <span className="trend-posts">{trend.posts}</span>
+                </div>
+            </Link>
+          ))}
+
+          {trendingTopics.length === 0 && !featuredUser && !featuredPost && (
+              <p style={{ color: '#64748b', fontSize: '0.9rem', textAlign: 'center' }}>No hay tendencias recientes.</p>
+          )}
+        </div>
+      </div>
+    </aside>
+  );
+};
+
+export default TrendsAside;

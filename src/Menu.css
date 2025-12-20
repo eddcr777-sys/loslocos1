@@ -1,0 +1,31 @@
+.user-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.user-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  font-size: 1rem;
+  color: #334155;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.user-menu-item:hover {
+  background-color: #f1f5f9;
+  color: #1e293b;
+}
+
+.user-menu-item svg {
+  flex-shrink: 0;
+}

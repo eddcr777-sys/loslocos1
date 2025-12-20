@@ -1,0 +1,24 @@
+.app-container {
+  background-color: #f8fafc;
+  min-height: 100vh;
+}
+
+.main-content {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 70px 1rem 24px 1rem; /* Default for mobile */
+}
+
+/* Tablet layout (2 columns) */
+@media (min-width: 769px) {
+  .main-content {
+    padding: 24px 24px 24px 274px; /* 250px for Aside + 24px gap */
+  }
+}
+
+/* Desktop layout (3 columns) */
+@media (min-width: 1025px) {
+  .main-content {
+    padding-right: 324px; /* Add space for 300px TrendsAside + 24px gap */
+  }
+}
