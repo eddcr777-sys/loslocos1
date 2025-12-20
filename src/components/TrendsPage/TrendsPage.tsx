@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MessageSquare, TrendingUp, Star, Heart, Share2, Bell, X, Hash } from 'lucide-react';
-import Avatar from '../../components/ui/Avatar';
-import Post from '../../components/posts/Post';
+import { TrendingUp, Star, Bell, X, Hash } from 'lucide-react';
 import { supabase } from '../../utils/supabaseClient';
 import { Post as PostType } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
+import FeaturedCard from './FeaturedCard';
 import './TrendsPage.css';
 
 const TrendsPage = () => {
@@ -43,7 +43,8 @@ const TrendsPage = () => {
         .select(`
           *,
           profiles (*),
-          likes (user_id)
+          likes (user_id),
+          comments (count)
         `)
         .gte('created_at', isoDate)
         .limit(500);
@@ -192,53 +193,12 @@ const TrendsPage = () => {
         <div className="featured-grid">
           {/* Tarjeta de Usuario Destacado */}
           {featuredUser && (
-            <Link to={`/profile/${featuredUser.id}`} className="featured-card-link">
-              <div className="featured-card user-card">
-                <div className="card-badge">{featuredUser.reason}</div>
-                <div className="user-profile">
-                  <Avatar src={featuredUser.avatar_url} size="large" />
-                  <div className="user-info">
-                    <h3>{featuredUser.name}</h3>
-                    <span className="user-handle">{featuredUser.handle}</span>
-                  </div>
-                </div>
-                <p className="user-bio">{featuredUser.bio}</p>
-                <div className="user-stats">
-                  <div className="stat-item"><strong>{featuredUser.stats.posts}</strong> <span>Posts</span></div>
-                  <div className="stat-item"><strong>{featuredUser.stats.followers}</strong> <span>Seguidores</span></div>
-                  <div className="stat-item"><strong>{featuredUser.stats.following}</strong> <span>Seguidos</span></div>
-                </div>
-              </div>
-            </Link>
+            <FeaturedCard type="user" data={featuredUser} />
           )}
 
           {/* Tarjeta de Publicación Destacada */}
           {featuredPost && (
-            <div className="featured-card post-card">
-              <div className="card-badge">{(featuredPost as any).reason || 'Destacado'}</div>
-              <div className="post-header">
-                <Avatar src={(featuredPost.profiles as any)?.avatar_url} size="medium" />
-                <div className="post-meta">
-                  <span className="post-author">{(featuredPost.profiles as any)?.full_name || 'Usuario'}</span>
-                  <span className="post-time">· {new Date(featuredPost.created_at).toLocaleDateString()}</span>
-                </div>
-              </div>
-              <p className="post-content-snippet">{featuredPost.content}</p>
-              {featuredPost.image_url && (
-                <img src={featuredPost.image_url} alt="Contenido del post" className="post-image-preview" />
-              )}
-              <div className="post-actions">
-                <div className="action-item">
-                  <Heart size={18} /> {(featuredPost.likes as any)?.length || 0}
-                </div>
-                <div className="action-item">
-                  <MessageSquare size={18} /> 0
-                </div>
-                <div className="action-item">
-                  <Share2 size={18} />
-                </div>
-              </div>
-            </div>
+            <FeaturedCard type="post" data={featuredPost} />
           )}
 
           {/* Tarjeta de Tema Destacado */}

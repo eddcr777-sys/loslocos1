@@ -1,0 +1,113 @@
+.notifications-container {
+  padding: 1rem;
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.notifications-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.notifications-header h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  color: #1e293b;
+}
+
+.notifications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Estilo minimalista para las tarjetas de notificación */
+.notification-card {
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+  padding: 1rem;
+  transition: background-color 0.2s ease;
+  border: 1px solid transparent; /* Para mantener el layout estable */
+}
+
+.notification-card:hover {
+  background-color: #f8fafc;
+}
+
+.notification-card.unread {
+  background-color: #f0f5ff;
+  border-color: #e2e8f0;
+}
+
+.notification-item-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.notification-avatar-container {
+  cursor: pointer;
+}
+
+.notification-text-container {
+  flex: 1;
+}
+
+.notification-text {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: #334155;
+}
+
+.notification-actor-name {
+  cursor: pointer;
+  margin-right: 4px;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.notification-actor-name:hover {
+  text-decoration: underline;
+}
+
+.notification-time {
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.notification-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mark-read-button {
+  padding: 4px;
+  min-width: auto;
+  height: 32px;
+  width: 32px;
+  border-radius: 50%;
+}
+
+.unread-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #3b82f6;
+}
+
+.empty-notifications {
+  text-align: center;
+  color: #64748b;
+  margin-top: 4rem;
+  padding: 2rem;
+  background-color: #f8fafc;
+  border-radius: 12px;
+}

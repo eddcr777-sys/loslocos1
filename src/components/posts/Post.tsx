@@ -6,10 +6,9 @@ import Card from '../ui/Card';
 import Button from '../ui/Button';
 import PostHeader from './components/PostHeader';
 import PostContent from './components/PostContent';
-import PostActions from './components/PostActions';
 import { usePost } from '../../hooks/usePost';
 import ConfirmationModal from '../ui/ConfirmationModal';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Heart, MessageCircle } from 'lucide-react';
 import './Post.css';
 
 interface PostProps {
@@ -64,14 +63,26 @@ const Post: React.FC<PostProps> = ({ post, onPostDeleted }) => {
         imageUrl={post.image_url}
       />
 
-      <PostActions 
-        liked={liked}
-        likes={likes}
-        commentsCount={commentsCount}
-        onLike={handleLike}
-        onToggleComments={() => setShowComments(!showComments)}
-        showComments={showComments}
-      />
+      <div className="post-actions" style={{ display: 'flex', padding: '0.75rem 1rem', gap: '0.5rem' }}>
+        <Button 
+          variant="ghost" 
+          size="small" 
+          onClick={handleLike}
+          style={{ color: liked ? '#ef4444' : 'inherit', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+        >
+          <Heart size={20} fill={liked ? "currentColor" : "none"} />
+          Me gusta ({likes})
+        </Button>
+        <Button 
+          variant="ghost" 
+          size="small" 
+          onClick={() => setShowComments(!showComments)}
+          style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+        >
+          <MessageCircle size={20} />
+          Comentarios ({commentsCount})
+        </Button>
+      </div>
 
       {showComments && (
         <div className="post-padded-content">

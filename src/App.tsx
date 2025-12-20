@@ -6,7 +6,7 @@ import AboutPage from './pages/AboutPage/AboutPage';
 import ProfilePage from './pages/ProfilePage/ProfilePage';
 import SearchPage from './pages/SearchPage/SearchPage';
 import NotificationsPage from './pages/NotificationsPage/NotificationsPage';
-import TrendsPage from './pages/TrendsPage/TrendsPage';
+import TrendsPage from './components/TrendsPage/TrendsPage';
 import PostDetailPage from './pages/NotificationsPage/PostDetailPage';
 import LoginPage from './pages/AuthPage/LoginPage';
 import RegisterPage from './pages/AuthPage/RegisterPage';
