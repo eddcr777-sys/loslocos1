@@ -8,24 +8,32 @@ interface PostHeaderProps {
   userId: string;
   avatarUrl?: string;
   fullName?: string;
-  userType?: string;
+  userType?: 'common' | 'popular' | 'admin';
   createdAt: string;
 }
 
-const PostHeader: React.FC<PostHeaderProps> = ({ userId, avatarUrl, fullName, userType, createdAt }) => {
+const PostHeader: React.FC<PostHeaderProps> = ({ 
+  userId, 
+  avatarUrl, 
+  fullName, 
+  userType, 
+  createdAt 
+}) => {
   return (
-    <div className="post-header">
-      <Link to={`/profile/${userId}`} className="post-author-info" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}>
-        <Avatar src={avatarUrl} alt={fullName} size="medium" />
-        <div style={{ marginLeft: '10px' }}>
-          <span className="post-author-name">
-            {fullName || 'Anónimo'}
-            <VerificationBadge type={userType as 'common' | 'popular' | 'admin'} />
-          </span>
-          <span className="post-timestamp">{timeAgo(createdAt)}</span>
-        </div>
-      </Link>
-    </div>
+    <Link 
+      to={`/profile/${userId}`} 
+      className="post-author-info" 
+      style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}
+    >
+      <Avatar src={avatarUrl} alt={fullName} size="medium" />
+      <div style={{ marginLeft: '10px' }}>
+        <span className="post-author-name">
+          {fullName || 'Anónimo'}
+          <VerificationBadge type={userType} />
+        </span>
+        <span className="post-timestamp">{timeAgo(createdAt)}</span>
+      </div>
+    </Link>
   );
 };
 

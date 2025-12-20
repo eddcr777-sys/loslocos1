@@ -15,8 +15,13 @@ const PostContent: React.FC<PostContentProps> = ({ content, imageUrl }) => {
           </div>
         </div>
       )}
+
       {imageUrl && (
-        <img src={imageUrl} alt="Contenido de la publicación" className="post-image" />
+        <img 
+          src={imageUrl} 
+          alt="Contenido de la publicación" 
+          className="post-image" 
+        />
       )}
     </>
   );

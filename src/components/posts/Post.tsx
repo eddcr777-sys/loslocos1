@@ -8,7 +8,8 @@ import PostHeader from './components/PostHeader';
 import PostContent from './components/PostContent';
 import PostActions from './components/PostActions';
 import { usePost } from '../../hooks/usePost';
-import {Heart, MessageCircle, Trash2} from 'lucide-react';
+import ConfirmationModal from '../ui/ConfirmationModal';
+import { Trash2 } from 'lucide-react';
 import './Post.css';
 
 interface PostProps {
@@ -28,9 +29,10 @@ const Post: React.FC<PostProps> = ({ post, onPostDeleted }) => {
     handleCommentsUpdate
   } = usePost(post, user);
 
-  const handleDelete = async () => {
-    if (!window.confirm('¿Estás seguro de que quieres eliminar esta publicación?')) return;
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
 
+  const handleConfirmDelete = async () => {
+    setIsDeleteModalOpen(false);
     const { error } = await api.deletePost(post.id);
     if (error) {
       console.error('Error al eliminar el post:', error);
@@ -51,7 +53,7 @@ const Post: React.FC<PostProps> = ({ post, onPostDeleted }) => {
           createdAt={post.created_at}
         />
         {user?.id === post.user_id && (
-          <Button variant="ghost" size="small" onClick={handleDelete} style={{ padding: '8px', color: '#ef4444' }} title="Eliminar publicación">
+          <Button variant="ghost" size="small" onClick={() => setIsDeleteModalOpen(true)} style={{ padding: '8px', color: '#ef4444' }} title="Eliminar publicación">
             <Trash2 size={18} />
           </Button>
         )}
@@ -80,6 +82,14 @@ const Post: React.FC<PostProps> = ({ post, onPostDeleted }) => {
           />
         </div>
       )}
+
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Eliminar publicación"
+        message="¿Estás seguro de que quieres eliminar esta publicación? Esta acción no se puede deshacer."
+      />
     </Card>
   );
 };

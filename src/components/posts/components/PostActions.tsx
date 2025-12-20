@@ -10,13 +10,13 @@ interface PostActionsProps {
   showComments: boolean;
 }
 
-const PostActions: React.FC<PostActionsProps> = ({
-  liked,
-  likes,
-  commentsCount,
-  onLike,
+const PostActions: React.FC<PostActionsProps> = ({ 
+  liked, 
+  likes, 
+  commentsCount, 
+  onLike, 
   onToggleComments,
-  showComments
+  showComments 
 }) => {
   return (
     <div className="post-padded-content">
@@ -29,7 +29,7 @@ const PostActions: React.FC<PostActionsProps> = ({
           {liked ? '❤️ Me gusta' : '♡ Me gusta'} ({likes})
         </Button>
         <Button 
-            variant={showComments ? 'primary' : 'ghost'} 
+            variant="ghost" 
             onClick={onToggleComments}
             size="small"
         >
