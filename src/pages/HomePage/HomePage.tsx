@@ -3,6 +3,7 @@ import { useFeed } from '../../context/FeedContext';
 import CreatePost from '../../components/posts/CreatePost';
 import Post from '../../components/posts/Post';
 import './HomePage.css'; 
+import Logo from '../../components/ui/logo';
 
 function HomePage() {
   const { posts, loading, refreshFeed } = useFeed();
@@ -10,6 +11,9 @@ function HomePage() {
   return (
     <div className="home-container">
       <div className="feed-container">
+        <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'center' }}>
+
+        </div>
         <CreatePost onPostCreated={refreshFeed} />
         
         {loading ? (

@@ -1,88 +1,71 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import Logo from '../../components/ui/logo';
+import Button from '../../components/ui/Button';
+import './LoginPage.css';
+import './WelcomePage.css'; // Reutilizando el fondo
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
+    setLoading(true);
 
     const { error } = await login({ email, password });
 
+    setLoading(false);
     if (error) {
-      setErrorMsg('Error al iniciar sesión: ' + error.message);
+      setErrorMsg(error.message === 'Invalid login credentials' ? 'Credenciales de inicio de sesión inválidas.' : 'Ocurrió un error. Inténtalo de nuevo.');
     } else {
       navigate('/home');
     }
   };
 
   return (
-    <div style={styles.container}>
-      <h2>Iniciar Sesión</h2>
-      {errorMsg && <p style={{ color: 'red' }}>{errorMsg}</p>}
-      
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <input
-          type="email"
-          placeholder="Correo electrónico"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          style={styles.input}
-        />
-        <input
-          type="password"
-          placeholder="Contraseña"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={styles.input}
-        />
-        <button type="submit" style={styles.button}>Entrar</button>
-      </form>
+    <div className="login-page">
+      <div className="welcome-background">
+        <div className="blob blob-1"></div>
+        <div className="blob blob-2"></div>
+      </div>
 
-      <p style={{ marginTop: '1rem' }}>
-        ¿No tienes cuenta? <Link to="/register">Regístrate aquí</Link>
-      </p>
+      <div className="login-container">
+        <div className="login-header">
+          <Link to="/">
+            <Logo size="medium" />
+          </Link>
+          <h1 className="login-title">Inicia Sesión</h1>
+          <p className="login-subtitle">Nos alegra verte de nuevo.</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="login-form">
+          {errorMsg && <p className="error-message">{errorMsg}</p>}
+          <div className="input-group">
+            <label htmlFor="email">Correo electrónico</label>
+            <input id="email" type="email" placeholder="tu@email.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          </div>
+          <div className="input-group">
+            <label htmlFor="password">Contraseña</label>
+            <input id="password" type="password" placeholder="Contraseña" value={password} onChange={(e) => setPassword(e.target.value)} required />
+          </div>
+          <Button type="submit" disabled={loading} style={{ width: '100%', height: '48px', fontSize: '1rem' }}>
+            {loading ? 'Iniciando...' : 'Entrar'}
+          </Button>
+        </form>
+
+        <p className="register-link">
+          ¿No tienes cuenta? <Link to="/register">Regístrate aquí</Link>
+        </p>
+      </div>
     </div>
   );
-};
-
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '100vh',
-    padding: '20px',
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '1rem',
-    width: '100%',
-    maxWidth: '300px',
-  },
-  input: {
-    padding: '10px',
-    fontSize: '1rem',
-    borderRadius: '5px',
-    border: '1px solid #ccc',
-  },
-  button: {
-    padding: '10px',
-    fontSize: '1rem',
-    backgroundColor: '#007bff',
-    color: 'white',
-    border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer',
-  },
 };
 
 export default LoginPage;

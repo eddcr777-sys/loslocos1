@@ -1,47 +1,72 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import Button from '../../components/ui/Button';
+import './WelcomePage.css';
 
 const WelcomePage = () => {
   const navigate = useNavigate();
 
   return (
-    <div style={styles.container}>
-      <h1>Bienvenidos a ConociendoGente</h1>
-      <p style={styles.subtitle}>qlq tdod fino?</p>
-      
-      <div style={styles.buttonContainer}>
-        <button onClick={() => navigate('/login')} style={styles.button}>
-          Iniciar Sesión
-        </button>
-        <button onClick={() => navigate('/register')} style={{ ...styles.button, backgroundColor: '#28a745' }}>
-          Crear Cuenta
-        </button>
+    <div className="welcome-page">
+      {/* Fondo animado */}
+      <div className="welcome-background">
+        <div className="blob blob-1"></div>
+        <div className="blob blob-2"></div>
+      </div>
+
+      <div
+        className="welcome-content"
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '2rem',
+          padding: '2rem',
+          maxWidth: '550px',
+          width: '100%',
+          textAlign: 'center',
+          position: 'relative',
+          zIndex: 1,
+        }}
+      >
+        <div className="welcome-header">
+          <div className="logo-container">
+          </div>
+          <h1 className="welcome-title">
+            Bienvenido a <span className="text-gradient">UniFeed</span>
+          </h1>
+          <p className="welcome-subtitle">
+            La red social exclusiva para conectar, compartir y descubrir todo lo que sucede en tu comunidad universitaria.
+          </p>
+        </div>
+
+        <div className="welcome-actions">
+          <Button
+            onClick={() => navigate('/login')}
+            style={{ width: '100%', justifyContent: 'center', height: '48px', fontSize: '1rem' }}
+          >
+            Iniciar Sesión
+          </Button>
+          
+          <div className="divider">
+            <span>o</span>
+          </div>
+
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/register')}
+            style={{ width: '100%', justifyContent: 'center', height: '48px', fontSize: '1rem' }}
+          >
+            Crear cuenta nueva
+          </Button>
+        </div>
+
+        <footer className="welcome-footer">
+          <p>© 2024 UniFeed. Conectando el campus.</p>
+        </footer>
       </div>
     </div>
   );
-};
-
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '100vh',
-    textAlign: 'center',
-    padding: '20px',
-  },
-  subtitle: { fontSize: '1.2rem', color: '#666', marginBottom: '2rem' },
-  buttonContainer: { display: 'flex', gap: '1rem' },
-  button: {
-    padding: '10px 20px',
-    fontSize: '1rem',
-    cursor: 'pointer',
-    backgroundColor: '#007bff',
-    color: 'white',
-    border: 'none',
-    borderRadius: '5px',
-  },
 };
 
 export default WelcomePage;

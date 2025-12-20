@@ -1,14 +1,19 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import Logo from '../../components/ui/logo';
+import Button from '../../components/ui/Button';
+import './LoginPage.css';
+import './WelcomePage.css';
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    password: ''
+    password: '',
   });
   const [errorMsg, setErrorMsg] = useState('');
+  const [loading, setLoading] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
 
@@ -22,21 +27,24 @@ const RegisterPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
+    setLoading(true);
 
     if (!formData.name || !formData.email || !formData.password) {
       setErrorMsg('Por favor completa todos los campos.');
+      setLoading(false);
       return;
     }
 
     // Llamamos a register pasando el nombre, email y password
-    const { error } = await register({ 
-      email: formData.email, 
-      password: formData.password, 
-      name: formData.name 
+    const { error } = await register({
+      email: formData.email,
+      password: formData.password,
+      name: formData.name,
     });
 
+    setLoading(false);
     if (error) {
-      setErrorMsg('Error al registrarse: ' + error.message);
+      setErrorMsg(error.message || 'Ocurrió un error durante el registro.');
     } else {
       // Si es exitoso, redirigimos al home
       navigate('/home');
@@ -44,77 +52,46 @@ const RegisterPage = () => {
   };
 
   return (
-    <div style={styles.container}>
-      <h2>Crear Cuenta</h2>
-      {errorMsg && <p style={{ color: 'red' }}>{errorMsg}</p>}
-      
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <input
-          type="text"
-          name="name"
-          placeholder="Nombre completo"
-          value={formData.name}
-          onChange={handleChange}
-          style={styles.input}
-        />
-        <input
-          type="email"
-          name="email"
-          placeholder="Correo electrónico"
-          value={formData.email}
-          onChange={handleChange}
-          style={styles.input}
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Contraseña"
-          value={formData.password}
-          onChange={handleChange}
-          style={styles.input}
-        />
-        <button type="submit" style={styles.button}>Registrarse</button>
-      </form>
-      
-      <p style={{ marginTop: '1rem' }}>
-        ¿Ya tienes cuenta? <Link to="/login">Inicia sesión aquí</Link>
-      </p>
+    <div className="login-page">
+      <div className="welcome-background">
+        <div className="blob blob-1"></div>
+        <div className="blob blob-2"></div>
+      </div>
+
+      <div className="login-container">
+        <div className="login-header">
+          <Link to="/">
+            <Logo size="medium" />
+          </Link>
+          <h1 className="login-title">Crea tu Cuenta</h1>
+          <p className="login-subtitle">Únete a la comunidad. Es rápido y fácil.</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="login-form">
+          {errorMsg && <p className="error-message">{errorMsg}</p>}
+          <div className="input-group">
+            <label htmlFor="name">Nombre completo</label>
+            <input id="name" type="text" name="name" placeholder="Nombre" value={formData.name} onChange={handleChange} required />
+          </div>
+          <div className="input-group">
+            <label htmlFor="email">Correo electrónico</label>
+            <input id="email" type="email" name="email" placeholder="tu@email.com" value={formData.email} onChange={handleChange} required />
+          </div>
+          <div className="input-group">
+            <label htmlFor="password">Contraseña</label>
+            <input id="password" type="password" name="password" placeholder="••••••••" value={formData.password} onChange={handleChange} required />
+          </div>
+          <Button type="submit" disabled={loading} style={{ width: '100%', height: '48px', fontSize: '1rem' }}>
+            {loading ? 'Registrando...' : 'Crear Cuenta'}
+          </Button>
+        </form>
+
+        <p className="register-link">
+          ¿Ya tienes cuenta? <Link to="/login">Inicia sesión</Link>
+        </p>
+      </div>
     </div>
   );
-};
-
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '100vh',
-    padding: '20px',
-    textAlign: 'center',
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '1rem',
-    width: '100%',
-    maxWidth: '300px',
-  },
-  input: {
-    padding: '10px',
-    fontSize: '1rem',
-    borderRadius: '5px',
-    border: '1px solid #ccc',
-  },
-  button: {
-    padding: '10px',
-    fontSize: '1rem',
-    backgroundColor: '#28a745',
-    color: 'white',
-    border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer',
-  },
 };
 
 export default RegisterPage;
