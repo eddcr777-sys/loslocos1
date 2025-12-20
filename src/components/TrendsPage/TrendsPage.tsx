@@ -173,12 +173,12 @@ const TrendsPage = () => {
   }
 
   return (
-    <div className="trends-page">
-      <header className="trends-page-header">
+    <div className="trends-page" style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem' }}>
+      <header className="trends-page-header" style={{ marginBottom: '3rem', textAlign: 'center' }}>
         <h1>Explorar Tendencias</h1>
-        <p>Descubre lo que está pasando en el campus ahora mismo.</p>
+        <p style={{ color: '#64748b', marginTop: '0.5rem', fontSize: '1.1rem' }}>Descubre lo que está pasando en el campus ahora mismo.</p>
         
-        <div className="timeframe-selector">
+        <div className="timeframe-selector" style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginTop: '2rem', justifyContent: 'center' }}>
             <button className={timeframe === 'day' ? 'active' : ''} onClick={() => setTimeframe('day')}>Día</button>
             <button className={timeframe === 'week' ? 'active' : ''} onClick={() => setTimeframe('week')}>Semana</button>
             <button className={timeframe === 'month' ? 'active' : ''} onClick={() => setTimeframe('month')}>Mes</button>
@@ -186,11 +186,11 @@ const TrendsPage = () => {
         </div>
       </header>
 
-      <section className="trends-section">
-        <h2 className="section-title">
+      <section className="trends-section" style={{ marginBottom: '4rem' }}>
+        <h2 className="section-title" style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.5rem' }}>
           <Star className="section-icon" /> Destacados {getTimeframeLabel()}
         </h2>
-        <div className="featured-grid">
+        <div className="featured-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2.5rem' }}>
           {/* Tarjeta de Usuario Destacado */}
           {featuredUser && (
             <FeaturedCard type="user" data={featuredUser} />
@@ -223,21 +223,48 @@ const TrendsPage = () => {
         </div>
       </section>
 
-      <section className="trends-section">
-        <h2 className="section-title">
+      <section className="trends-section" style={{ marginBottom: '4rem' }}>
+        <h2 className="section-title" style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.5rem' }}>
           <TrendingUp className="section-icon" /> Tendencias en la Comunidad
         </h2>
-        <div className="topics-list">
+        <div className="topics-list" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           {trendingTopics.length > 0 ? (
             trendingTopics.map((topic, index) => (
-              <div key={index} className="topic-item">
-                <div className="topic-rank">{index + 1}</div>
-                <div className="topic-info">
-                  <span className="topic-category">{topic.category}</span>
-                  <h3 className="topic-name">{topic.name}</h3>
-                  <span className="topic-posts">{topic.posts}</span>
+              <div key={index} className="topic-item" style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1.5rem',
+                padding: '1.5rem',
+                backgroundColor: 'white',
+                borderRadius: '16px',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
+                border: '1px solid #f1f5f9',
+                transition: 'transform 0.2s ease'
+              }}>
+                <div className="topic-rank" style={{
+                  fontSize: '1.5rem',
+                  fontWeight: '800',
+                  color: '#cbd5e1',
+                  minWidth: '2.5rem',
+                  textAlign: 'center'
+                }}>{index + 1}</div>
+                
+                <div className="topic-info" style={{ flex: 1 }}>
+                  <span className="topic-category" style={{ display: 'block', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b', marginBottom: '0.25rem', fontWeight: '600' }}>{topic.category}</span>
+                  <h3 className="topic-name" style={{ margin: 0, fontSize: '1.25rem', color: '#0f172a' }}>{topic.name}</h3>
+                  <span className="topic-posts" style={{ fontSize: '0.95rem', color: '#94a3b8' }}>{topic.posts}</span>
                 </div>
-                <button className="topic-action">Ver posts</button>
+                
+                <button className="topic-action" style={{
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: '9999px',
+                  border: '1px solid #e2e8f0',
+                  backgroundColor: 'white',
+                  color: '#475569',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                }}>Ver posts</button>
               </div>
             ))
           ) : (
@@ -248,11 +275,11 @@ const TrendsPage = () => {
         </div>
       </section>
 
-      <section className="trends-section">
-        <h2 className="section-title">
+      <section className="trends-section" style={{ marginBottom: '4rem' }}>
+        <h2 className="section-title" style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.5rem' }}>
           <Bell className="section-icon" /> Anuncios del Periodo
         </h2>
-        <div className="trends-announcements">
+        <div className="trends-announcements" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
           {featuredUser && !dismissedAnnouncements.user && (
             <div className="announcement-card user-announcement">
               <div className="announcement-icon">🏆</div>
