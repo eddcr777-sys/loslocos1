@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, MessageCircle, Share2 } from 'lucide-react';
+import { Heart, MessageCircle, Share2, X } from 'lucide-react';
 import Avatar from '../ui/Avatar';
 import { useAuth } from '../../context/AuthContext';
+import { formatCount } from '../../utils/formatters';
 
 interface FeaturedCardProps {
   type: 'user' | 'post';
@@ -11,6 +12,7 @@ interface FeaturedCardProps {
 
 const FeaturedCard: React.FC<FeaturedCardProps> = ({ type, data }) => {
   const { user } = useAuth();
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
   if (!data) return null;
 
@@ -49,9 +51,9 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({ type, data }) => {
           <p className="user-bio" style={{ margin: 0, color: '#334155', lineHeight: '1.6', fontSize: '1.05rem' }}>{data.bio}</p>
           
           <div className="user-stats" style={{ display: 'flex', justifyContent: 'space-between', marginTop: 'auto', paddingTop: '1.5rem', borderTop: '1px solid #f1f5f9' }}>
-            <div className="stat-item" style={{ textAlign: 'center' }}><strong style={{ display: 'block', fontSize: '1.25rem', color: '#0f172a' }}>{data.stats.posts}</strong> <span style={{ color: '#64748b', fontSize: '0.9rem' }}>Posts</span></div>
-            <div className="stat-item" style={{ textAlign: 'center' }}><strong style={{ display: 'block', fontSize: '1.25rem', color: '#0f172a' }}>{data.stats.followers}</strong> <span style={{ color: '#64748b', fontSize: '0.9rem' }}>Seguidores</span></div>
-            <div className="stat-item" style={{ textAlign: 'center' }}><strong style={{ display: 'block', fontSize: '1.25rem', color: '#0f172a' }}>{data.stats.following}</strong> <span style={{ color: '#64748b', fontSize: '0.9rem' }}>Seguidos</span></div>
+            <div className="stat-item" style={{ textAlign: 'center' }}><strong style={{ display: 'block', fontSize: '1.25rem', color: '#0f172a' }}>{formatCount(data.stats.posts)}</strong> <span style={{ color: '#64748b', fontSize: '0.9rem' }}>Posts</span></div>
+            <div className="stat-item" style={{ textAlign: 'center' }}><strong style={{ display: 'block', fontSize: '1.25rem', color: '#0f172a' }}>{formatCount(data.stats.followers)}</strong> <span style={{ color: '#64748b', fontSize: '0.9rem' }}>Seguidores</span></div>
+            <div className="stat-item" style={{ textAlign: 'center' }}><strong style={{ display: 'block', fontSize: '1.25rem', color: '#0f172a' }}>{formatCount(data.stats.following)}</strong> <span style={{ color: '#64748b', fontSize: '0.9rem' }}>Seguidos</span></div>
           </div>
         </div>
       </Link>
@@ -64,22 +66,23 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({ type, data }) => {
     const commentsCount = data.comments?.[0]?.count || 0;
 
     return (
-      <div className="featured-card post-card" style={{
-        padding: '2rem',
-        backgroundColor: 'white',
-        borderRadius: '20px',
-        boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01)',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1.5rem',
-        height: '100%',
-        border: '1px solid #f1f5f9'
-      }}>
-        <div className="card-badge" style={{
+      <>
+        <div className="featured-card post-card" style={{
+          padding: '2rem',
+          backgroundColor: 'white',
+          borderRadius: '20px',
+          boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1.5rem',
+          height: '100%',
+          border: '1px solid #f1f5f9'
+        }}>
+          <div className="card-badge" style={{
             alignSelf: 'flex-start',
             padding: '0.5rem 1rem',
             backgroundColor: '#fdf2f8',
-            color: '#db2777',
+            color: '#ff6a00ff',
             borderRadius: '9999px',
             fontSize: '0.85rem',
             fontWeight: '600',
@@ -105,7 +108,12 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({ type, data }) => {
             src={data.image_url} 
             alt="Contenido del post" 
             className="post-image-preview" 
-            style={{ width: '100%', borderRadius: '16px', objectFit: 'cover', maxHeight: '500px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsLightboxOpen(true);
+            }}
+            style={{ width: '100%', height: 'auto', borderRadius: '16px', objectFit: 'cover', maxHeight: '750px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', cursor: 'zoom-in' }}
           />
         )}
         
@@ -121,19 +129,72 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({ type, data }) => {
             <Heart 
               size={24} 
               fill={liked ? "currentColor" : "none"} 
-              color={liked ? "#ef4444" : "currentColor"}
+              color={liked ? "#ff0000ff" : "currentColor"}
             /> 
-            <span style={{ fontWeight: '500' }}>{likesCount}</span>
+            <span style={{ fontWeight: '500' }}>{formatCount(likesCount)}</span>
           </div>
           <div className="action-item" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b', fontSize: '1rem', cursor: 'pointer', padding: '8px', borderRadius: '8px' }}>
             <MessageCircle size={24} /> 
-            <span style={{ fontWeight: '500' }}>{commentsCount}</span>
+            <span style={{ fontWeight: '500' }}>{formatCount(commentsCount)}</span>
           </div>
           <div className="action-item" style={{ display: 'flex', alignItems: 'center', color: '#64748b', cursor: 'pointer', padding: '8px', borderRadius: '8px' }}>
             <Share2 size={24} />
           </div>
         </div>
-      </div>
+        </div>
+
+        {isLightboxOpen && (
+          <div 
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              backgroundColor: 'rgba(0, 0, 0, 0.9)',
+              zIndex: 99999,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              cursor: 'zoom-out',
+              padding: '1rem'
+            }}
+            onClick={() => setIsLightboxOpen(false)}
+          >
+            <button
+              onClick={() => setIsLightboxOpen(false)}
+              style={{
+                position: 'absolute',
+                top: '20px',
+                right: '20px',
+                background: 'rgba(255, 255, 255, 0.1)',
+                border: 'none',
+                borderRadius: '50%',
+                padding: '8px',
+                color: 'white',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              <X size={24} />
+            </button>
+            <img 
+              src={data.image_url} 
+              alt="Vista completa" 
+              style={{
+                maxWidth: '100%',
+                maxHeight: '100%',
+                objectFit: 'contain',
+                borderRadius: '8px',
+                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+              }}
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        )}
+      </>
     );
   }
 

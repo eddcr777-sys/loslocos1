@@ -13,7 +13,7 @@ const Menu = () => {
   };
 
   const goToSettings = () => {
-    navigate('/profile');
+    navigate('/Settings');
   };
 
   if (!user) return null;

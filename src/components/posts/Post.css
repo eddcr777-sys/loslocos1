@@ -57,7 +57,7 @@
 .post-image {
   width: 100%;
   height: auto;
-  max-height: 600px;
+  max-height: 750px;
   object-fit: cover;
   /* Estilo Instagram: imagen inmersiva */
   background-color: #fff;

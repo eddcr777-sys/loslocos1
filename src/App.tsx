@@ -10,6 +10,7 @@ import TrendsPage from './components/TrendsPage/TrendsPage';
 import PostDetailPage from './pages/NotificationsPage/PostDetailPage';
 import LoginPage from './pages/AuthPage/LoginPage';
 import RegisterPage from './pages/AuthPage/RegisterPage';
+import SettingsPage from './components/settingsComponents/SettingsPage';
 import WelcomePage from './pages/AuthPage/WelcomePage';
 import { FeedProvider } from './context/FeedContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -17,10 +18,7 @@ import './styles/App.css';
 import AdminPage from './components/auth/AdminPage';
 import AdminRoute from './components/auth/AdminRoute';
 
-/**
- * Protege una ruta. Si el usuario no está autenticado,
- * lo redirige a la página de login.
- */
+
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
   if (!user) {
@@ -54,6 +52,7 @@ const AppRoutes = () => (
       <Route path="/home" element={<HomePage />} />
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/profile/:userId" element={<ProfilePage />} />
+      <Route path="/settings/*" element={<SettingsPage />} />
       <Route path="/search" element={<SearchPage />} />
       <Route path="/notifications" element={<NotificationsPage />} />
       <Route path="/post/:postId" element={<PostDetailPage />} />

@@ -183,7 +183,6 @@
   line-height: 1.5;
   margin-bottom: 1rem;
   flex-grow: 1;
-  /* Truncate long text */
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;  
