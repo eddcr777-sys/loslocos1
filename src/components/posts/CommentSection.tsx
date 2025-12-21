@@ -57,6 +57,16 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, postOwnerId, on
     if (data) {
       setComments([...comments, data as any]);
       setNewComment('');
+
+      // Notificar al dueño del post
+      if (postOwnerId && user && postOwnerId !== user.id) {
+        await api.createNotification({
+          user_id: postOwnerId,
+          actor_id: user.id,
+          type: 'comment',
+          entity_id: data.id
+        });
+      }
     }
   };
 
@@ -74,6 +84,27 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, postOwnerId, on
       setComments([...comments, data as any]);
       setReplyContent('');
       setReplyTo(null);
+
+      // Notificar al dueño del post
+      if (postOwnerId && user && postOwnerId !== user.id) {
+        await api.createNotification({
+          user_id: postOwnerId,
+          actor_id: user.id,
+          type: 'comment',
+          entity_id: data.id
+        });
+      }
+
+      // Notificar al dueño del comentario original si es distinto al dueño del post
+      const parentComment = comments.find(c => c.id === parentId);
+      if (parentComment && user && parentComment.user_id !== user.id && parentComment.user_id !== postOwnerId) {
+        await api.createNotification({
+          user_id: parentComment.user_id,
+          actor_id: user.id,
+          type: 'comment',
+          entity_id: data.id
+        });
+      }
     }
   };
 

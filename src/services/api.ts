@@ -71,7 +71,6 @@ export const api = {
       `)
             .order('created_at', { ascending: false });
 
-        // Mapper to clean up structure if needed, but returning raw for now
         return { data, error };
     },
 
@@ -221,19 +220,48 @@ export const api = {
 
     // --- NOTIFICATIONS ---
     getNotifications: async (userId: string) => {
-        const { data, error } = await supabase
-            .from('notifications')
-            .select(`
-                *,
-                actor:actor_id (full_name, avatar_url, user_type)
-            `)
-            .eq('user_id', userId)
-            .order('created_at', { ascending: false });
-        return { data, error };
+        try {
+            // Intentar join primero
+            const { data, error } = await supabase
+                .from('notifications')
+                .select(`
+                    *,
+                    actor:profiles!actor_id (full_name, avatar_url, user_type)
+                `)
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false });
+
+            if (!error && data) return { data, error: null };
+
+            // Fallback manual si el join falla
+            const { data: notifs, error: fetchError } = await supabase
+                .from('notifications')
+                .select('*')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false });
+
+            if (fetchError || !notifs) return { data: notifs, error: fetchError };
+
+            const actorIds = Array.from(new Set(notifs.map(n => n.actor_id)));
+            const { data: actors } = await supabase
+                .from('profiles')
+                .select('id, full_name, avatar_url, user_type')
+                .in('id', actorIds);
+
+            const enriched = notifs.map(n => ({
+                ...n,
+                actor: actors?.find(a => a.id === n.actor_id)
+            }));
+
+            return { data: enriched, error: null };
+        } catch (err) {
+            console.error('getNotifications critical failure:', err);
+            return { data: null, error: err as any };
+        }
     },
 
     createNotification: async (notification: { user_id: string; actor_id: string; type: string; entity_id?: string }) => {
-        if (notification.user_id === notification.actor_id) return; // Don't notify self
+        if (notification.user_id === notification.actor_id) return;
 
         const { error } = await supabase
             .from('notifications')
@@ -249,6 +277,15 @@ export const api = {
         return { error };
     },
 
+    markAllNotificationsAsRead: async (userId: string) => {
+        const { error } = await supabase
+            .from('notifications')
+            .update({ read: true })
+            .eq('user_id', userId);
+
+        if (error) throw error;
+    },
+
     // --- SEARCH / EXPLORE ---
     searchUsers: async (query: string) => {
         const { data, error } = await supabase
@@ -261,16 +298,6 @@ export const api = {
 
     // --- TRENDS ---
     getTrendingPosts: async () => {
-        // In a real app, this would use a materialized view or complex query.
-        // For now, we'll fetch the most recent 50 posts and client-side sort by likes,
-        // OR rely on a 'likes_count' column if we had triggers.
-        // Let's optimize by selecting posts joined with likes count.
-
-        // Simpler approach for MVP: Fetch posts and order by a heuristic or just random/recent
-        // If we want "Trending" by likes, we need to count them.
-        // Supabase standard query doesn't easily sort by computed count without a view.
-        // Let's just fetch recent posts for now as "Trending" implies "New & Hot".
-
         const { data, error } = await supabase
             .from('posts')
             .select(`
@@ -279,7 +306,7 @@ export const api = {
                 likes (count)
              `)
             .order('created_at', { ascending: false })
-            .limit(10); // Just top 10 recent for now, we can refine sorting later
+            .limit(10);
 
         return { data, error };
     },
@@ -305,8 +332,7 @@ export const api = {
             .from('followers')
             .select('*')
             .match({ follower_id: currentId, following_id: targetId })
-            .single();
-        // If data exists, then following. error 'PGRST116' means no rows found (not following)
+            .maybeSingle();
         return { following: !!data, error: error && error.code !== 'PGRST116' ? error : null };
     },
 
@@ -328,19 +354,6 @@ export const api = {
         };
     },
 
-        markAllNotificationsAsRead: async (userId: string) => {
-    // Actualiza todas las notificaciones del usuario a leídas (read: true)
-    const { error } = await supabase
-      .from('notifications')
-      .update({ read: true })
-      .eq('user_id', userId); // Asegúrate de que la columna de usuario se llame 'user_id' (o 'recipient_id' según tu esquema)
-
-    if (error) {
-      throw error;
-    }
-  },
-
-    // Get specific user profile (public)
     getProfileById: async (userId: string) => {
         const { data, error } = await supabase
             .from('profiles')
@@ -350,4 +363,3 @@ export const api = {
         return { data, error };
     }
 };
-

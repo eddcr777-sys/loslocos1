@@ -24,9 +24,7 @@ const MobileHeader = () => {
   return (
     <header className="mobile-header">
       <div className="mobile-header-content">
-        <Link to="/home" className="header-logo">
-          <Logo size="small" variant="icon" />
-        </Link>
+        <Logo size="small" variant="icon" to="/home" className="header-logo" />
 
         <nav className="mobile-header-nav">
           <NavLink to="/home" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>

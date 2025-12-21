@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../utils/supabaseClient';
 import { useProfile } from './useProfile';
+import { api } from '../services/api';
 
 export const useFullProfile = (userId: string | undefined, currentUser: any) => {
   const {
@@ -19,7 +20,7 @@ export const useFullProfile = (userId: string | undefined, currentUser: any) => 
     const fetchStatsAndFollowing = async () => {
       try {
         setIsFollowLoading(true);
-        
+
         // Fetch followers, following, and posts counts
         const { count: followersCount } = await supabase.from('followers').select('*', { count: 'exact', head: true }).eq('following_id', userId);
         const { count: followingCount } = await supabase.from('followers').select('*', { count: 'exact', head: true }).eq('follower_id', userId);
@@ -39,7 +40,7 @@ export const useFullProfile = (userId: string | undefined, currentUser: any) => 
             .eq('follower_id', currentUser.id)
             .eq('following_id', userId)
             .maybeSingle(); // Usamos maybeSingle para evitar errores si no hay resultados
-          
+
           setIsFollowing(!error && !!data);
         }
       } catch (error) {
@@ -60,6 +61,15 @@ export const useFullProfile = (userId: string | undefined, currentUser: any) => 
       if (!error) {
         setIsFollowing(true);
         setStats(prev => ({ ...prev, followers: prev.followers + 1 }));
+
+        // Notificar al usuario seguido
+        if (currentUser && userId && currentUser.id !== userId) {
+          await api.createNotification({
+            user_id: userId,
+            actor_id: currentUser.id,
+            type: 'follow'
+          });
+        }
       } else {
         console.error('Error al seguir:', error);
         alert('Error al seguir: ' + error.message);

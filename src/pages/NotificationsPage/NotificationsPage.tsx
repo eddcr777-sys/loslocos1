@@ -16,11 +16,27 @@ const NotificationsPage = () => {
     if (user) loadNotifications();
   }, [user]);
 
+  const [error, setError] = useState<string | null>(null);
+
   const loadNotifications = async () => {
     if (!user) return;
-    const { data } = await api.getNotifications(user.id);
-    if (data) setNotifications(data);
-    setLoading(false);
+    try {
+      setLoading(true);
+      setError(null);
+      const { data, error } = await api.getNotifications(user.id);
+      console.log('Diagnostic - Notifications result:', { data, error });
+      
+      if (error) {
+        setError(error.message);
+      } else if (data) {
+        setNotifications(data);
+      }
+    } catch (err: any) {
+      console.error('Diagnostic - Error in loadNotifications:', err);
+      setError(err.message || 'Error desconocido');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleMarkAsRead = async (id: string) => {
@@ -45,6 +61,19 @@ const NotificationsPage = () => {
   };
 
   if (loading) return <div style={{ padding: '2rem' }}>Cargando notificaciones...</div>;
+
+  if (error) return (
+    <div style={{ padding: '2rem', color: '#ef4444', textAlign: 'center' }}>
+      <h3>Oops! Algo salió mal</h3>
+      <p>{error}</p>
+      <button 
+        onClick={loadNotifications}
+        style={{ padding: '0.5rem 1rem', borderRadius: '4px', border: 'none', backgroundColor: '#3b82f6', color: 'white', cursor: 'pointer' }}
+      >
+        Reintentar
+      </button>
+    </div>
+  );
 
   return (
     <div style={{ padding: '1rem', width: '100%', maxWidth: '600px', margin: '0 auto', boxSizing: 'border-box' }}>
