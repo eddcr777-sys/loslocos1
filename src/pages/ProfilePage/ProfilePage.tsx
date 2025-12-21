@@ -40,23 +40,6 @@ const ProfilePage = () => {
         gap: '1rem',
         position: 'relative'
       }}>
-        <div style={{ position: 'absolute', top: '1.5rem', right: '1.5rem' }}>
-          {user && user.id !== viewProfile.id && (
-            <button
-              onClick={isFollowing ? handleUnfollow : handleFollow}
-              disabled={isFollowLoading}
-              style={isFollowing ? (hoveringUnfollow ? styles.unfollowButtonHover : styles.unfollowButton) : styles.followButton}
-              onMouseEnter={() => setHoveringUnfollow(true)}
-              onMouseLeave={() => setHoveringUnfollow(false)}
-            >
-              {isFollowLoading ? 'Cargando...' : (
-                isFollowing 
-                  ? (hoveringUnfollow ? 'Dejar de seguir' : <><UserCheck size={16} /> Siguiendo</>) 
-                  : <><UserPlus size={16} /> Seguir</>
-              )}
-            </button>
-          )}
-        </div>
         <Avatar src={viewProfile.avatar_url} size="large" style={{ width: '120px', height: '120px', fontSize: '3rem' }} />
         
         <div>
@@ -94,6 +77,22 @@ const ProfilePage = () => {
           <span><strong>{stats.followers}</strong> Seguidores</span>
           <span><strong>{stats.following}</strong> Siguiendo</span>
         </div>
+
+        {user && user.id !== viewProfile.id && (
+          <button
+            onClick={isFollowing ? handleUnfollow : handleFollow}
+            disabled={isFollowLoading}
+            style={isFollowing ? (hoveringUnfollow ? styles.unfollowButtonHover : styles.unfollowButton) : styles.followButton}
+            onMouseEnter={() => setHoveringUnfollow(true)}
+            onMouseLeave={() => setHoveringUnfollow(false)}
+          >
+            {isFollowLoading ? 'Cargando...' : (
+              isFollowing 
+                ? (hoveringUnfollow ? 'Dejar de seguir' : <><UserCheck size={16} /> Siguiendo</>) 
+                : <><UserPlus size={16} /> Seguir</>
+            )}
+          </button>
+        )}
 
         <div style={{ display: 'flex', gap: '1rem', color: '#94a3b8', fontSize: '0.9rem', flexWrap: 'wrap', justifyContent: 'center' }}>
            <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
