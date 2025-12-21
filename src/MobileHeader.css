@@ -64,7 +64,7 @@
 }
 
 .menu-button:hover {
-    background-color: #f1f5f9;
+  background-color: #f1f5f9;
 }
 
 .menu-popover {
@@ -84,4 +84,29 @@
   border: none;
   border-top: 1px solid #e2e8f0;
   margin: 0.5rem 0;
+}
+
+.nav-item-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background-color: #ef4444;
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 99px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border: 2px solid white;
 }

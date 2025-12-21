@@ -81,12 +81,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // 1. Fetch initial unread count
     const fetchUnread = async () => {
-        const { count } = await supabase
-            .from('notifications')
-            .select('*', { count: 'exact', head: true })
-            .eq('user_id', user.id)
-            .eq('read', false);
-        setUnreadNotifications(count || 0);
+        try {
+            const { count, error } = await supabase
+                .from('notifications')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', user.id)
+                .eq('read', false);
+            
+            console.log('DEBUG: AuthContext - Initial unread count fetched:', count);
+            if (error) console.error('DEBUG: AuthContext - Fetch error:', error);
+            setUnreadNotifications(count || 0);
+        } catch (err) {
+            console.error('AuthContext - Error fetching unread count:', err);
+        }
     };
     fetchUnread();
 
@@ -102,17 +109,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 filter: `user_id=eq.${user.id}`
             },
             (payload) => {
-                console.log('New notification!', payload);
+                console.log('DEBUG: AuthContext - Realtime INSERT event received for notifications!');
                 setUnreadNotifications(prev => prev + 1);
-              
             }
         )
-        .subscribe();
+        .subscribe((status) => {
+            console.log('AuthContext - Subscription status:', status);
+        });
 
     return () => {
         supabase.removeChannel(channel);
     };
   }, [user]);
+
+  // Update document title with unread count
+  useEffect(() => {
+    const baseTitle = 'ConociendoGente';
+    if (unreadNotifications > 0) {
+      document.title = `(${unreadNotifications}) ${baseTitle}`;
+    } else {
+      document.title = baseTitle;
+    }
+  }, [unreadNotifications]);
 
   const decrementUnreadNotifications = useCallback(() => {
     setUnreadNotifications((prev) => (prev > 0 ? prev - 1 : 0));

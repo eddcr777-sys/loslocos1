@@ -4,8 +4,10 @@ import { Menu as MenuIcon, X, Home, TrendingUp, Bell, User, Search } from 'lucid
 import Menu from './Menu';
 import './MobileHeader.css';
 import Logo from './components/ui/logo';
+import { useAuth } from './context/AuthContext';
 
 const MobileHeader = () => {
+  const { unreadNotifications } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -37,7 +39,12 @@ const MobileHeader = () => {
             <TrendingUp size={24} />
           </NavLink>
           <NavLink to="/notifications" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
-            <Bell size={24} />
+            <div className="nav-item-container">
+              <Bell size={24} />
+              {unreadNotifications > 0 && (
+                <span className="notification-badge">{unreadNotifications}</span>
+              )}
+            </div>
           </NavLink>
           <NavLink to="/profile" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
             <User size={24} />

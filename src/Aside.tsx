@@ -4,8 +4,11 @@ import Logo from './components/ui/logo';
 import Menu from './Menu';
 import { Home, TrendingUp, Bell, User, Search } from 'lucide-react';
 import './Aside.css';
+import { useAuth } from './context/AuthContext';
 
 const Aside = () => {
+  const { unreadNotifications } = useAuth();
+  console.log('DEBUG: Aside (PC Sidebar) Rendering. Unread:', unreadNotifications);
   const getNavLinkClass = ({ isActive }: { isActive: boolean }) =>
     isActive ? 'aside-nav-item active' : 'aside-nav-item';
 
@@ -29,7 +32,12 @@ const Aside = () => {
             <span>Tendencias</span>
           </NavLink>
           <NavLink to="/notifications" className={getNavLinkClass}>
-            <Bell size={20} />
+            <div className="nav-item-wrapper">
+              <Bell size={20} />
+              {unreadNotifications > 0 && (
+                <span className="notification-badge">{unreadNotifications}</span>
+              )}
+            </div>
             <span>Notificaciones</span>
           </NavLink>
           <NavLink to="/profile" className={getNavLinkClass}>

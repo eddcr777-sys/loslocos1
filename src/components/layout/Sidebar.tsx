@@ -7,6 +7,8 @@ const Sidebar = () => {
   const { user, logout, unreadNotifications } = useAuth();
   const navigate = useNavigate();
 
+  console.log('Sidebar - rendering. unreadNotifications:', unreadNotifications);
+
   const handleLogout = async () => {
     await logout();
     navigate('/login');
@@ -22,37 +24,52 @@ const Sidebar = () => {
       
       <nav className="sidebar-nav">
         <NavLink to="/home" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-          <span>🏠</span> Inicio
+          <span style={{ fontSize: '1.25rem' }}>🏠</span> 
+          <span style={{ marginLeft: '12px' }}>Inicio</span>
         </NavLink>
 
         <NavLink to="/search" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-          <span>#️⃣</span> Explorar
+          <span style={{ fontSize: '1.25rem' }}>#️⃣</span> 
+          <span style={{ marginLeft: '12px' }}>Explorar</span>
         </NavLink>
 
         <NavLink to="/notifications" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-          <span>🔔</span> Notificaciones
-          {unreadNotifications > 0 && (
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            <span style={{ fontSize: '1.25rem' }}>🔔</span>
+            {unreadNotifications > 0 && (
               <span style={{
-                  backgroundColor: '#ef4444',
-                  color: 'white',
-                  borderRadius: '50%',
-                  padding: '2px 6px',
-                  fontSize: '0.75rem',
-                  marginLeft: 'auto'
+                position: 'absolute',
+                top: '-8px',
+                right: '-8px',
+                backgroundColor: '#ef4444',
+                color: 'white',
+                borderRadius: '50%',
+                minWidth: '18px',
+                height: '18px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '0.7rem',
+                fontWeight: 'bold',
+                border: '2px solid white',
+                padding: '0 4px',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
               }}>
-                  {unreadNotifications}
+                {unreadNotifications}
               </span>
-          )}
+            )}
+          </div>
+          <span style={{ marginLeft: '12px' }}>Notificaciones</span>
         </NavLink>
         
-
-
         <NavLink to="/profile" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-          <span>👤</span> Perfil
+          <span style={{ fontSize: '1.25rem' }}>👤</span> 
+          <span style={{ marginLeft: '12px' }}>Perfil</span>
         </NavLink>
 
         <div onClick={handleLogout} className="nav-item" style={{ cursor: 'pointer', marginTop: 'auto' }}>
-            <span>🚪</span> Cerrar sesión
+            <span style={{ fontSize: '1.25rem' }}>🚪</span> 
+            <span style={{ marginLeft: '12px' }}>Cerrar sesión</span>
         </div>
       </nav>
 

@@ -221,6 +221,8 @@ export const api = {
     // --- NOTIFICATIONS ---
     getNotifications: async (userId: string) => {
         try {
+            console.log('DEBUG: api.getNotifications - starting for user:', userId);
+
             // Intentar join primero
             const { data, error } = await supabase
                 .from('notifications')
@@ -231,7 +233,13 @@ export const api = {
                 .eq('user_id', userId)
                 .order('created_at', { ascending: false });
 
-            if (!error && data) return { data, error: null };
+            if (!error && data) {
+                console.log('DEBUG: api.getNotifications - join success, count:', data.length);
+                return { data, error: null };
+            }
+
+            console.warn('DEBUG: api.getNotifications - join failed (expected if schema is complex), error:', error);
+            console.log('DEBUG: api.getNotifications - triggering manual fallback...');
 
             // Fallback manual si el join falla
             const { data: notifs, error: fetchError } = await supabase
@@ -240,22 +248,36 @@ export const api = {
                 .eq('user_id', userId)
                 .order('created_at', { ascending: false });
 
-            if (fetchError || !notifs) return { data: notifs, error: fetchError };
+            if (fetchError || !notifs) {
+                console.error('DEBUG: api.getNotifications - fallback base fetch failed:', fetchError);
+                return { data: notifs, error: fetchError };
+            }
+
+            console.log('DEBUG: api.getNotifications - fallback base success, count:', notifs.length);
 
             const actorIds = Array.from(new Set(notifs.map(n => n.actor_id)));
-            const { data: actors } = await supabase
+            console.log('DEBUG: api.getNotifications - enriching actors for IDs:', actorIds);
+
+            const { data: actors, error: actorsError } = await supabase
                 .from('profiles')
                 .select('id, full_name, avatar_url, user_type')
                 .in('id', actorIds);
+
+            if (actorsError) {
+                console.error('DEBUG: api.getNotifications - actors enrichment failed:', actorsError);
+                // Retornar al menos las notificaciones sin actor
+                return { data: notifs, error: null };
+            }
 
             const enriched = notifs.map(n => ({
                 ...n,
                 actor: actors?.find(a => a.id === n.actor_id)
             }));
 
+            console.log('DEBUG: api.getNotifications - fallback full success');
             return { data: enriched, error: null };
         } catch (err) {
-            console.error('getNotifications critical failure:', err);
+            console.error('DEBUG: api.getNotifications - critical exception:', err);
             return { data: null, error: err as any };
         }
     },
