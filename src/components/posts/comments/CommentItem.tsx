@@ -103,58 +103,62 @@ const CommentItem: React.FC<CommentItemProps> = ({
 
 const styles: { [key: string]: React.CSSProperties } = {
   commentContainer: {
-    marginBottom: '10px',
+    marginBottom: '12px',
+    padding: '4px 0',
   },
   commentRow: {
     display: 'flex',
-    gap: '10px',
+    gap: '12px',
     alignItems: 'flex-start',
   },
   avatar: {
-      width: '32px',
-      height: '32px',
+      width: '36px',
+      height: '36px',
       borderRadius: '50%',
       objectFit: 'cover',
-      border: '1px solid #eee'
+      border: '1.5px solid #fff',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
   },
   commentBody: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
-    maxWidth: 'calc(100% - 42px)',
+    maxWidth: 'calc(100% - 48px)',
   },
   commentBubble: {
-    backgroundColor: '#f0f2f5',
-    borderRadius: '16px',
-    padding: '8px 12px',
+    backgroundColor: '#f1f5f9', // Slate-100 for cleaner look
+    borderRadius: '18px',
+    padding: '10px 14px',
     position: 'relative',
+    boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
   },
   author: {
     fontSize: '0.85rem',
-    color: '#050505',
+    color: '#0f172a', // text-slate-900
     display: 'block',
     marginBottom: '2px',
+    fontWeight: 700
   },
   commentText: {
     margin: 0,
     fontSize: '0.9rem',
-    lineHeight: '1.4',
+    lineHeight: '1.5',
     wordBreak: 'break-word',
-    color: '#050505',
+    color: '#334155', // text-slate-700
   },
   mention: {
-    color: '#1d9bf0',
+    color: '#2563eb', // Blue-600
     fontWeight: 600,
-    marginRight: '4px',
+    marginRight: '6px',
     textDecoration: 'none',
   },
   commentActions: {
     display: 'flex',
-    gap: '12px',
-    marginTop: '4px',
+    gap: '16px',
+    marginTop: '6px',
     marginLeft: '12px',
-    fontSize: '0.75rem',
-    color: '#65676b',
+    fontSize: '0.78rem',
+    color: '#64748b', // text-slate-500
   },
   actionButton: {
       background: 'none',
@@ -167,16 +171,16 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   repliesContainer: {
     paddingLeft: '0px',
-    marginLeft: '16px',
-    borderLeft: '2px solid #e4e6eb',
-    marginTop: '5px',
-    paddingTop: '5px',
+    marginLeft: '18px',
+    borderLeft: '2px solid #f1f5f9',
+    marginTop: '8px',
+    paddingTop: '4px',
   },
   replyFormContainer: {
-    marginLeft: '42px',
-    marginTop: '8px',
-    marginBottom: '8px',
-    width: 'calc(100% - 42px)',
+    marginLeft: '48px',
+    marginTop: '10px',
+    marginBottom: '10px',
+    width: 'calc(100% - 48px)',
   },
   replyForm: {
     display: 'flex',
@@ -185,24 +189,26 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   replyInput: {
     flex: 1,
-    padding: '8px 12px',
+    padding: '10px 14px',
     borderRadius: '20px',
-    border: '1px solid #ddd',
+    border: '1px solid #e2e8f0',
     fontSize: '0.85rem',
     resize: 'none',
     overflow: 'hidden',
     fontFamily: 'inherit',
     lineHeight: '1.4',
-    minHeight: '36px',
+    minHeight: '38px',
+    backgroundColor: '#f8fafc'
   },
   buttonSmall: {
-    padding: '4px 12px',
+    padding: '6px 14px',
     borderRadius: '20px',
     border: 'none',
-    backgroundColor: '#007bff',
+    backgroundColor: '#000',
     color: '#fff',
     cursor: 'pointer',
     fontSize: '0.8rem',
+    fontWeight: 600
   }
 };
 

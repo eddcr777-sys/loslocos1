@@ -36,7 +36,8 @@ const CommentSection: React.FC<CommentSectionProps> = ({
         const element = document.getElementById(`comment-${highlightCommentId}`);
         if (element) {
           element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          element.style.backgroundColor = '#fef3c7'; // Highlight color (amber-100)
+          element.style.backgroundColor = '#e2e8f0'; // Professional Slate-200 highlight
+          element.style.borderRadius = '8px';
           setTimeout(() => {
             element.style.transition = 'background-color 2s';
             element.style.backgroundColor = 'transparent';
@@ -223,18 +224,21 @@ const styles: { [key: string]: React.CSSProperties } = {
   container: {
     marginTop: '1rem',
     borderTop: '1px solid #eee',
-    paddingTop: '1rem',
+    padding: '1rem 0',
+    width: '100%',
+    boxSizing: 'border-box'
   },
   header: {
-    margin: '0 0 10px 0',
-    fontSize: '1rem',
+    margin: '0 12px 10px 12px',
+    fontSize: '0.95rem',
+    fontWeight: 600,
     color: '#65676b',
   },
   list: {
     marginBottom: '1rem',
-    maxHeight: '400px',
-    overflowY: 'auto',
-    paddingRight: '5px',
+    maxHeight: 'none',
+    padding: '0 12px',
+    boxSizing: 'border-box'
   },
 };
 
