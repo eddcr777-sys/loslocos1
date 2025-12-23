@@ -8,9 +8,15 @@ interface CommentSectionProps {
   postId: string;
   postOwnerId?: string;
   onCommentsChange?: (count: number) => void;
+  highlightCommentId?: string;
 }
 
-const CommentSection: React.FC<CommentSectionProps> = ({ postId, postOwnerId, onCommentsChange }) => {
+const CommentSection: React.FC<CommentSectionProps> = ({
+  postId,
+  postOwnerId,
+  onCommentsChange,
+  highlightCommentId
+}) => {
   const { user } = useAuth();
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
@@ -21,7 +27,24 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, postOwnerId, on
 
   useEffect(() => {
     loadComments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [postId]);
+
+  useEffect(() => {
+    if (!loading && highlightCommentId) {
+      setTimeout(() => {
+        const element = document.getElementById(`comment-${highlightCommentId}`);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          element.style.backgroundColor = '#fef3c7'; // Highlight color (amber-100)
+          setTimeout(() => {
+            element.style.transition = 'background-color 2s';
+            element.style.backgroundColor = 'transparent';
+          }, 3000);
+        }
+      }, 500);
+    }
+  }, [loading, highlightCommentId, comments]);
 
   useEffect(() => {
     if (!loading && onCommentsChange) {
@@ -58,13 +81,15 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, postOwnerId, on
       setComments([...comments, data as any]);
       setNewComment('');
 
-      // Notificar al dueño del post
+      // --- NOTIFICACIÓN PARA COMENTARIO DIRECTO ---
+      // Notificar al dueño del post SOLO si es un comentario de nivel superior
+      // y si el autor no es el mismo dueño del post.
       if (postOwnerId && user && postOwnerId !== user.id) {
         await api.createNotification({
           user_id: postOwnerId,
           actor_id: user.id,
           type: 'comment',
-          entity_id: data.id
+          entity_id: `${postId}?c=${data.id}`
         });
       }
     }
@@ -85,26 +110,35 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, postOwnerId, on
       setReplyContent('');
       setReplyTo(null);
 
-      // Notificar al dueño del post
-      if (postOwnerId && user && postOwnerId !== user.id) {
-        await api.createNotification({
-          user_id: postOwnerId,
-          actor_id: user.id,
-          type: 'comment',
-          entity_id: data.id
-        });
-      }
-
-      // Notificar al dueño del comentario original si es distinto al dueño del post
+      // --- NOTIFICACIÓN PARA RESPUESTA (REPLY) ---
+      // Caso 1: Notificar al autor del comentario al que se está respondiendo.
       const parentComment = comments.find(c => c.id === parentId);
-      if (parentComment && user && parentComment.user_id !== user.id && parentComment.user_id !== postOwnerId) {
-        await api.createNotification({
+      
+      if (parentComment && user && parentComment.user_id !== user.id) {
+        // Intentamos enviar con tipo 'reply'
+        const result = await api.createNotification({
           user_id: parentComment.user_id,
           actor_id: user.id,
-          type: 'comment',
-          entity_id: data.id
+          type: 'reply',
+          entity_id: `${postId}?c=${data.id}`
         });
+        
+        // Si falla por el tipo 'reply' (posible ENUM no actualizado), intentamos con 'comment'
+        if (result && result.error) {
+          console.warn('DEBUG: createNotification fail with type "reply", retrying with "comment":', result.error);
+          await api.createNotification({
+            user_id: parentComment.user_id,
+            actor_id: user.id,
+            type: 'comment',
+            entity_id: `${postId}?c=${data.id}`
+          });
+        }
       }
+      
+      // Caso 2 (Opcional/Omitido para evitar duplicados del usuario):
+      // Si el autor del post NO es el autor del comentario parent, podrías notificarle también,
+      // pero el usuario ha pedido que NO haya 2 notificaciones.
+      // Así que priorizamos la notificación de "respuesta" al autor del comentario.
     }
   };
 

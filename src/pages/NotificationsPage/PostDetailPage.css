@@ -1,0 +1,35 @@
+.post-detail-container {
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  color: #64748b;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.back-button:hover {
+  color: #0f172a;
+}
+
+.loading-container,
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.error-message {
+  color: #ef4444;
+  margin-bottom: 1rem;
+}

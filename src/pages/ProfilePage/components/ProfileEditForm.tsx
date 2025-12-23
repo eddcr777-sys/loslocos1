@@ -2,7 +2,7 @@ import React from 'react';
 import Button from '../../../components/ui/Button';
 
 interface ProfileEditFormProps {
-  editForm: { full_name: string; bio: string; avatar_url: string };
+  editForm: { full_name: string; username: string; faculty: string; bio: string; avatar_url: string };
   setEditForm: (form: any) => void;
   setAvatarFile: (file: File | null) => void;
   onSubmit: (e: React.FormEvent) => void;
@@ -23,6 +23,20 @@ const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
         placeholder="Nombre completo"
         value={editForm.full_name}
         onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })}
+        style={styles.input}
+      />
+      <input
+        type="text"
+        placeholder="Nombre de usuario (@username)"
+        value={editForm.username}
+        onChange={(e) => setEditForm({ ...editForm, username: e.target.value })}
+        style={styles.input}
+      />
+      <input
+        type="text"
+        placeholder="Facultad"
+        value={editForm.faculty}
+        onChange={(e) => setEditForm({ ...editForm, faculty: e.target.value })}
         style={styles.input}
       />
       <textarea

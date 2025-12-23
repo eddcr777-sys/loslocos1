@@ -2,23 +2,24 @@ import { useState, useEffect, useCallback } from 'react';
 import { api, Post } from '../services/api';
 import { User } from '@supabase/supabase-js';
 
-export const usePost = (post: Post, user: User | null) => {
+export const usePost = (post: Post, user: User | null, initialShowComments: boolean = false) => {
   // Inicializar contadores manejando la estructura de datos de Supabase (puede ser array u objeto)
   const [likes, setLikes] = useState<number>(
     post.likes ? (Array.isArray(post.likes) ? post.likes[0]?.count : post.likes.count) : 0
   );
-  
+
   const [commentsCount, setCommentsCount] = useState<number>(
     post.comments ? (Array.isArray(post.comments) ? post.comments[0]?.count : post.comments.count) : 0
   );
-  
+
   const [liked, setLiked] = useState(false);
-  const [showComments, setShowComments] = useState(false);
+  const [showComments, setShowComments] = useState(initialShowComments);
 
   useEffect(() => {
     if (user) {
       checkLiked();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, post.id]);
 
   const checkLiked = async () => {
@@ -36,7 +37,7 @@ export const usePost = (post: Post, user: User | null) => {
     // Actualización optimista para mejor UX
     const previousLiked = liked;
     const previousLikes = likes;
-    
+
     setLiked(!liked);
     setLikes(prev => liked ? prev - 1 : prev + 1);
 

@@ -3,9 +3,12 @@ import { supabase } from '../utils/supabaseClient';
 export interface Profile {
     id: string;
     full_name: string;
+    username?: string;
+    faculty?: string;
     avatar_url: string;
     bio: string;
     user_type?: 'common' | 'popular' | 'admin';
+    last_profile_update?: string;
 }
 
 export interface Post {
@@ -37,17 +40,58 @@ export const api = {
             .from('profiles')
             .select('*')
             .eq('id', userId)
-            .single();
+            .maybeSingle();
         return { data, error };
     },
 
     updateProfile: async (userId: string, updates: Partial<Profile>) => {
+        // Restricted fields
+        const isRestrictedChange = 'full_name' in updates || 'username' in updates || 'faculty' in updates;
+
+        if (isRestrictedChange) {
+            // Fetch current profile to check last_profile_update
+            const { data: currentProfile } = await supabase
+                .from('profiles')
+                .select('full_name, username, faculty, last_profile_update')
+                .eq('id', userId)
+                .maybeSingle();
+
+            if (currentProfile?.last_profile_update) {
+                // Check if any restricted field actually changed
+                const hasChanged =
+                    (updates.full_name && updates.full_name !== currentProfile.full_name) ||
+                    (updates.username && updates.username !== currentProfile.username) ||
+                    (updates.faculty && updates.faculty !== currentProfile.faculty);
+
+                if (hasChanged) {
+                    const lastUpdate = new Date(currentProfile.last_profile_update);
+                    const now = new Date();
+                    const daysSinceLastUpdate = Math.floor((now.getTime() - lastUpdate.getTime()) / (1000 * 60 * 60 * 24));
+
+                    if (daysSinceLastUpdate < 30) {
+                        const daysRemaining = 30 - daysSinceLastUpdate;
+                        return {
+                            data: null,
+                            error: {
+                                message: `Solo puedes cambiar tu nombre, usuario o facultad cada 30 días. Faltan ${daysRemaining} días.`
+                            }
+                        };
+                    }
+                    // Update the timestamp if we are allowed to change
+                    updates.last_profile_update = new Date().toISOString();
+                }
+            } else if (currentProfile) {
+                // First time update, set the timestamp
+                updates.last_profile_update = new Date().toISOString();
+            }
+        }
+
         const { data, error } = await supabase
             .from('profiles')
             .update(updates)
             .eq('id', userId)
             .select()
-            .single();
+            .maybeSingle();
         return { data, error };
     },
 
@@ -72,6 +116,37 @@ export const api = {
             .order('created_at', { ascending: false });
 
         return { data, error };
+    },
+
+    getPost: async (postId: string) => {
+        const { data, error } = await supabase
+            .from('posts')
+            .select(`
+        *,
+        profiles (id, full_name, avatar_url, user_type),
+        likes (count),
+        comments (count)
+      `)
+            .eq('id', postId)
+            .maybeSingle();
+
+        return { data, error };
+    },
+
+    getPostByCommentId: async (commentId: string) => {
+        // Primero buscamos el comment para obtener el post_id
+        const { data: comment, error: commentError } = await supabase
+            .from('comments')
+            .select('post_id')
+            .eq('id', commentId)
+            .maybeSingle();
+
+        if (commentError || !comment) {
+            return { data: null, error: commentError || new Error('Comment not found') };
+        }
+
+        // Luego usamos getPost con ese post_id
+        return api.getPost(comment.post_id);
     },
 
     getUserPosts: async (userId: string) => {
@@ -120,7 +195,7 @@ export const api = {
             .select('id')
             .eq('post_id', postId)
             .eq('user_id', userId)
-            .single();
+            .maybeSingle();
 
         if (existingLike) {
             // Unlike
@@ -221,27 +296,7 @@ export const api = {
     // --- NOTIFICATIONS ---
     getNotifications: async (userId: string) => {
         try {
-            console.log('DEBUG: api.getNotifications - starting for user:', userId);
-
-            // Intentar join primero
-            const { data, error } = await supabase
-                .from('notifications')
-                .select(`
-                    *,
-                    actor:profiles!actor_id (full_name, avatar_url, user_type)
-                `)
-                .eq('user_id', userId)
-                .order('created_at', { ascending: false });
-
-            if (!error && data) {
-                console.log('DEBUG: api.getNotifications - join success, count:', data.length);
-                return { data, error: null };
-            }
-
-            console.warn('DEBUG: api.getNotifications - join failed (expected if schema is complex), error:', error);
-            console.log('DEBUG: api.getNotifications - triggering manual fallback...');
-
-            // Fallback manual si el join falla
+            // Realizamos la carga en dos pasos para evitar errores de join si la relación FK no está en el cache de Supabase
             const { data: notifs, error: fetchError } = await supabase
                 .from('notifications')
                 .select('*')
@@ -249,14 +304,16 @@ export const api = {
                 .order('created_at', { ascending: false });
 
             if (fetchError || !notifs) {
-                console.error('DEBUG: api.getNotifications - fallback base fetch failed:', fetchError);
+                console.error('DEBUG: api.getNotifications - fetch failed:', fetchError);
                 return { data: notifs, error: fetchError };
             }
 
-            console.log('DEBUG: api.getNotifications - fallback base success, count:', notifs.length);
+            // Identificar IDs únicos de actores para enriquecer
+            const actorIds = Array.from(new Set(notifs.map(n => n.actor_id).filter(id => !!id)));
 
-            const actorIds = Array.from(new Set(notifs.map(n => n.actor_id)));
-            console.log('DEBUG: api.getNotifications - enriching actors for IDs:', actorIds);
+            if (actorIds.length === 0) {
+                return { data: notifs, error: null };
+            }
 
             const { data: actors, error: actorsError } = await supabase
                 .from('profiles')
@@ -264,26 +321,26 @@ export const api = {
                 .in('id', actorIds);
 
             if (actorsError) {
-                console.error('DEBUG: api.getNotifications - actors enrichment failed:', actorsError);
-                // Retornar al menos las notificaciones sin actor
+                console.error('DEBUG: api.getNotifications - profiles enrichment failed:', actorsError);
+                // Retornamos las notificaciones aunque no tengan los datos del actor para no bloquear la UI
                 return { data: notifs, error: null };
             }
 
+            // Mapear perfiles a las notificaciones
             const enriched = notifs.map(n => ({
                 ...n,
                 actor: actors?.find(a => a.id === n.actor_id)
             }));
 
-            console.log('DEBUG: api.getNotifications - fallback full success');
             return { data: enriched, error: null };
         } catch (err) {
-            console.error('DEBUG: api.getNotifications - critical exception:', err);
+            console.error('DEBUG: api.getNotifications - exception:', err);
             return { data: null, error: err as any };
         }
     },
 
     createNotification: async (notification: { user_id: string; actor_id: string; type: string; entity_id?: string }) => {
-        if (notification.user_id === notification.actor_id) return;
+        if (notification.user_id === notification.actor_id) return { error: null };
 
         const { error } = await supabase
             .from('notifications')
@@ -380,8 +437,7 @@ export const api = {
         const { data, error } = await supabase
             .from('profiles')
             .select('*')
-            .eq('id', userId)
-            .single();
+            .maybeSingle();
         return { data, error };
     }
 };

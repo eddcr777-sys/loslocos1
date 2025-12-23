@@ -7,7 +7,7 @@ export const useProfile = (userId?: string) => {
 
     const [viewProfile, setViewProfile] = useState<any>(null);
     const [isEditing, setIsEditing] = useState(false);
-    const [editForm, setEditForm] = useState({ full_name: '', bio: '', avatar_url: '' });
+    const [editForm, setEditForm] = useState({ full_name: '', username: '', faculty: '', bio: '', avatar_url: '' });
     const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
     const [userPosts, setUserPosts] = useState<Post[]>([]);
@@ -39,6 +39,8 @@ export const useProfile = (userId?: string) => {
             setViewProfile(targetProfile);
             setEditForm({
                 full_name: targetProfile.full_name || '',
+                username: targetProfile.username || '',
+                faculty: targetProfile.faculty || '',
                 bio: targetProfile.bio || '',
                 avatar_url: targetProfile.avatar_url || ''
             });
@@ -101,7 +103,7 @@ export const useProfile = (userId?: string) => {
         });
 
         if (error) {
-            alert('Error updating profile: ' + error.message);
+            alert(error.message);
         } else {
             setIsEditing(false);
             setAvatarFile(null);

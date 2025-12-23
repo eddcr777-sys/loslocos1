@@ -1,19 +1,22 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import Avatar from '../../components/ui/Avatar';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
-import { Check, CheckCheck } from 'lucide-react';
+import { Check, CheckCheck, Heart, MessageCircle, Reply, UserPlus } from 'lucide-react';
 import { timeAgo } from '../../utils/dateUtils';
 
 const NotificationsPage = () => {
+  const navigate = useNavigate();
   const { user, decrementUnreadNotifications, clearUnreadNotifications } = useAuth();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (user) loadNotifications();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const [error, setError] = useState<string | null>(null);
@@ -113,21 +116,53 @@ const NotificationsPage = () => {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {notifications.map((notif) => (
-            <Card key={notif.id} style={{ marginBottom: 0, padding: '1rem' }}>
+            <Card 
+              key={notif.id} 
+              style={{ 
+                marginBottom: 0, 
+                padding: '1rem', 
+                cursor: (notif.type === 'like' || notif.type === 'comment' || notif.type === 'reply') ? 'pointer' : 'default',
+                transition: 'background-color 0.2s',
+                backgroundColor: !notif.read ? '#f8fafc' : 'white'
+              }}
+              onClick={() => {
+                if (notif.type === 'like' || notif.type === 'comment' || notif.type === 'reply') {
+                  if (!notif.read) handleMarkAsRead(notif.id);
+                  navigate(`/post/${notif.entity_id}`);
+                }
+              }}
+              className="notification-card"
+            >
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <Avatar src={notif.actor?.avatar_url} size="small" />
+                <div style={{ position: 'relative' }}>
+                  <Avatar src={notif.actor?.avatar_url} size="small" />
+                  <div style={{ 
+                    position: 'absolute', 
+                    bottom: -4, 
+                    right: -4, 
+                    backgroundColor: 'white', 
+                    borderRadius: '50%', 
+                    padding: '2px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+                  }}>
+                    {notif.type === 'like' && <Heart size={12} fill="#ef4444" color="#ef4444" />}
+                    {notif.type === 'comment' && <MessageCircle size={12} fill="#3b82f6" color="#3b82f6" />}
+                    {notif.type === 'reply' && <Reply size={12} color="#10b981" />}
+                    {notif.type === 'follow' && <UserPlus size={12} color="#8b5cf6" />}
+                  </div>
+                </div>
                 <div style={{ flex: 1 }}>
-                  <p style={{ margin: 0, fontSize: '0.95rem' }}>
-                    <strong>{notif.actor?.full_name || 'Alguien'}</strong>
-                    {notif.type === 'like' && ' le gustó tu publicación.'}
-
-
-
-                    {notif.type === 'comment' && ' comentó en tu publicación.'}
-
-
-
-                    {notif.type === 'follow' && ' comenzó a seguirte.'}
+                  <p style={{ margin: 0, fontSize: '0.95rem', lineHeight: '1.4' }}>
+                    <strong style={{ color: '#1e293b' }}>{notif.actor?.full_name || 'Alguien'}</strong>
+                    <span style={{ color: '#475569' }}>
+                      {notif.type === 'like' && ' le gustó tu publicación.'}
+                      {notif.type === 'comment' && ' comentó en tu publicación.'}
+                      {notif.type === 'reply' && ' respondió a tu comentario.'}
+                      {notif.type === 'follow' && ' comenzó a seguirte.'}
+                    </span>
                   </p>
                   <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{timeAgo(notif.created_at)}</span>
                 </div>

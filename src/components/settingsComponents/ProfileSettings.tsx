@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../utils/supabaseClient';
+import { api } from '../../services/api';
 import { Camera } from 'lucide-react';
 
 const ProfileSettings = () => {
@@ -59,33 +60,39 @@ const ProfileSettings = () => {
     }
   };
 
-  const uploadAvatar = async (file: File): Promise<string> => {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${user!.id}-${Math.random()}.${fileExt}`;
-    const filePath = `${fileName}`;
-    const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file, { upsert: true });
-    if (uploadError) throw uploadError;
-    const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
-    return data.publicUrl;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     try {
       let avatarUrl = formData.avatar_url;
-      if (avatarFile) avatarUrl = await uploadAvatar(avatarFile);
+      if (avatarFile) {
+        const { data: uploadedUrl, error: uploadError } = await api.uploadImage(avatarFile, 'avatars');
+        if (uploadError) throw uploadError;
+        avatarUrl = uploadedUrl || '';
+      }
 
-      const updates = {
-        id: user!.id,
-        ...formData,
-        avatar_url: avatarUrl,
-        updated_at: new Date().toISOString(),
-      };
+      const { data, error } = await api.updateProfile(user!.id, {
+        full_name: formData.full_name,
+        username: formData.username,
+        faculty: formData.faculty,
+        bio: formData.bio,
+        avatar_url: avatarUrl
+      });
 
-      const { error } = await supabase.from('profiles').upsert(updates);
-      if (error) throw error;
-      alert('Perfil actualizado correctamente');
+      if (error) {
+        alert(error.message);
+      } else {
+        alert('Perfil actualizado correctamente');
+        if (data) {
+          setFormData({
+            full_name: data.full_name || '',
+            username: data.username || '',
+            bio: data.bio || '',
+            faculty: data.faculty || '',
+            avatar_url: data.avatar_url || ''
+          });
+        }
+      }
     } catch (error: any) {
       alert('Error: ' + error.message);
     } finally {
@@ -93,7 +100,7 @@ const ProfileSettings = () => {
     }
   };
 
-  if (loading) return <div>Cargando...</div>;
+  if (loading) return <div style={{ padding: '2rem', textAlign: 'center' }}>Cargando...</div>;
 
   return (
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>

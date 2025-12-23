@@ -14,9 +14,16 @@ import './Post.css';
 interface PostProps {
   post: PostType;
   onPostDeleted?: () => void;
+  showCommentsByDefault?: boolean;
+  highlightCommentId?: string;
 }
 
-const Post: React.FC<PostProps> = ({ post, onPostDeleted }) => {
+const Post: React.FC<PostProps> = ({ 
+  post, 
+  onPostDeleted, 
+  showCommentsByDefault = false,
+  highlightCommentId
+}) => {
   const { user } = useAuth();
   const {
     likes,
@@ -26,7 +33,7 @@ const Post: React.FC<PostProps> = ({ post, onPostDeleted }) => {
     setShowComments,
     handleLike,
     handleCommentsUpdate
-  } = usePost(post, user);
+  } = usePost(post, user, showCommentsByDefault || !!highlightCommentId);
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -92,13 +99,12 @@ const Post: React.FC<PostProps> = ({ post, onPostDeleted }) => {
         </div>
 
       {showComments && (
-        <div className="post-padded-content">
-          <CommentSection 
-            postId={post.id} 
-            postOwnerId={post.user_id} 
-            onCommentsChange={handleCommentsUpdate} 
-          />
-        </div>
+        <CommentSection 
+          postId={post.id} 
+          postOwnerId={post.user_id} 
+          onCommentsChange={handleCommentsUpdate}
+          highlightCommentId={highlightCommentId}
+        />
       )}
 
       <ConfirmationModal

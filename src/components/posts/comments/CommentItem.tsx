@@ -36,7 +36,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
   const hasReplies = comments.some(c => c.parent_id === comment.id);
 
   return (
-    <div key={comment.id} style={styles.commentContainer}>
+    <div key={comment.id} id={`comment-${comment.id}`} style={styles.commentContainer}>
       <div style={styles.commentRow}>
           <Link to={`/profile/${comment.user_id}`} style={{ flexShrink: 0 }}>
             <img src={comment.profiles?.avatar_url || 'https://via.placeholder.com/30'} alt="avatar" style={styles.avatar}/>
