@@ -437,7 +437,47 @@ export const api = {
         const { data, error } = await supabase
             .from('profiles')
             .select('*')
+            .eq('id', userId)
             .maybeSingle();
         return { data, error };
+    },
+
+    // --- STORIES ---
+    getStories: async () => {
+        const now = new Date().toISOString();
+        const { data, error } = await supabase
+            .from('stories')
+            .select(`
+                *,
+                profiles (id, full_name, avatar_url)
+            `)
+            .gt('expires_at', now)
+            .order('created_at', { ascending: false });
+        return { data, error };
+    },
+
+    createStory: async (imageUrl: string | null, content?: string, background?: string) => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return { error: { message: 'No authenticated user' } };
+
+        const { data, error } = await supabase
+            .from('stories')
+            .insert({
+                user_id: user.id,
+                image_url: imageUrl,
+                content: content,
+                background: background
+            })
+            .select()
+            .single();
+        return { data, error };
+    },
+
+    deleteStory: async (storyId: string) => {
+        const { error } = await supabase
+            .from('stories')
+            .delete()
+            .eq('id', storyId);
+        return { error };
     }
 };

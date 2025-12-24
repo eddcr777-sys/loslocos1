@@ -2,12 +2,17 @@ import React, { useState } from 'react';
 import { api } from '../../services/api';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
+import Avatar from '../ui/Avatar';
+import { Image, Send, X } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import './CreatePost.css';
 
 interface CreatePostProps {
   onPostCreated: () => void;
 }
 
 const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated }) => {
+  const { profile } = useAuth();
   const [isExpanded, setIsExpanded] = useState(false);
   const [content, setContent] = useState('');
   const [image, setImage] = useState<File | null>(null);
@@ -46,89 +51,69 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated }) => {
 
   if (!isExpanded) {
       return (
-          <Card onClick={() => setIsExpanded(true)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '1rem', padding: '12px 16px' }}>
-              <div style={{ flex: 1, backgroundColor: '#f0f2f5', padding: '10px 15px', borderRadius: '20px', color: '#65676b' }}>
-                  ¿Qué estás pensando?
-              </div>
-              <Button size="small">Crear publicación</Button>
-          </Card>
+          <div className="create-post-container" onClick={() => setIsExpanded(true)}>
+            <div className="create-post-card">
+                <Avatar 
+                  src={profile?.avatar_url} 
+                  size="small" 
+                  className="create-post-avatar"
+                />
+                <div className="create-post-bubble">
+                    ¿Qué estás pensando, {profile?.full_name?.split(' ')[0]}?
+                </div>
+                <div className="create-post-action-hint">Publicar</div>
+            </div>
+          </div>
       );
   }
 
   return (
-    <Card style={{ padding: '16px' }}>
-      <div style={styles.header}>
-          <h3>Crear publicación</h3>
-          <button onClick={() => setIsExpanded(false)} style={styles.closeButton}>X</button>
-      </div>
-      <form onSubmit={handleSubmit}>
-        <textarea
-          placeholder="¿Qué estás pensando?"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          style={styles.textarea}
-          autoFocus
-        />
-        <div style={styles.footer}>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setImage(e.target.files?.[0] || null)}
-            style={styles.fileInput}
-            id="file-upload"
-          />
-          <label htmlFor="file-upload" style={styles.fileLabel}>
-            {image ? '📷 Imagen seleccionada' : '📷 Añadir foto'}
-          </label>
-          <Button type="submit" disabled={loading || (!content && !image)}>
-            {loading ? 'Publicando...' : 'Publicar'}
-          </Button>
+    <div className="create-post-container">
+      <Card className="create-post-expanded">
+        <div className="create-post-header">
+            <h3>Nueva publicación</h3>
+            <button onClick={() => setIsExpanded(false)} className="create-post-close">
+              <X size={18} />
+            </button>
         </div>
-      </form>
-    </Card>
+        <form onSubmit={handleSubmit}>
+          <div className="create-post-body">
+            <Avatar 
+              src={profile?.avatar_url} 
+              size="medium" 
+            />
+            <textarea
+              placeholder={`¿Qué hay de nuevo, ${profile?.full_name?.split(' ')[0]}?`}
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              className="create-post-textarea"
+              autoFocus
+            />
+          </div>
+          <div className="create-post-footer">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setImage(e.target.files?.[0] || null)}
+              className="create-post-file-input"
+              id="file-upload"
+            />
+            <label htmlFor="file-upload" className="create-post-file-label">
+              <Image size={18} />
+              {image ? 'Imagen lista' : 'Añadir foto'}
+            </label>
+            <Button 
+              type="submit" 
+              className="post-submit-btn"
+              disabled={loading || (!content && !image)}
+            >
+              {loading ? '...' : <><Send size={16} /> Publicar</>}
+            </Button>
+          </div>
+        </form>
+      </Card>
+    </div>
   );
-};
-
-const styles: { [key: string]: React.CSSProperties } = {
-  header: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: '1rem',
-      borderBottom: '1px solid #e1e8ed',
-      paddingBottom: '0.5rem'
-  },
-  closeButton: {
-      background: 'none',
-      border: 'none',
-      cursor: 'pointer',
-      fontSize: '1.2rem',
-      color: '#65676b'
-  },
-  textarea: {
-    width: '100%',
-    minHeight: '100px',
-    border: 'none',
-    resize: 'none',
-    fontSize: '1.1rem',
-    outline: 'none',
-    marginBottom: '1rem',
-  },
-  footer: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderTop: '1px solid #f0f0f0',
-    paddingTop: '1rem',
-  },
-  fileInput: {
-    display: 'none',
-  },
-  fileLabel: {
-    cursor: 'pointer',
-    color: '#1d9bf0', // Updated to match Button primary color
-    fontWeight: 500,
-  },
 };
 
 export default CreatePost;

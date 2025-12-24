@@ -9,22 +9,37 @@
 :root {
   /* Professional color palette (Slate/Zinc) */
   --bg-color: #f8fafc;
-  /* Very light gray/blue tint */
   --surface-color: #ffffff;
-  /* Pure white */
   --border-color: #e2e8f0;
-  /* Subtle border */
 
   /* Typography */
   --text-primary: #0f172a;
-  /* Deep slate, almost black */
   --text-secondary: #64748b;
-  /* Muted slate */
 
-  /* Brand/Accent */
-  --accent-color: #000000;
-  /* Stark Black for primary actions (very minimalist/premium) or #2563eb for blue */
-  --accent-hover: #333333;
+  /* Brand/Accent - Moving to specialized faculty colors */
+  --accent-color: #3b82f6;
+  --accent-hover: #2563eb;
+
+  /* Faculty Branding Colors (Identity) */
+  --faculty-eng: #3b82f6;
+  /* Ingeniería */
+  --faculty-med: #ef4444;
+  /* Medicina / Salud */
+  --faculty-law: #8b5cf6;
+  /* Derecho */
+  --faculty-art: #f59e0b;
+  /* Artes */
+  --faculty-bus: #10b981;
+  /* Negocios */
+  --faculty-sci: #06b6d4;
+  /* Ciencias */
+  --faculty-hum: #ec4899;
+  /* Humanidades */
+  --faculty-default: #64748b;
+
+  /* Premium Effects */
+  --glow-primary: 0 0 15px rgba(59, 130, 246, 0.4);
+  --glow-success: 0 0 15px rgba(16, 185, 129, 0.4);
 
   /* Shadows - "Native" feel */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
@@ -32,19 +47,21 @@
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 
   /* Spacing & Radius */
-  --radius-sm: 6px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
 }
 
 body {
   margin: 0;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Outfit', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--bg-color);
   color: var(--text-primary);
   line-height: 1.5;
+  letter-spacing: -0.01em;
 }
 
 code {

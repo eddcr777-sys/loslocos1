@@ -5,17 +5,18 @@ import Post from '../../components/posts/Post';
 import './HomePage.css'; 
 import Logo from '../../components/ui/logo';
 
+import Stories from '../../components/layout/Stories';
+import FeedFilters from '../../components/layout/FeedFilters';
+
 function HomePage() {
   const { posts, loading, refreshFeed } = useFeed();
 
   return (
     <div className="home-container">
       <div className="feed-container">
-        <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'center' }}>
-
-        </div>
+        <Stories />
+        <FeedFilters />
         <CreatePost onPostCreated={refreshFeed} />
-        
         {loading ? (
           <p>Cargando publicaciones...</p>
         ) : (

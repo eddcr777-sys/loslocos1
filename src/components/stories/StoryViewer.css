@@ -1,0 +1,244 @@
+.story-viewer-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.95);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.story-viewer-content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    max-width: 500px;
+    background-color: #000;
+    display: flex;
+    flex-direction: column;
+}
+
+.story-progress-container {
+    display: flex;
+    padding: 10px 10px 0;
+    gap: 4px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1010;
+}
+
+.story-progress-bar-bg {
+    flex: 1;
+    height: 2px;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.story-progress-bar-fill {
+    height: 100%;
+    background-color: white;
+    transition: width 0.1s linear;
+}
+
+.story-viewer-header {
+    position: absolute;
+    top: 15px;
+    left: 0;
+    right: 0;
+    padding: 10px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1010;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent);
+}
+
+.story-viewer-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.story-viewer-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    line-height: 1.2;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.faculty-badge-mini {
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: white;
+    letter-spacing: 0.05em;
+    background: var(--text-secondary);
+}
+
+.story-viewer-time {
+    font-size: 0.75rem;
+    opacity: 0.7;
+}
+
+.story-viewer-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.story-delete-btn,
+.story-action-btn {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    border-radius: 50%;
+}
+
+.story-delete-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ef4444;
+}
+
+.story-action-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.story-close-btn {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.story-media-container {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.story-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.story-text-only {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    text-align: center;
+}
+
+.story-text-only p {
+    font-size: 2.25rem;
+    font-weight: 800;
+    line-height: 1.2;
+    color: white;
+    text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.story-text-overlay {
+    position: absolute;
+    bottom: 80px;
+    left: 20px;
+    right: 20px;
+    background-color: rgba(0, 0, 0, 0.4);
+    padding: 15px;
+    border-radius: 12px;
+    backdrop-filter: blur(5px);
+    text-align: center;
+}
+
+.story-text-overlay p {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+/* Nav Regions */
+.story-nav-left,
+.story-nav-right {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 30%;
+    z-index: 1005;
+}
+
+.story-nav-left {
+    left: 0;
+}
+
+.story-nav-right {
+    right: 0;
+}
+
+/* Arrows (Visible on Desktop) */
+.story-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+    z-index: 1015;
+    transition: background-color 0.2s;
+}
+
+.story-arrow:hover:not(:disabled) {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.story-arrow:disabled {
+    opacity: 0.2;
+    cursor: not-allowed;
+}
+
+.story-arrow.left {
+    left: -70px;
+}
+
+.story-arrow.right {
+    right: -70px;
+}
+
+@media (max-width: 768px) {
+    .story-arrow {
+        display: none;
+    }
+
+    .story-viewer-content {
+        max-width: 100%;
+    }
+}

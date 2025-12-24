@@ -5,9 +5,10 @@ interface AvatarProps {
   alt?: string;
   size?: 'small' | 'medium' | 'large';
   style?: React.CSSProperties;
+  className?: string;
 }
 
-const Avatar: React.FC<AvatarProps> = ({ src, alt = 'Usuario', size = 'medium', style }) => {
+const Avatar: React.FC<AvatarProps> = ({ src, alt = 'Usuario', size = 'medium', style, className = '' }) => {
   const sizeMap = {
     small: '32px',
     medium: '48px',
@@ -29,6 +30,7 @@ const Avatar: React.FC<AvatarProps> = ({ src, alt = 'Usuario', size = 'medium', 
       src={src || 'https://via.placeholder.com/150?text=Usuario'} 
       alt={alt} 
       style={finalStyle} 
+      className={className}
     />
   );
 };

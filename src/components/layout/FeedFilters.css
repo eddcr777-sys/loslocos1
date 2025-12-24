@@ -1,0 +1,79 @@
+.feed-filters-container {
+    display: flex;
+    width: 100%;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 1.5rem;
+    background-color: var(--surface-color);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.filter-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 0;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 0.95rem;
+    position: relative;
+    transition: all 0.2s;
+}
+
+.filter-item:hover {
+    background-color: #f8fafc;
+    color: var(--text-primary);
+}
+
+.filter-item.active {
+    color: var(--text-primary);
+    font-weight: 700;
+}
+
+.active-indicator {
+    position: absolute;
+    bottom: 0;
+    height: 4px;
+    width: 40px;
+    background-color: #3b82f6;
+    border-radius: 4px 4px 0 0;
+}
+
+.avisos-tab {
+    background-color: transparent;
+}
+
+.avisos-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.avisos-tab.active .avisos-content {
+    color: #3b82f6;
+}
+
+.avisos-tab.active .active-indicator {
+    background-color: #3b82f6;
+}
+
+@media (max-width: 768px) {
+    .feed-filters-container {
+        border-top: 1px solid var(--border-color);
+        margin-bottom: 1rem;
+    }
+
+    .filter-item {
+        padding: 0.85rem 0;
+        font-size: 0.9rem;
+    }
+
+    .active-indicator {
+        height: 3px;
+        width: 32px;
+    }
+}
