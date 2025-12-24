@@ -474,10 +474,23 @@ export const api = {
     },
 
     deleteStory: async (storyId: string) => {
-        const { error } = await supabase
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return { error: { message: 'No authenticated user' } };
+
+        console.log('Attempting to delete story:', storyId, 'for user:', user.id);
+
+        const { error, status, statusText } = await supabase
             .from('stories')
             .delete()
-            .eq('id', storyId);
+            .eq('id', storyId)
+            .eq('user_id', user.id);
+
+        if (error) {
+            console.error('Supabase delete error:', error);
+        } else {
+            console.log('Delete response status:', status, statusText);
+        }
+
         return { error };
     }
 };

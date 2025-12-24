@@ -13,14 +13,26 @@ interface StoryViewerProps {
   onAddStory?: () => void;
 }
 
-const StoryViewer: React.FC<StoryViewerProps> = ({ stories, initialIndex, onClose, onStoryDeleted, onAddStory }) => {
+const StoryViewer: React.FC<StoryViewerProps> = ({ stories: initialStories, initialIndex, onClose, onStoryDeleted, onAddStory }) => {
   const { user } = useAuth();
+  const [localStories, setLocalStories] = useState(initialStories);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [progress, setProgress] = useState(0);
   const storyDuration = 5000; // 5 seconds
 
-  const currentStory = stories[currentIndex];
+  const currentStory = localStories[currentIndex];
   const isOwner = user?.id === currentStory?.user_id;
+
+  // Sincronizar si las props cambian externamente (opcional, pero útil)
+  useEffect(() => {
+    if (initialStories.length !== localStories.length) {
+        setLocalStories(initialStories);
+        // Si el índice actual ya no es válido, ajustarlo
+        if (currentIndex >= initialStories.length) {
+            setCurrentIndex(Math.max(0, initialStories.length - 1));
+        }
+    }
+  }, [initialStories]);
 
   useEffect(() => {
     setProgress(0);
@@ -35,10 +47,10 @@ const StoryViewer: React.FC<StoryViewerProps> = ({ stories, initialIndex, onClos
     }, 100);
 
     return () => clearInterval(interval);
-  }, [currentIndex]);
+  }, [currentIndex, localStories.length]); // Añadir localStories.length como dep
 
   const handleNext = () => {
-    if (currentIndex < stories.length - 1) {
+    if (currentIndex < localStories.length - 1) {
       setCurrentIndex(currentIndex + 1);
     } else {
       onClose();
@@ -55,17 +67,32 @@ const StoryViewer: React.FC<StoryViewerProps> = ({ stories, initialIndex, onClos
     if (!currentStory) return;
     if (!window.confirm('¿Eliminar esta historia?')) return;
 
-    const { error } = await api.deleteStory(currentStory.id);
-    if (error) {
-      alert('Error al eliminar historia');
-    } else {
-      if (onStoryDeleted) onStoryDeleted();
-      // Si hay más de una historia en el grupo, pasar a la siguiente o cerrar
-      if (stories.length > 1) {
-        handleNext();
-      } else {
-        onClose();
+    try {
+      const { error } = await api.deleteStory(currentStory.id);
+      if (error) {
+        alert('Error al eliminar historia');
+        return;
       }
+
+      // Notificar al padre para que refresque la lista global
+      if (onStoryDeleted) onStoryDeleted();
+
+      // Actualizar localmente para feedback inmediato
+      const newLocalStories = localStories.filter(s => s.id !== currentStory.id);
+      
+      if (newLocalStories.length === 0) {
+        onClose();
+      } else {
+        setLocalStories(newLocalStories);
+        // Si eliminamos la última, retroceder una
+        if (currentIndex >= newLocalStories.length) {
+          setCurrentIndex(newLocalStories.length - 1);
+        }
+        // El useEffect de progress se encargará de reiniciar a 0
+      }
+    } catch (err) {
+      console.error('Delete error:', err);
+      alert('Error inesperado al eliminar');
     }
   };
 
@@ -76,7 +103,7 @@ const StoryViewer: React.FC<StoryViewerProps> = ({ stories, initialIndex, onClos
       <div className="story-viewer-content">
         {/* Progress Bars */}
         <div className="story-progress-container">
-          {stories.map((_, idx) => (
+          {localStories.map((_: any, idx: number) => (
             <div key={idx} className="story-progress-bar-bg">
               <div 
                 className="story-progress-bar-fill"
