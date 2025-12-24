@@ -1,26 +1,34 @@
 .inst-dashboard-container {
-    padding: 1.5rem;
-    max-width: 1400px;
+    padding: 2.5rem 3.5rem 5rem;
+    /* Much more side and bottom padding */
+    max-width: 1500px;
     margin: 0 auto;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 3.5rem;
+    /* Massive gap between sections */
 }
 
 /* Header Glassmorphism */
 .inst-header-glass {
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 28px;
-    padding: 3rem 2rem;
-    margin: 0 auto 2.5rem;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 40px;
+    /* Smoother corners */
+    padding: 5rem 3rem;
+    /* Enormous header padding */
+    margin: 0 auto;
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.06);
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    gap: 2rem;
+    gap: 3rem;
+    /* More space between brand and nav */
     position: sticky;
-    top: 1rem;
+    top: 1.5rem;
     z-index: 100;
 }
 
@@ -28,70 +36,77 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1.25rem;
+    gap: 2rem;
+    /* More gap between icon and title */
 }
 
 .inst-icon-glow {
-    width: 80px;
-    height: 80px;
+    width: 96px;
+    height: 96px;
     background: linear-gradient(135deg, #10b981, #059669);
     color: white;
-    border-radius: 24px;
+    border-radius: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 12px 24px rgba(16, 185, 129, 0.3);
 }
 
 .inst-brand-wrapper h1 {
-    font-size: 2.2rem;
-    font-weight: 900;
+    font-size: 2.75rem;
+    /* Bigger title */
+    font-weight: 950;
     margin: 0;
     color: #0f172a;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
 }
 
 .badge-official {
     background: #ecfdf5;
     color: #10b981;
-    font-size: 0.75rem;
-    padding: 6px 12px;
-    border-radius: 10px;
+    font-size: 0.85rem;
+    padding: 8px 16px;
+    border-radius: 12px;
     vertical-align: middle;
-    margin-left: 8px;
+    margin-left: 12px;
     border: 1px solid #10b98144;
 }
 
 .inst-brand-wrapper p {
     color: #64748b;
-    font-size: 1.1rem;
-    max-width: 500px;
-    margin: 0;
+    font-size: 1.3rem;
+    /* Larger subtext */
+    max-width: 650px;
+    margin: 0 auto;
+    line-height: 1.6;
 }
 
 /* Tab Navigation */
 .inst-tab-navigation {
     display: flex;
     justify-content: center;
-    gap: 0.75rem;
+    gap: 1.25rem;
+    /* More gap between tabs */
     background: #f1f5f9;
-    padding: 6px;
-    border-radius: 18px;
+    padding: 10px;
+    border-radius: 24px;
     width: fit-content;
 }
 
 .nav-tab {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 12px 24px;
+    gap: 12px;
+    padding: 1.25rem 2.5rem;
+    /* Much larger tabs */
     border: none;
     background: transparent;
-    border-radius: 14px;
+    border-radius: 18px;
     font-weight: 700;
     color: #64748b;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 1.05rem;
 }
 
 .nav-tab.active {
@@ -103,15 +118,18 @@
 /* Layout Grid */
 .inst-creation-layout {
     display: grid;
-    grid-template-columns: 1fr 360px;
-    gap: 2.5rem;
+    grid-template-columns: 1fr 400px;
+    /* Wider aside */
+    gap: 3.5rem;
+    /* More gap between main content and aside */
     margin: 0 auto;
 }
 
 /* Professional Card & Forms */
 .professional-card {
-    padding: 3rem;
-    border-radius: 32px;
+    padding: 4.5rem 4rem;
+    /* Deep form padding */
+    border-radius: 40px;
     overflow: hidden;
     background: white;
     border: 1px solid #f1f5f9;
@@ -122,17 +140,17 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 3rem;
+    margin-bottom: 3.5rem;
     border-bottom: 1px solid #f8fafc;
-    padding-bottom: 1.5rem;
+    padding-bottom: 2rem;
 }
 
 .card-top h3 {
     margin: 0;
     display: flex;
     align-items: center;
-    gap: 12px;
-    font-size: 1.6rem;
+    gap: 16px;
+    font-size: 1.8rem;
     font-weight: 800;
 }
 
@@ -560,56 +578,211 @@
     }
 }
 
+/* MOBILE FIRST REVOLUTION - COMPACT & NATIVE */
 @media (max-width: 768px) {
     .inst-dashboard-container {
-        padding: 0.75rem;
+        padding: 10px;
+        gap: 1rem;
+        overflow-x: hidden;
     }
 
     .inst-header-glass {
-        padding: 1.25rem;
+        padding: 1rem;
+        border-radius: 16px;
+        top: 0;
+        margin-bottom: 0.5rem;
+        gap: 0.75rem;
+        position: relative;
+        /* Remove sticky if it feels 'feos' on small screens */
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .inst-brand-wrapper {
+        flex-direction: row;
+        /* Horizontal on mobile for space */
+        align-items: center;
+        width: 100%;
+        gap: 12px;
+        text-align: left;
     }
 
     .inst-icon-glow {
-        width: 50px;
-        height: 50px;
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        flex-shrink: 0;
+    }
+
+    .inst-icon-glow svg {
+        width: 20px;
+        height: 20px;
     }
 
     .inst-brand-wrapper h1 {
-        font-size: 1.4rem;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
     }
 
-    .professional-card {
-        padding: 1.5rem;
+    .badge-official {
+        font-size: 0.55rem;
+        padding: 2px 6px;
+        margin-left: 4px;
     }
 
-    .nav-tab span {
+    .inst-brand-wrapper p {
         display: none;
+        /* Hide long subtext on tiny mobile headers */
+    }
+
+    .inst-tab-navigation {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        /* 3 equal columns */
+        padding: 4px;
+        background: #f1f5f9;
+        border-radius: 12px;
+        gap: 4px;
     }
 
     .nav-tab {
-        padding: 12px;
+        padding: 8px 4px;
+        font-size: 0.75rem;
+        flex-direction: column;
+        /* Icon over text */
+        gap: 4px;
+        border-radius: 8px;
+    }
+
+    .nav-tab svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .nav-tab span {
+        display: block;
+        font-size: 0.65rem;
+    }
+
+    .inst-creation-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .professional-card {
+        padding: 1rem;
+        border-radius: 16px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .card-top {
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+    }
+
+    .card-top h3 {
+        font-size: 1rem;
+    }
+
+    .priority-selectors {
+        padding: 2px;
+    }
+
+    .prio-btn {
+        padding: 6px 10px;
+        font-size: 0.7rem;
+    }
+
+    .premium-form {
+        gap: 1rem;
+    }
+
+    .input-group-custom label {
+        font-size: 0.75rem;
+    }
+
+    .custom-input-field,
+    .custom-textarea-field {
+        padding: 0.75rem;
+        font-size: 0.85rem;
+        border-radius: 10px;
+    }
+
+    .custom-textarea-field {
+        min-height: 120px;
     }
 
     .form-actions-row {
         flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-actions-row button {
+        padding: 0.75rem;
+        font-size: 0.85rem;
+        width: 100%;
+    }
+
+    .post-preview-area {
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+
+    .mock-phone {
+        width: 100%;
+        max-width: none;
+        border-width: 4px;
+        border-radius: 20px;
     }
 
     .history-grid {
         grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+
+    .history-item-card {
+        padding: 1rem;
+    }
+
+    .audience-table-container {
+        margin-top: 0.5rem;
+        border-radius: 12px;
+    }
+
+    .custom-table th,
+    .custom-table td {
+        padding: 10px 8px;
+        font-size: 0.75rem;
+    }
+
+    .inst-resources-aside {
+        display: none;
+        /* Hide resources on mobile to declutter */
+    }
+
+    .compact-stat-card {
+        padding: 0.75rem;
+    }
+
+    .stat-data .count {
+        font-size: 1.1rem;
     }
 }
 
-/* Animations */
+/* Extra Small Screens */
+@media (max-width: 480px) {
+    .inst-brand-wrapper h1 {
+        font-size: 1rem;
+    }
+}
+
+/* Animations - Keeping them light */
 .animate-fade-in {
-    animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.slide-up {
-    animation: slideUp 0.4s ease-out;
-}
-
-.bounce-in {
-    animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    animation: fadeIn 0.3s ease-out forwards;
 }
 
 @keyframes fadeIn {
@@ -625,23 +798,11 @@
 @keyframes slideUp {
     from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(10px);
     }
 
     to {
         opacity: 1;
         transform: translateY(0);
-    }
-}
-
-@keyframes bounceIn {
-    from {
-        transform: scale(0.9);
-        opacity: 0;
-    }
-
-    to {
-        transform: scale(1);
-        opacity: 1;
     }
 }

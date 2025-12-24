@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import Avatar from '../../components/ui/Avatar';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
-import { Check, CheckCheck, Heart, MessageCircle, Reply, UserPlus } from 'lucide-react';
+import { Check, CheckCheck, Heart, Megaphone, MessageCircle, Reply, UserPlus } from 'lucide-react';
 import { timeAgo } from '../../utils/dateUtils';
 
 const NotificationsPage = () => {
@@ -121,21 +121,23 @@ const NotificationsPage = () => {
               style={{ 
                 marginBottom: 0, 
                 padding: '1rem', 
-                cursor: (notif.type === 'like' || notif.type === 'comment' || notif.type === 'reply') ? 'pointer' : 'default',
+                cursor: (notif.type === 'like' || notif.type === 'comment' || notif.type === 'reply' || notif.type === 'official') ? 'pointer' : 'default',
                 transition: 'background-color 0.2s',
                 backgroundColor: !notif.read ? '#f8fafc' : 'white'
               }}
               onClick={() => {
-                if (notif.type === 'like' || notif.type === 'comment' || notif.type === 'reply') {
+                if (notif.type === 'like' || notif.type === 'comment' || notif.type === 'reply' || notif.type === 'official') {
                   if (!notif.read) handleMarkAsRead(notif.id);
-                  navigate(`/post/${notif.entity_id}`);
+                  if (notif.entity_id) {
+                    navigate(`/post/${notif.entity_id}`);
+                  }
                 }
               }}
               className="notification-card"
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                 <div style={{ position: 'relative' }}>
-                  <Avatar src={notif.actor?.avatar_url} size="small" />
+                  <Avatar src={notif.type === 'official' ? '/logo-inst.png' : notif.actor?.avatar_url} size="small" />
                   <div style={{ 
                     position: 'absolute', 
                     bottom: -4, 
@@ -152,16 +154,20 @@ const NotificationsPage = () => {
                     {notif.type === 'comment' && <MessageCircle size={12} fill="#3b82f6" color="#3b82f6" />}
                     {notif.type === 'reply' && <Reply size={12} color="#10b981" />}
                     {notif.type === 'follow' && <UserPlus size={12} color="#8b5cf6" />}
+                    {notif.type === 'official' && <Megaphone size={12} color="#10b981" />}
                   </div>
                 </div>
                 <div style={{ flex: 1 }}>
                   <p style={{ margin: 0, fontSize: '0.95rem', lineHeight: '1.4' }}>
-                    <strong style={{ color: '#1e293b' }}>{notif.actor?.full_name || 'Alguien'}</strong>
+                    <strong style={{ color: '#1e293b' }}>
+                      {notif.type === 'official' ? (notif.title || 'Aviso Oficial') : (notif.actor?.full_name || 'Alguien')}
+                    </strong>
                     <span style={{ color: '#475569' }}>
                       {notif.type === 'like' && ' le gustó tu publicación.'}
                       {notif.type === 'comment' && ' comentó en tu publicación.'}
                       {notif.type === 'reply' && ' respondió a tu comentario.'}
                       {notif.type === 'follow' && ' comenzó a seguirte.'}
+                      {notif.type === 'official' && `: ${notif.content}`}
                     </span>
                   </p>
                   <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{timeAgo(notif.created_at)}</span>

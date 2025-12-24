@@ -88,66 +88,71 @@ const AdminPage = () => {
         .admin-users-view {
           display: flex;
           flex-direction: column;
-          gap: 2rem;
+          gap: 3.5rem; /* Massive gap between header and grid */
           width: 100%;
-          max-width: 1200px;
+          max-width: 1400px;
           margin: 0 auto;
+          padding: 2rem;
         }
         .users-header {
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 1.5rem;
-          margin-bottom: 1rem;
+          gap: 2.5rem;
+          margin-bottom: 2rem;
         }
         .search-bar {
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 20px;
           background: #f1f5f9;
-          padding: 1rem 1.5rem;
-          border-radius: 18px;
+          padding: 1.5rem 2.5rem; /* Enormous search bar */
+          border-radius: 28px;
           border: 2px solid transparent;
           transition: all 0.3s;
           width: 100%;
-          max-width: 600px;
+          max-width: 800px;
         }
         .search-bar:focus-within {
           background: white;
           border-color: #2563eb;
-          box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+          box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.1);
         }
         .search-bar input {
           border: none;
           background: transparent;
           outline: none;
           flex: 1;
-          font-size: 1rem;
-          font-weight: 500;
+          font-size: 1.25rem; /* Massive input text */
+          font-weight: 600;
         }
         .users-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-          gap: 1.5rem;
+          grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+          gap: 2.5rem; /* More gap between user cards */
         }
         .user-role-card {
+          padding: 2.5rem;
+          border-radius: 32px;
           background: white;
-          border: 1px solid #e2e8f0;
-          padding: 1.25rem;
-          border-radius: 14px;
+          border: 1px solid #f1f5f9;
           display: flex;
-          align-items: center;
-          justify-content: space-between;
-          transition: all 0.2s;
+          flex-direction: column;
+          gap: 2rem;
         }
         .user-role-card:hover {
           box-shadow: 0 4px 12px rgba(0,0,0,0.05);
           border-color: #cbd5e1;
         }
-        .user-info {
+        .user-main-info {
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 1.5rem;
+        }
+        .user-main-info img {
+          width: 64px;
+          height: 64px;
+          border-radius: 20px;
         }
         .name-box {
           display: flex;
@@ -160,17 +165,30 @@ const AdminPage = () => {
         }
         .role-selector {
           display: flex;
+          flex-direction: column;
+          gap: 1rem;
+          padding-top: 1.5rem;
+          border-top: 1px solid #f8fafc;
+        }
+        .role-selector label {
+          font-size: 0.85rem;
+          font-weight: 800;
+          color: #64748b;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          display: flex;
           align-items: center;
           gap: 8px;
-          background: #f1f5f9;
           padding: 6px 12px;
           border-radius: 8px;
         }
         .role-selector select {
           background: transparent;
-          border: none;
-          font-size: 0.85rem;
-          font-weight: 600;
+          padding: 1rem;
+          border-radius: 14px;
+          border: 2px solid #f1f5f9;
+          font-weight: 700;
+          font-size: 1rem;
           color: #1e293b;
           cursor: pointer;
           outline: none;
@@ -182,37 +200,23 @@ const AdminPage = () => {
           font-weight: 500;
         }
         @media (max-width: 768px) {
-          .admin-users-view {
-            gap: 1rem;
-          }
-          .users-grid {
-            grid-template-columns: 1fr;
-          }
-          .user-role-card {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 1.25rem;
-            padding: 1rem;
-          }
-          .role-selector {
-            width: 100%;
-            justify-content: center;
-            padding: 10px;
-          }
-          .user-info {
-            width: 100%;
-          }
+          .admin-users-view { padding: 8px; gap: 1.5rem; width: 100%; }
+          .users-header { gap: 1rem; margin-bottom: 1rem; width: 100%; }
+          .search-bar { padding: 0.85rem 1.25rem; border-radius: 16px; max-width: 100%; }
+          .search-bar input { font-size: 1rem; }
+          .users-grid { grid-template-columns: 1fr; gap: 0.75rem; width: 100%; }
+          .user-role-card { padding: 1.5rem; border-radius: 20px; gap: 1.5rem; }
+          .user-main-info { gap: 1rem; }
+          .user-main-info img { width: 44px; height: 44px; border-radius: 12px; }
+          .name-box strong { font-size: 1rem; }
+          .role-selector { padding-top: 1rem; gap: 0.75rem; }
+          .role-selector label { font-size: 0.7rem; padding: 4px 8px; }
+          .role-selector select { padding: 0.85rem; font-size: 0.95rem; border-radius: 12px; }
         }
         @media (max-width: 480px) {
-          .search-bar {
-            padding: 0.5rem 0.75rem;
-          }
-          .search-bar input {
-            font-size: 0.85rem;
-          }
-          .user-meta strong {
-            font-size: 0.9rem;
-          }
+          .admin-users-view { padding: 4px; }
+          .user-role-card { padding: 1.25rem; }
+          .search-bar { padding: 0.75rem 1rem; }
         }
       `}</style>
     </div>

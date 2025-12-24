@@ -7,7 +7,7 @@ interface FeedContextType {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   refreshFeed: () => Promise<void>;
-  createPost: (content: string, image: File | null, isOfficial?: boolean) => Promise<{ error: any }>;
+  createPost: (content: string, image: File | null, isOfficial?: boolean) => Promise<{ data?: any, error: any }>;
 }
 
 const FeedContext = createContext<FeedContextType | undefined>(undefined);
@@ -34,11 +34,11 @@ export const FeedProvider: FC<{children: ReactNode}> = ({ children }) => {
       imageUrl = data;
     }
 
-    const { error } = await api.createPost(content, imageUrl, isOfficial);
+    const { data, error } = await api.createPost(content, imageUrl, isOfficial);
     if (!error) {
       await refreshFeed();
     }
-    return { error };
+    return { data, error };
   };
 
   useEffect(() => {

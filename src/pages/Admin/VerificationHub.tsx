@@ -21,28 +21,23 @@ const VerificationHub = () => {
         e.preventDefault();
         setLoading(true);
 
-        // Lógica de verificación (Hardcoded por ahora para simplicity)
-        const ADMIN_CODE = 'DEV-CEO-MASTER-2024'; // Manteniendo el código pero renombrado
-        const INST_CODE = 'UNI-STAFF-AUTH-2024';
-
-        if (roleType === 'admin' && code === ADMIN_CODE) {
-            await upgradeProfile('admin');
-        } else if (roleType === 'institutional' && code === INST_CODE) {
-            await upgradeProfile('institutional');
-        } else {
-            alert('Código de verificación incorrecto');
-        }
-        setLoading(false);
-    };
-
-    const upgradeProfile = async (newRole: 'admin' | 'institutional') => {
         if (!profile) return;
-        const { error } = await api.updateProfile(profile.id, { user_type: newRole });
-        if (error) {
-            alert('Error al actualizar: ' + error.message);
-        } else {
-            setSuccess(true);
-            await refreshProfile();
+
+        try {
+            // Llamamos a la base de datos de forma segura
+            const result = await api.verifyAndUpgradeRole(code, profile.id);
+
+            if (result.success) {
+                setRoleType(result.role as 'admin'|'institutional');
+                setSuccess(true);
+                await refreshProfile();
+            } else {
+                alert(result.message || 'Código incorrecto');
+            }
+        } catch (error: any) {
+            alert('Error en la verificación: ' + error.message);
+        } finally {
+            setLoading(false);
         }
     };
 

@@ -36,6 +36,19 @@ export interface Comment {
 
 export const api = {
     // --- PROFILES ---
+    verifyAndUpgradeRole: async (key: string, userId: string) => {
+        try {
+            const { data, error } = await supabase.rpc('verify_and_upgrade_user_role', {
+                input_key: key,
+                user_id_param: userId
+            });
+            if (error) throw error;
+            return data as { success: boolean, role?: 'admin' | 'institutional', message?: string };
+        } catch (error) {
+            console.error('Error in verification:', error);
+            return { success: false, message: 'Fallo en la comunicación con el servidor' };
+        }
+    },
     getProfile: async (userId: string) => {
         const { data, error } = await supabase
             .from('profiles')

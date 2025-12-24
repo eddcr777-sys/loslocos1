@@ -64,11 +64,13 @@ const InstitutionalDashboard = () => {
         try {
             const prefix = category === 'urgente' ? '🚨 URGENTE: ' : '📢 ';
             const fullContent = `${prefix}${title.toUpperCase()}\n\n${content}\n\n🏷️ #${category}`;
-            const result = await createPost(fullContent, null, true);
+            const { data, error } = await createPost(fullContent, null, true);
             
-            if (result.error) throw result.error;
+            if (error) throw error;
 
-            await api.broadcastNotification(title, content);
+            if (data) {
+                await api.broadcastNotification(title, content, data.id);
+            }
 
             setLoading(false);
             setPosted(true);

@@ -1,8 +1,14 @@
 .master-admin-root {
-    padding: 0 1.5rem 1.5rem;
-    max-width: 1400px;
+    padding: 2rem 3rem 4rem;
+    /* More top/bottom/side padding */
+    max-width: 1600px;
+    /* Slightly wider */
     margin: 0 auto;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+    /* Massive gap between major sections */
 }
 
 /* Top Bar */
@@ -10,17 +16,19 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.75rem 1.5rem;
+    padding: 1.25rem 2.5rem;
+    /* Taller top bar */
     background: #0f172a;
     color: white;
-    margin: 0 -1.5rem 2rem;
-    font-size: 0.8rem;
+    margin: -2rem -3rem 1rem;
+    font-size: 0.85rem;
     font-weight: 700;
 }
 
 .system-indicators {
     display: flex;
-    gap: 1.5rem;
+    gap: 2.5rem;
+    /* More space between indicators */
 }
 
 .indicator {
@@ -87,15 +95,17 @@
 /* Master Header & Nav */
 .master-header {
     background: white;
-    border-radius: 24px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-    margin: 0 auto 2rem;
+    border-radius: 32px;
+    /* Smoother corners */
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+    margin: 0 auto;
     border: 1px solid #f1f5f9;
     width: 100%;
 }
 
 .master-header-content {
-    padding: 2.5rem;
+    padding: 4rem 2rem;
+    /* Much more vertical space in header */
     display: flex;
     justify-content: center;
     text-align: center;
@@ -105,58 +115,65 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1.25rem;
+    gap: 1.75rem;
+    /* More gap between icon and text */
 }
 
 .master-logo-bg {
-    width: 72px;
-    height: 72px;
+    width: 84px;
+    height: 84px;
     background: linear-gradient(135deg, #1e293b, #0f172a);
     color: #f59e0b;
-    border-radius: 24px;
+    border-radius: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 8px 16px rgba(15, 23, 42, 0.2);
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.2);
 }
 
 .master-title h1 {
-    font-size: 2rem;
-    font-weight: 900;
+    font-size: 2.5rem;
+    /* Bigger title */
+    font-weight: 950;
     margin: 0;
     color: #0f172a;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.02em;
 }
 
 .master-title p {
     color: #94a3b8;
-    margin: 8px 0 0 0;
+    margin: 12px 0 0 0;
     font-weight: 500;
-    font-size: 1.1rem;
+    font-size: 1.25rem;
+    /* Bigger subtitle */
+    max-width: 600px;
+    line-height: 1.6;
 }
 
 .master-nav {
     display: flex;
     justify-content: center;
-    padding: 0 1rem;
+    padding: 0.5rem 2rem;
     border-top: 1px solid #f1f5f9;
     background: #f8fafc;
-    border-radius: 0 0 24px 24px;
+    border-radius: 0 0 32px 32px;
     flex-wrap: wrap;
+    gap: 1rem;
 }
 
 .m-nav-item {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 1.25rem 1.75rem;
+    gap: 12px;
+    padding: 1.5rem 2.5rem;
+    /* Larger nav items */
     border: none;
     background: transparent;
-    font-weight: 700;
+    font-weight: 800;
     color: #64748b;
     cursor: pointer;
     position: relative;
-    transition: all 0.2s;
+    transition: all 0.3s;
 }
 
 .m-nav-item:hover {
@@ -181,45 +198,56 @@
 /* Stats Row */
 .stats-row-expanded {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
-    margin: 0 auto 2.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2.5rem;
+    /* More space between stat cards */
+    margin: 0 auto;
     width: 100%;
 }
 
 .m-stat-card {
-    padding: 2rem;
-    border-radius: 24px;
+    padding: 3rem 2rem;
+    /* Deep card padding */
+    border-radius: 32px;
     border: 1px solid #f1f5f9;
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
+    background: white;
+    transition: transform 0.3s ease;
+}
+
+.m-stat-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
 }
 
 .m-stat-header {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
-    font-size: 0.85rem;
-    font-weight: 800;
+    gap: 12px;
+    font-size: 0.9rem;
+    font-weight: 850;
     color: #64748b;
-    margin-bottom: 1.25rem;
+    margin-bottom: 2rem;
     text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .m-stat-body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 1.5rem;
+    gap: 12px;
+    margin-bottom: 2.5rem;
 }
 
 .m-stat-body h2 {
-    font-size: 2.5rem;
-    font-weight: 900;
+    font-size: 3.2rem;
+    /* Massive stats values */
+    font-weight: 950;
     margin: 0;
     color: #0f172a;
 }
@@ -263,14 +291,17 @@
 
 /* Activity Logs */
 .activity-section {
-    margin-top: 2.5rem;
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
 }
 
 .section-header-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1rem;
 }
 
 .section-header-row h3 {
@@ -302,8 +333,9 @@
 }
 
 .activity-log-card {
-    border-radius: 20px;
-    padding: 0;
+    border-radius: 32px;
+    padding: 1rem 0;
+    /* Vertical breathing room for lists */
     overflow: hidden;
 }
 
@@ -315,10 +347,12 @@
 .log-row {
     display: flex;
     align-items: center;
-    padding: 1.25rem 1.5rem;
+    padding: 1.75rem 2.5rem;
+    /* Wider, taller log items */
     border-bottom: 1px solid #f1f5f9;
     transition: all 0.2s;
     animation: slideRight 0.4s ease-out backwards;
+    gap: 2rem;
 }
 
 .log-row:hover {
@@ -328,8 +362,9 @@
 .log-user {
     display: flex;
     align-items: center;
-    gap: 12px;
-    width: 240px;
+    gap: 16px;
+    width: 280px;
+    /* More space for user info */
 }
 
 .log-user img {
@@ -385,15 +420,16 @@
 .mod-masonry {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1.5rem;
+    gap: 2.5rem;
+    margin-top: 2rem;
 }
 
 .mod-premium-card {
-    padding: 1.25rem;
+    padding: 2rem;
     border-radius: 24px;
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 2rem;
 }
 
 .mod-user-top {
@@ -465,18 +501,18 @@
 .system-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
+    gap: 2.5rem;
 }
 
 .system-card {
-    padding: 2rem;
+    padding: 3rem;
     border-radius: 24px;
 }
 
 .sys-metrics {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 2.5rem;
     margin-top: 1.5rem;
 }
 
@@ -576,6 +612,208 @@ input:checked+.slider:before {
     to {
         transform: translateX(0);
         opacity: 1;
+    }
+}
+
+/* Responsive Overrides for Space - COMPACT EDITION */
+@media (max-width: 1024px) {
+    .master-admin-root {
+        padding: 1rem;
+        gap: 1.5rem;
+    }
+
+    .master-header-content {
+        padding: 2.5rem 1rem;
+    }
+
+    .m-stat-card {
+        padding: 2rem 1rem;
+    }
+}
+
+/* MOBILE FIRST REVOLUTION - COMPACT & NATIVE */
+@media (max-width: 768px) {
+    .master-admin-root {
+        padding: 8px;
+        /* Minimal padding */
+        gap: 0.75rem;
+        overflow-x: hidden;
+    }
+
+    .admin-top-bar {
+        padding: 8px 12px;
+        margin: -8px -8px 0.5rem;
+        font-size: 0.7rem;
+        flex-direction: column;
+        gap: 4px;
+        text-align: center;
+    }
+
+    .system-indicators {
+        gap: 12px;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .master-header {
+        border-radius: 12px;
+        margin-bottom: 0.5rem;
+    }
+
+    .master-header-content {
+        padding: 1.25rem 0.75rem;
+    }
+
+    .master-logo-bg {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+    }
+
+    .master-logo-bg svg {
+        width: 22px;
+        height: 22px;
+    }
+
+    .master-title h1 {
+        font-size: 1.1rem;
+    }
+
+    .master-title p {
+        font-size: 0.8rem;
+        margin-top: 4px;
+        max-width: 100%;
+    }
+
+    .master-nav {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        /* 2x2 grid for tabs */
+        padding: 4px;
+        border-radius: 0 0 12px 12px;
+        gap: 2px;
+    }
+
+    .m-nav-item {
+        padding: 10px 4px;
+        font-size: 0.75rem;
+        flex-direction: column;
+        gap: 4px;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .m-nav-item svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .m-nav-item span {
+        font-size: 0.65rem;
+    }
+
+    .stats-row-expanded {
+        grid-template-columns: repeat(2, 1fr);
+        /* 2 columns for stats on mobile! */
+        gap: 8px;
+    }
+
+    .m-stat-card {
+        padding: 1rem 0.5rem;
+        border-radius: 12px;
+        gap: 8px;
+    }
+
+    .m-stat-header {
+        margin-bottom: 0.5rem;
+        font-size: 0.65rem;
+        gap: 4px;
+    }
+
+    .m-stat-body {
+        margin-bottom: 0.5rem;
+    }
+
+    .m-stat-body h2 {
+        font-size: 1.4rem;
+    }
+
+    .trend-up,
+    .trend-neutral {
+        font-size: 0.65rem;
+    }
+
+    .activity-section {
+        margin-top: 1rem;
+        gap: 0.75rem;
+    }
+
+    .log-row {
+        padding: 10px;
+        gap: 10px;
+        flex-direction: row;
+        /* Keep it row if possible */
+        font-size: 0.75rem;
+    }
+
+    .log-user {
+        width: 140px;
+        /* Increased to show name info */
+        gap: 8px;
+        flex-shrink: 0;
+    }
+
+    .log-user img {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+    }
+
+    .log-info {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .log-info strong {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 0.7rem;
+    }
+
+    .log-info span {
+        display: none;
+        /* Still hide @username on small mobile to save space, but show full_name */
+    }
+
+    .log-content {
+        font-size: 0.75rem;
+        line-height: 1.3;
+    }
+
+    .log-meta {
+        flex-direction: column;
+        gap: 4px;
+        align-items: flex-end;
+    }
+
+    .system-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+
+    .system-card {
+        padding: 1rem;
+        border-radius: 16px;
+    }
+
+    .sys-metrics {
+        gap: 1rem;
+    }
+
+    .sys-m span {
+        font-size: 0.75rem;
     }
 }
 
