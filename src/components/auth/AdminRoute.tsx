@@ -2,14 +2,16 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
-const AdminRoute = ({ children }: { children: React.ReactElement }) => {
-  const { profile, loading } = useAuth();
+const AdminRoute = ({ children, type }: { children: React.ReactElement, type: 'any' | 'admin' | 'inst' }) => {
+  const { profile, loading, isAdmin, isInstitutional } = useAuth();
 
   if (loading) return <div>Cargando...</div>;
   
-  if (!profile || profile.user_type !== 'admin') {
-    return <Navigate to="/home" replace />;
-  }
+  if (!profile) return <Navigate to="/home" replace />;
+
+  if (type === 'admin' && !isAdmin) return <Navigate to="/home" replace />;
+  if (type === 'inst' && !isInstitutional) return <Navigate to="/home" replace />;
+  if (type === 'any' && !isAdmin && !isInstitutional) return <Navigate to="/home" replace />;
 
   return children;
 };

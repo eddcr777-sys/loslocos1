@@ -17,6 +17,9 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import './styles/App.css';
 import AdminPage from './components/auth/AdminPage';
 import AdminRoute from './components/auth/AdminRoute';
+import VerificationHub from './pages/Admin/VerificationHub';
+import CEODashboard from './pages/Admin/CEODashboard';
+import InstitutionalDashboard from './pages/Admin/InstitutionalDashboard';
 
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -57,11 +60,19 @@ const AppRoutes = () => (
       <Route path="/notifications" element={<NotificationsPage />} />
       <Route path="/post/:postId" element={<PostDetailPage />} />
       <Route path="/trends" element={<TrendsPage />} />
+      
+      {/* Centro de Verificación */}
+      <Route path="/verify-admin" element={<VerificationHub />} />
     </Route>
 
-    {/* Rutas de Administrador (también usan el layout) */}
-    <Route element={<AdminRoute><MainLayout /></AdminRoute>}>
-      <Route path="/admin" element={<AdminPage />} />
+    {/* Panel de Administración */}
+    <Route path="/admin" element={<AdminRoute type="admin"><MainLayout /></AdminRoute>}>
+      <Route index element={<CEODashboard />} />
+    </Route>
+
+    {/* Rutas Institucionales */}
+    <Route path="/institutional" element={<AdminRoute type="inst"><MainLayout /></AdminRoute>}>
+      <Route index element={<InstitutionalDashboard />} />
     </Route>
   </Routes>
 );

@@ -24,6 +24,8 @@ interface AuthContextType {
   unreadNotifications: number;
   decrementUnreadNotifications: () => void;
   clearUnreadNotifications: () => void;
+  isAdmin: boolean;
+  isInstitutional: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -182,10 +184,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
   }, [user]);
 
-  const value = useMemo(() => ({
-    session, user, profile, register, login, logout, loading, refreshProfile, unreadNotifications,
-    decrementUnreadNotifications, clearUnreadNotifications
-  }), [session, user, profile, loading, register, login, logout, refreshProfile, unreadNotifications, decrementUnreadNotifications, clearUnreadNotifications]);
+  const value = useMemo(() => {
+    const isAdmin = profile?.user_type === 'ceo' || profile?.user_type === 'admin';
+    const isInstitutional = profile?.user_type === 'institutional';
+    
+    return {
+      session, user, profile, register, login, logout, loading, refreshProfile, unreadNotifications,
+      decrementUnreadNotifications, clearUnreadNotifications, isAdmin, isInstitutional
+    };
+  }, [session, user, profile, loading, register, login, logout, refreshProfile, unreadNotifications, decrementUnreadNotifications, clearUnreadNotifications]);
 
   return (
     <AuthContext.Provider value={value}>

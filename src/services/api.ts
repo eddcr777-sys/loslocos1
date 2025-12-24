@@ -7,7 +7,7 @@ export interface Profile {
     faculty?: string;
     avatar_url: string;
     bio: string;
-    user_type?: 'common' | 'popular' | 'admin';
+    user_type?: 'common' | 'popular' | 'admin' | 'ceo' | 'institutional';
     last_profile_update?: string;
 }
 
@@ -21,6 +21,7 @@ export interface Post {
     likes: any; // Joined data (puede ser array u objeto)
     comments?: any; // Joined data (conteo)
     user_has_liked?: boolean;
+    is_official?: boolean;
 }
 
 export interface Comment {
@@ -163,7 +164,7 @@ export const api = {
         return { data, error };
     },
 
-    createPost: async (content: string, imageUrl: string | null) => {
+    createPost: async (content: string, imageUrl: string | null, isOfficial: boolean = false) => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return { error: { message: 'No authenticated user' } };
 
@@ -172,7 +173,8 @@ export const api = {
             .insert({
                 user_id: user.id,
                 content,
-                image_url: imageUrl
+                image_url: imageUrl,
+                is_official: isOfficial
             })
             .select()
             .single();
@@ -294,6 +296,43 @@ export const api = {
     },
 
     // --- NOTIFICATIONS ---
+    broadcastNotification: async (title: string, content: string, entityId?: string) => {
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return { error: { message: 'No authenticated user' } };
+
+            const { data: profiles, error: pError } = await supabase
+                .from('profiles')
+                .select('id');
+
+            if (pError) throw pError;
+
+            if (profiles) {
+                const notifications = profiles
+                    .filter(p => p.id !== user.id)
+                    .map(p => ({
+                        user_id: p.id,
+                        actor_id: user.id,
+                        type: 'official',
+                        entity_id: entityId,
+                        title: title,
+                        content: content.substring(0, 150),
+                        read: false
+                    }));
+
+                const { error: nError } = await supabase
+                    .from('notifications')
+                    .insert(notifications);
+
+                if (nError) throw nError;
+            }
+            return { success: true };
+        } catch (error) {
+            console.error('Broadcast error:', error);
+            return { error };
+        }
+    },
+
     getNotifications: async (userId: string) => {
         try {
             // Realizamos la carga en dos pasos para evitar errores de join si la relación FK no está en el cache de Supabase
@@ -492,5 +531,35 @@ export const api = {
         }
 
         return { error };
+    },
+
+    // --- ADMIN / STATS ---
+    getSystemStats: async () => {
+        const [profiles, posts, comments] = await Promise.all([
+            supabase.from('profiles').select('id', { count: 'exact', head: true }),
+            supabase.from('posts').select('id', { count: 'exact', head: true }),
+            supabase.from('comments').select('id', { count: 'exact', head: true })
+        ]);
+
+        return {
+            usersCount: profiles.count || 0,
+            postsCount: posts.count || 0,
+            commentsCount: comments.count || 0,
+            error: profiles.error || posts.error || comments.error
+        };
+    },
+
+    getOfficialPosts: async () => {
+        const { data, error } = await supabase
+            .from('posts')
+            .select(`
+                *,
+                profiles (id, full_name, avatar_url, user_type),
+                likes (count),
+                comments (count)
+            `)
+            .eq('is_official', true)
+            .order('created_at', { ascending: false });
+        return { data, error };
     }
 };

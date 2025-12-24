@@ -4,8 +4,10 @@ import { api, Post } from '../services/api';
 interface FeedContextType {
   posts: Post[];
   loading: boolean;
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
   refreshFeed: () => Promise<void>;
-  createPost: (content: string, image: File | null) => Promise<{ error: any }>;
+  createPost: (content: string, image: File | null, isOfficial?: boolean) => Promise<{ error: any }>;
 }
 
 const FeedContext = createContext<FeedContextType | undefined>(undefined);
@@ -13,6 +15,7 @@ const FeedContext = createContext<FeedContextType | undefined>(undefined);
 export const FeedProvider: FC<{children: ReactNode}> = ({ children }) => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('para-ti');
 
   const refreshFeed = useCallback(async () => {
     setLoading(true);
@@ -23,7 +26,7 @@ export const FeedProvider: FC<{children: ReactNode}> = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const createPost = async (content: string, image: File | null) => {
+  const createPost = async (content: string, image: File | null, isOfficial: boolean = false) => {
     let imageUrl = null;
     if (image) {
       const { data, error } = await api.uploadImage(image);
@@ -31,7 +34,7 @@ export const FeedProvider: FC<{children: ReactNode}> = ({ children }) => {
       imageUrl = data;
     }
 
-    const { error } = await api.createPost(content, imageUrl);
+    const { error } = await api.createPost(content, imageUrl, isOfficial);
     if (!error) {
       await refreshFeed();
     }
@@ -42,7 +45,7 @@ export const FeedProvider: FC<{children: ReactNode}> = ({ children }) => {
     refreshFeed();
   }, [refreshFeed]);
 
-  const value = { posts, loading, refreshFeed, createPost };
+  const value = { posts, loading, activeTab, setActiveTab, refreshFeed, createPost };
 
   return (
     <FeedContext.Provider value={value}>{children}</FeedContext.Provider>

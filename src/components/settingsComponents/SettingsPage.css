@@ -61,14 +61,33 @@
   background: white;
   border-radius: 16px;
   padding: 2rem;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   min-height: 500px;
+}
+
+.settings-nav-divider {
+  height: 1px;
+  background-color: var(--border-color, #e2e8f0);
+  margin: 0.5rem 1rem;
+}
+
+.settings-nav-item.admin-item {
+  color: var(--text-primary);
+  background-color: #f8fafc;
+  border: 1px dashed var(--border-color);
+}
+
+.settings-nav-item.admin-item:hover {
+  background-color: white;
+  border-color: var(--faculty-eng, #3b82f6);
+  transform: translateX(4px);
 }
 
 @media (max-width: 768px) {
   .settings-layout {
     flex-direction: column;
   }
+
   .settings-sidebar {
     width: 100%;
   }

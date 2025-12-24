@@ -58,22 +58,37 @@ const TrendsAside = () => {
             }
         }
 
-        // 2. Post Destacado (Más likes)
-        const sortedByLikes = [...postsData].sort((a, b) => {
-            const likesA = a.likes ? a.likes.length : 0;
-            const likesB = b.likes ? b.likes.length : 0;
-            return likesB - likesA;
-        });
+        // 2. Post Destacado (Oficiales primero, luego más likes)
+        const officialPosts = postsData.filter(p => p.is_official === true);
+        let topPost = null;
 
-        if (sortedByLikes.length > 0) {
-            const topPost = sortedByLikes[0];
+        if (officialPosts.length > 0) {
+            // Priorizar el aviso oficial más reciente
+            topPost = officialPosts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0];
             setFeaturedPost({
                 id: topPost.id,
-                author: (topPost.profiles as any)?.full_name || 'Usuario',
+                author: (topPost.profiles as any)?.full_name || 'Institucional',
                 content: topPost.content,
                 likes: (topPost.likes as any)?.length || 0,
-                reason: 'Post destacado'
+                reason: 'Aviso Universitario'
             });
+        } else {
+            const sortedByLikes = [...postsData].sort((a, b) => {
+                const likesA = a.likes ? a.likes.length : 0;
+                const likesB = b.likes ? b.likes.length : 0;
+                return likesB - likesA;
+            });
+
+            if (sortedByLikes.length > 0) {
+                topPost = sortedByLikes[0];
+                setFeaturedPost({
+                    id: topPost.id,
+                    author: (topPost.profiles as any)?.full_name || 'Usuario',
+                    content: topPost.content,
+                    likes: (topPost.likes as any)?.length || 0,
+                    reason: 'Post destacado'
+                });
+            }
         }
 
         // 3. Temas (Hashtags)

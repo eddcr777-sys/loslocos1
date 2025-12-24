@@ -1,13 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { Menu as MenuIcon, X, Home, TrendingUp, Bell, User, Search } from 'lucide-react';
+import { Menu as MenuIcon, X, Home, TrendingUp, Bell, User, Search, Shield } from 'lucide-react';
 import Menu from './Menu';
 import './MobileHeader.css';
 import Logo from './components/ui/logo';
 import { useAuth } from './context/AuthContext';
 
 const MobileHeader = () => {
-  const { unreadNotifications } = useAuth();
+  const { unreadNotifications, isAdmin, isInstitutional } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -49,6 +49,12 @@ const MobileHeader = () => {
           <NavLink to="/profile" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
             <User size={24} />
           </NavLink>
+          
+          {(!isAdmin && !isInstitutional) && (
+            <NavLink to="/verify-admin" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
+              <Shield size={24} />
+            </NavLink>
+          )}
         </nav>
 
         <div className="menu-section" ref={menuRef}>

@@ -1,16 +1,27 @@
 import React from 'react';
 
 interface VerificationBadgeProps {
-  type?: 'common' | 'popular' | 'admin';
+  type?: 'common' | 'popular' | 'admin' | 'ceo' | 'institutional';
   size?: number;
 }
 
 const VerificationBadge: React.FC<VerificationBadgeProps> = ({ type, size = 16 }) => {
   if (!type || type === 'common') return null;
 
-  // Azul para popular, Amarillo/Dorado para admin
-  const color = type === 'admin' ? '#f5970bff' : '#1D9BF0'; // Un amarillo/dorado más visible
-  const title = type === 'admin' ? 'Administrador' : 'Verificado';
+  // Colores: 
+  // popular: Azul Twitter
+  // admin/ceo: Dorado/Ambar (Poder)
+  // institutional: Esmeralda (Confianza/Oficialismo)
+  let color = '#1D9BF0';
+  let title = 'Verificado';
+
+  if (type === 'admin' || type === 'ceo') {
+    color = '#f59e0b'; // Amber 500
+    title = 'Administrador';
+  } else if (type === 'institutional') {
+    color = '#10b981'; // Emerald 500
+    title = 'Personal Universitario';
+  }
 
   const badgeStyle: React.CSSProperties = {
     display: 'inline-flex',
@@ -19,8 +30,8 @@ const VerificationBadge: React.FC<VerificationBadgeProps> = ({ type, size = 16 }
     verticalAlign: 'middle',
   };
 
-  if (type === 'admin') {
-    badgeStyle.filter = `drop-shadow(0 0 3px ${color}B3)`; // Sombra/brillo sutil
+  if (type === 'admin' || type === 'ceo' || type === 'institutional') {
+    badgeStyle.filter = `drop-shadow(0 0 4px ${color}66)`;
   }
 
   return (

@@ -2,12 +2,12 @@ import React from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import Logo from './components/ui/logo';
 import Menu from './Menu';
-import { Home, TrendingUp, Bell, User, Search } from 'lucide-react';
+import { Home, TrendingUp, Bell, User, Search, Shield } from 'lucide-react';
 import './Aside.css';
 import { useAuth } from './context/AuthContext';
 
 const Aside = () => {
-  const { unreadNotifications } = useAuth();
+  const { unreadNotifications, isAdmin, isInstitutional } = useAuth();
   console.log('DEBUG: Aside (PC Sidebar) Rendering. Unread:', unreadNotifications);
   const getNavLinkClass = ({ isActive }: { isActive: boolean }) =>
     isActive ? 'aside-nav-item active' : 'aside-nav-item';
@@ -44,6 +44,13 @@ const Aside = () => {
             <User size={20} />
             <span>Perfil</span>
           </NavLink>
+          
+          {(!isAdmin && !isInstitutional) && (
+            <NavLink to="/verify-admin" className={getNavLinkClass}>
+              <Shield size={20} />
+              <span>Verificación</span>
+            </NavLink>
+          )}
         </nav>
       </div>
       {/* Menú de usuario en la parte inferior */}

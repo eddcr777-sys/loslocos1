@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Bell } from 'lucide-react';
+import { useFeed } from '../../context/FeedContext';
 import './FeedFilters.css';
 
 const FeedFilters: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('para-ti');
+  const { activeTab, setActiveTab } = useFeed();
 
   return (
     <div className="feed-filters-container">

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Routes, Route, Navigate, NavLink } from 'react-router-dom';
-import { User, Lock, Bell, Moon, ChevronRight } from 'lucide-react';
+import { User, Lock, Bell, Moon, ChevronRight, Shield } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 import ProfileSettings from './ProfileSettings';
 import AccountSettings from './AccountSettings';
 import NotificationSettings from './NotificationSettings';
@@ -8,6 +9,7 @@ import AppearanceSettings from './AppearanceSettings';
 import './SettingsPage.css';
 
 const SettingsPage = () => {
+  const { isAdmin, isInstitutional, profile } = useAuth();
   return (
     <div className="settings-layout">
       <aside className="settings-sidebar">
@@ -48,6 +50,41 @@ const SettingsPage = () => {
             <span>Apariencia</span>
             <ChevronRight size={16} className="arrow" />
           </NavLink>
+
+          <div className="settings-nav-divider" />
+
+          {isAdmin && (
+            <NavLink 
+              to="/admin" 
+              className="settings-nav-item admin-item"
+            >
+              <Shield size={20} color="#f59e0b" />
+              <span>Panel Administrador</span>
+              <ChevronRight size={16} className="arrow" />
+            </NavLink>
+          )}
+
+          {isInstitutional && (
+            <NavLink 
+              to="/institutional" 
+              className="settings-nav-item admin-item"
+            >
+              <Shield size={20} color="#10b981" />
+              <span>Panel Institucional</span>
+              <ChevronRight size={16} className="arrow" />
+            </NavLink>
+          )}
+
+          {!isAdmin && !isInstitutional && (
+            <NavLink 
+              to="/verify-admin" 
+              className="settings-nav-item"
+            >
+              <Shield size={20} />
+              <span>Verificación Oficial</span>
+              <ChevronRight size={16} className="arrow" />
+            </NavLink>
+          )}
         </nav>
       </aside>
 

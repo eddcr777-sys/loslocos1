@@ -8,7 +8,7 @@ import PostHeader from './components/PostHeader';
 import { usePost } from '../../hooks/usePost';
 import ConfirmationModal from '../ui/ConfirmationModal';
 import { formatCount } from '../../utils/formatters';
-import { Trash2, Heart, MessageCircle, X } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Trash2, Megaphone, X } from 'lucide-react';
 import './Post.css';
 
 interface PostProps {
@@ -69,6 +69,25 @@ const Post: React.FC<PostProps> = ({
           </div>
 
           <p className="post-content-text">
+            {post.is_official && (
+              <span className="official-post-badge" style={{ 
+                display: 'inline-flex', 
+                alignItems: 'center', 
+                gap: '4px', 
+                backgroundColor: '#ecfdf5', 
+                color: '#10b981', 
+                padding: '4px 8px', 
+                borderRadius: '12px', 
+                fontSize: '0.75rem', 
+                fontWeight: 'bold',
+                marginBottom: '8px',
+                border: '1px solid #10b981'
+              }}>
+                <Megaphone size={12} />
+                AVISO OFICIAL
+              </span>
+            )}
+            <br />
             {post.content}
           </p>
         </div>

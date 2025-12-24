@@ -9,7 +9,15 @@ import Stories from '../../components/layout/Stories';
 import FeedFilters from '../../components/layout/FeedFilters';
 
 function HomePage() {
-  const { posts, loading, refreshFeed } = useFeed();
+  const { posts, loading, refreshFeed, activeTab } = useFeed();
+
+  // Filtrado según la pestaña activa
+  const filteredPosts = posts.filter(post => {
+    if (activeTab === 'avisos') return post.is_official === true;
+    // Si queremos que 'Para ti' NO muestre los oficiales (opcional), 
+    // pero usualmente 'Para ti' es el feed general.
+    return true; 
+  });
 
   return (
     <div className="home-container">
@@ -20,7 +28,7 @@ function HomePage() {
         {loading ? (
           <p>Cargando publicaciones...</p>
         ) : (
-          [...posts]
+          [...filteredPosts]
             .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
             .map((post) => (
             <Post key={post.id} post={post} onPostDeleted={refreshFeed} />

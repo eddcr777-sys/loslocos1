@@ -29,3 +29,19 @@
 .user-menu-item svg {
   flex-shrink: 0;
 }
+
+.user-menu-item.admin-highlight {
+  background-color: #f8fafc;
+  border: 1px dashed var(--border-color, #e2e8f0);
+}
+
+.user-menu-item.admin-highlight:hover {
+  background-color: white;
+  transform: scale(1.02);
+}
+
+@media (max-width: 480px) {
+  .user-menu-item {
+    padding: 1rem;
+  }
+}

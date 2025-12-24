@@ -1,14 +1,16 @@
 import React from 'react';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
   size?: 'small' | 'medium' | 'large';
+  fullWidth?: boolean;
 }
 
 const Button: React.FC<ButtonProps> = ({ 
   children, 
   variant = 'primary', 
   size = 'medium', 
+  fullWidth = false,
   style, 
   ...props 
 }) => {
@@ -23,6 +25,7 @@ const Button: React.FC<ButtonProps> = ({
     alignItems: 'center',
     justifyContent: 'center',
     gap: '8px',
+    width: fullWidth ? '100%' : 'auto',
   };
 
   // Variants
@@ -45,6 +48,11 @@ const Button: React.FC<ButtonProps> = ({
     ghost: {
         backgroundColor: 'transparent',
         color: 'var(--text-secondary)'
+    },
+    danger: {
+        backgroundColor: '#fee2e2',
+        color: '#ef4444',
+        border: '1px solid #fecaca'
     }
   };
 

@@ -8,7 +8,7 @@ interface PostHeaderProps {
   userId: string;
   avatarUrl?: string;
   fullName?: string;
-  userType?: 'common' | 'popular' | 'admin';
+  userType?: 'common' | 'popular' | 'admin' | 'ceo' | 'institutional';
   createdAt: string;
 }
 
