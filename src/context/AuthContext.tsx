@@ -90,7 +90,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 .eq('user_id', user.id)
                 .eq('read', false);
             
-            console.log('DEBUG: AuthContext - Initial unread count fetched:', count);
+            // Log removed
             if (error) console.error('DEBUG: AuthContext - Fetch error:', error);
             setUnreadNotifications(count || 0);
         } catch (err) {
@@ -111,12 +111,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 filter: `user_id=eq.${user.id}`
             },
             (payload) => {
-                console.log('DEBUG: AuthContext - Realtime INSERT event received for notifications!');
+                // Log removed
                 setUnreadNotifications(prev => prev + 1);
             }
         )
         .subscribe((status) => {
-            console.log('AuthContext - Subscription status:', status);
+            // Log removed
         });
 
     return () => {

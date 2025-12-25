@@ -7,6 +7,8 @@ import { Image, Send, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import './CreatePost.css';
 
+const DEFAULT_AVATAR = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+
 interface CreatePostProps {
   onPostCreated: () => void;
 }
@@ -54,7 +56,7 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated }) => {
           <div className="create-post-container" onClick={() => setIsExpanded(true)}>
             <div className="create-post-card">
                 <Avatar 
-                  src={profile?.avatar_url} 
+                  src={profile?.avatar_url || DEFAULT_AVATAR} 
                   size="small" 
                   className="create-post-avatar"
                 />
@@ -79,7 +81,7 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated }) => {
         <form onSubmit={handleSubmit}>
           <div className="create-post-body">
             <Avatar 
-              src={profile?.avatar_url} 
+              src={profile?.avatar_url || DEFAULT_AVATAR} 
               size="medium" 
             />
             <textarea

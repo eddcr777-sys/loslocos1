@@ -1,0 +1,205 @@
+/* AdminPage.css - Professional Admin Directory Styles */
+
+.admin-users-view {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    width: 100%;
+    margin: 0 auto;
+    padding: 1rem 0;
+    animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.users-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    padding: 1rem 2rem;
+    border-radius: 24px;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;
+    max-width: 600px;
+}
+
+.search-bar:focus-within {
+    background: #ffffff;
+    border-color: #3b82f6;
+    box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.1), 0 0 0 4px rgba(59, 130, 246, 0.1);
+    transform: translateY(-2px);
+}
+
+.search-bar svg {
+    color: #64748b;
+    transition: color 0.3s;
+}
+
+.search-bar:focus-within svg {
+    color: #3b82f6;
+}
+
+.search-bar input {
+    border: none;
+    background: transparent;
+    outline: none;
+    flex: 1;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #1e293b;
+}
+
+.search-bar input::placeholder {
+    color: #94a3b8;
+}
+
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem;
+    color: #64748b;
+    font-weight: 500;
+    gap: 1rem;
+}
+
+.users-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1.5rem;
+}
+
+.user-role-card {
+    padding: 1.5rem;
+    border-radius: 20px;
+    background: #ffffff;
+    border: 1px solid #f1f5f9;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1.5rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+}
+
+.user-role-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+    border-color: #e2e8f0;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.name-box {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.name-box strong {
+    font-size: 1.05rem;
+    color: #0f172a;
+    font-weight: 600;
+}
+
+.user-meta span {
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+.role-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid #f1f5f9;
+    position: relative;
+}
+
+.role-icon-label {
+    position: absolute;
+    top: 1.25rem;
+    left: 0;
+    color: #64748b;
+    pointer-events: none;
+    z-index: 10;
+    transform: translate(12px, 12px);
+}
+
+.role-selector select {
+    appearance: none;
+    background: #f8fafc;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #334155;
+    cursor: pointer;
+    outline: none;
+    width: 100%;
+    transition: all 0.2s;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+}
+
+.role-selector select:hover {
+    background-color: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.role-selector select:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    background-color: #fff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .users-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .search-bar {
+        padding: 0.75rem 1.25rem;
+    }
+
+    .admin-users-view {
+        gap: 1.5rem;
+    }
+}

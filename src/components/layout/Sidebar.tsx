@@ -7,7 +7,7 @@ const Sidebar = () => {
   const { user, logout, unreadNotifications } = useAuth();
   const navigate = useNavigate();
 
-  console.log('Sidebar - rendering. unreadNotifications:', unreadNotifications);
+// Log removed
 
   const handleLogout = async () => {
     await logout();

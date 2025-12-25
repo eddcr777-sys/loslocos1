@@ -4,6 +4,8 @@ import { supabase } from '../../utils/supabaseClient';
 import { api } from '../../services/api';
 import { Camera } from 'lucide-react';
 
+const DEFAULT_AVATAR = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+
 const ProfileSettings = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
@@ -109,7 +111,7 @@ const ProfileSettings = () => {
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
         <div style={{ position: 'relative', cursor: 'pointer' }}>
           <div style={{ width: '100px', height: '100px', borderRadius: '50%', overflow: 'hidden', border: '4px solid #f1f5f9' }}>
-            <img src={avatarPreview || formData.avatar_url || 'https://via.placeholder.com/150'} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img src={avatarPreview || formData.avatar_url || DEFAULT_AVATAR} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
           <label htmlFor="avatar-upload" style={{ position: 'absolute', bottom: '0', right: '0', background: '#2563eb', color: 'white', padding: '6px', borderRadius: '50%', cursor: 'pointer' }}>
             <Camera size={16} />

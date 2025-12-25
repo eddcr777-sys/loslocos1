@@ -34,6 +34,22 @@ export interface Comment {
     profiles: Profile;
 }
 
+export interface AdminLog {
+    id: string;
+    action: string;
+    details: string;
+    created_at: string;
+    admin_id: string;
+}
+
+export interface ScheduledPost {
+    id: string;
+    content: string;
+    scheduled_for: string;
+    status: 'pending' | 'published' | 'failed';
+    created_at: string;
+}
+
 export const api = {
     // --- PROFILES ---
     verifyAndUpgradeRole: async (key: string, userId: string) => {
@@ -529,7 +545,7 @@ export const api = {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return { error: { message: 'No authenticated user' } };
 
-        console.log('Attempting to delete story:', storyId, 'for user:', user.id);
+        // Log removed
 
         const { error, status, statusText } = await supabase
             .from('stories')
@@ -540,7 +556,7 @@ export const api = {
         if (error) {
             console.error('Supabase delete error:', error);
         } else {
-            console.log('Delete response status:', status, statusText);
+            // Log removed
         }
 
         return { error };
@@ -574,5 +590,66 @@ export const api = {
             .eq('is_official', true)
             .order('created_at', { ascending: false });
         return { data, error };
+    },
+
+    // --- ADMIN TOOLS (REAL DATA) ---
+    logAdminAction: async (action: string, details: string, targetId?: string) => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        await supabase.from('admin_logs').insert({
+            action,
+            details,
+            target_id: targetId,
+            admin_id: user.id
+        });
+    },
+
+    getAdminLogs: async (limit: number = 20) => {
+        const { data, error } = await supabase
+            .from('admin_logs')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .limit(limit);
+        return { data, error };
+    },
+
+    getDashboardAnalytics: async () => {
+        // Calls the RPC we defined in SQL
+        const { data, error } = await supabase.rpc('get_weekly_growth');
+        return { data, error };
+    },
+
+    // --- SCHEDULING (REAL DATA) ---
+    schedulePost: async (content: string, date: string, isOfficial: boolean = false) => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return { error: { message: 'No auth user' } };
+
+        const { data, error } = await supabase.from('scheduled_posts').insert({
+            user_id: user.id,
+            content,
+            scheduled_for: date,
+            is_official: isOfficial,
+            status: 'pending'
+        }).select().single();
+
+        return { data, error };
+    },
+
+    getScheduledPosts: async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return { data: [], error: null };
+
+        const { data, error } = await supabase
+            .from('scheduled_posts')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('scheduled_for', { ascending: true });
+        return { data, error };
+    },
+
+    deleteScheduledPost: async (id: string) => {
+        const { error } = await supabase.from('scheduled_posts').delete().eq('id', id);
+        return { error };
     }
 };

@@ -54,7 +54,7 @@ const PostDetailPage = () => {
       // Si falla o no existe, y parece ser un ID (o simplemente por si acaso),
       // intentamos buscar si es un ID de comentario (fallback para notificaciones viejas)
       if (!data) {
-        console.log('Post not found, trying fallback as comment ID...');
+// Log removed
         const fallback = await api.getPostByCommentId(id);
         if (fallback.data) {
           data = fallback.data;

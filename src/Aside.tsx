@@ -8,7 +8,7 @@ import { useAuth } from './context/AuthContext';
 
 const Aside = () => {
   const { unreadNotifications, isAdmin, isInstitutional } = useAuth();
-  console.log('DEBUG: Aside (PC Sidebar) Rendering. Unread:', unreadNotifications);
+// Log removed for production
   const getNavLinkClass = ({ isActive }: { isActive: boolean }) =>
     isActive ? 'aside-nav-item active' : 'aside-nav-item';
 

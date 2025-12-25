@@ -1,26 +1,41 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import MainLayout from './MainLayout'; // Usando el layout responsivo con Outlet
-import HomePage from './pages/HomePage/HomePage';
-import AboutPage from './pages/AboutPage/AboutPage';
-import ProfilePage from './pages/ProfilePage/ProfilePage';
-import SearchPage from './pages/SearchPage/SearchPage';
-import NotificationsPage from './pages/NotificationsPage/NotificationsPage';
-import TrendsPage from './components/TrendsPage/TrendsPage';
-import PostDetailPage from './pages/NotificationsPage/PostDetailPage';
-import LoginPage from './pages/AuthPage/LoginPage';
-import RegisterPage from './pages/AuthPage/RegisterPage';
-import SettingsPage from './components/settingsComponents/SettingsPage';
-import WelcomePage from './pages/AuthPage/WelcomePage';
+import MainLayout from './MainLayout';
 import { FeedProvider } from './context/FeedContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import './styles/App.css';
-import AdminPage from './components/auth/AdminPage';
 import AdminRoute from './components/auth/AdminRoute';
-import VerificationHub from './pages/Admin/VerificationHub';
-import CEODashboard from './pages/Admin/CEODashboard';
-import InstitutionalDashboard from './pages/Admin/InstitutionalDashboard';
+import './styles/App.css';
 
+// Lazy loading pages for performance
+const HomePage = lazy(() => import('./pages/HomePage/HomePage'));
+const AboutPage = lazy(() => import('./pages/AboutPage/AboutPage'));
+const ProfilePage = lazy(() => import('./pages/ProfilePage/ProfilePage'));
+const SearchPage = lazy(() => import('./pages/SearchPage/SearchPage'));
+const NotificationsPage = lazy(() => import('./pages/NotificationsPage/NotificationsPage'));
+const TrendsPage = lazy(() => import('./components/TrendsPage/TrendsPage'));
+const PostDetailPage = lazy(() => import('./pages/NotificationsPage/PostDetailPage'));
+const LoginPage = lazy(() => import('./pages/AuthPage/LoginPage'));
+const RegisterPage = lazy(() => import('./pages/AuthPage/RegisterPage'));
+const SettingsPage = lazy(() => import('./components/settingsComponents/SettingsPage'));
+const WelcomePage = lazy(() => import('./pages/AuthPage/WelcomePage'));
+const VerificationHub = lazy(() => import('./pages/Admin/VerificationHub'));
+const CEODashboard = lazy(() => import('./pages/Admin/CEODashboard'));
+const InstitutionalDashboard = lazy(() => import('./pages/Admin/InstitutionalDashboard'));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage/NotFoundPage'));
+
+// Loading component
+const PageLoader = () => (
+  <div style={{ 
+    display: 'flex', 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    height: '100vh',
+    background: 'var(--bg-primary)',
+    color: 'var(--text-secondary)'
+  }}>
+    Cargando...
+  </div>
+);
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
@@ -30,10 +45,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-/**
- * Si el usuario ya está autenticado, lo redirige a /home
- * para evitar que vea las páginas de bienvenida, login o registro.
- */
 const RedirectIfAuthenticated = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
   if (user) {
@@ -43,38 +54,42 @@ const RedirectIfAuthenticated = ({ children }: { children: React.ReactNode }) =>
 };
 
 const AppRoutes = () => (
-  <Routes>
-    {/* Rutas públicas (se redirigen si el usuario está logueado) */}
-    <Route path="/" element={<RedirectIfAuthenticated><WelcomePage /></RedirectIfAuthenticated>} />
-    <Route path="/login" element={<RedirectIfAuthenticated><LoginPage /></RedirectIfAuthenticated>} />
-    <Route path="/register" element={<RedirectIfAuthenticated><RegisterPage /></RedirectIfAuthenticated>} />
-    <Route path="/about" element={<AboutPage />} />
+  <Suspense fallback={<PageLoader />}>
+    <Routes>
+      {/* Rutas públicas */}
+      <Route path="/" element={<RedirectIfAuthenticated><WelcomePage /></RedirectIfAuthenticated>} />
+      <Route path="/login" element={<RedirectIfAuthenticated><LoginPage /></RedirectIfAuthenticated>} />
+      <Route path="/register" element={<RedirectIfAuthenticated><RegisterPage /></RedirectIfAuthenticated>} />
+      <Route path="/about" element={<AboutPage />} />
 
-    {/* Rutas protegidas que usan el MainLayout responsivo */}
-    <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
-      <Route path="/home" element={<HomePage />} />
-      <Route path="/profile" element={<ProfilePage />} />
-      <Route path="/profile/:userId" element={<ProfilePage />} />
-      <Route path="/settings/*" element={<SettingsPage />} />
-      <Route path="/search" element={<SearchPage />} />
-      <Route path="/notifications" element={<NotificationsPage />} />
-      <Route path="/post/:postId" element={<PostDetailPage />} />
-      <Route path="/trends" element={<TrendsPage />} />
-      
-      {/* Centro de Verificación */}
-      <Route path="/verify-admin" element={<VerificationHub />} />
-    </Route>
+      {/* Rutas protegidas */}
+      <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
+        <Route path="/home" element={<HomePage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/profile/:userId" element={<ProfilePage />} />
+        {/* Settings tiene sub-rutas, así que usamos asterisco */}
+        <Route path="/settings/*" element={<SettingsPage />} />
+        <Route path="/search" element={<SearchPage />} />
+        <Route path="/notifications" element={<NotificationsPage />} />
+        <Route path="/post/:postId" element={<PostDetailPage />} />
+        <Route path="/trends" element={<TrendsPage />} />
+        <Route path="/verify-admin" element={<VerificationHub />} />
+      </Route>
 
-    {/* Panel de Administración */}
-    <Route path="/admin" element={<AdminRoute type="admin"><MainLayout /></AdminRoute>}>
-      <Route index element={<CEODashboard />} />
-    </Route>
+      {/* Panel de Administración */}
+      <Route path="/admin" element={<AdminRoute type="admin"><MainLayout /></AdminRoute>}>
+        <Route index element={<CEODashboard />} />
+      </Route>
 
-    {/* Rutas Institucionales */}
-    <Route path="/institutional" element={<AdminRoute type="inst"><MainLayout /></AdminRoute>}>
-      <Route index element={<InstitutionalDashboard />} />
-    </Route>
-  </Routes>
+      {/* Rutas Institucionales */}
+      <Route path="/institutional" element={<AdminRoute type="inst"><MainLayout /></AdminRoute>}>
+        <Route index element={<InstitutionalDashboard />} />
+      </Route>
+
+      {/* 404 Fallback */}
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
+  </Suspense>
 );
 
 function App() {

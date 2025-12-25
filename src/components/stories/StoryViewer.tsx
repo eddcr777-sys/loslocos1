@@ -5,6 +5,8 @@ import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
 import './StoryViewer.css';
 
+const DEFAULT_AVATAR = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+
 interface StoryViewerProps {
   stories: any[];
   initialIndex: number;
@@ -118,7 +120,7 @@ const StoryViewer: React.FC<StoryViewerProps> = ({ stories: initialStories, init
         {/* Header */}
         <div className="story-viewer-header">
           <div className="story-viewer-user">
-            <Avatar src={currentStory.profiles.avatar_url} size="small" />
+            <Avatar src={currentStory.profiles.avatar_url || DEFAULT_AVATAR} size="small" />
             <div className="story-viewer-info">
               <span className="story-viewer-name">
                 {currentStory.profiles.full_name}

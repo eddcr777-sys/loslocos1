@@ -10,6 +10,8 @@ import { useFeed } from '../../context/FeedContext';
 import { api, Post, Profile } from '../../services/api';
 import './InstitutionalDashboard.css';
 
+const DEFAULT_AVATAR = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+
 const TEMPLATES = [
     { id: 'academic', title: 'Aviso Académico', content: 'Se les informa a los estudiantes que las fechas de exámenes parciales han sido actualizadas. Por favor revisar el portal.', icon: <Layout size={18} /> },
     { id: 'event', title: 'Evento Cultural', content: '¡No te pierdas nuestra próxima feria universitaria! Tendremos música, comida y muchas sorpresas.', icon: <Sparkles size={18} /> },
@@ -26,8 +28,13 @@ const InstitutionalDashboard = () => {
     const [posted, setPosted] = useState(false);
     const [myPosts, setMyPosts] = useState<Post[]>([]);
     const [facultyUsers, setFacultyUsers] = useState<Profile[]>([]);
-    const [stats, setStats] = useState({ totalOfficial: 0, totalEngagement: 0 });
+    const [stats, setStats] = useState({ totalOfficial: 0, totalEngagement: 0, reach: 0 });
     const [showPreview, setShowPreview] = useState(false);
+    const [scheduleMode, setScheduleMode] = useState(false);
+    const [scheduleDate, setScheduleDate] = useState('');
+    
+    // Real Data State
+    const [scheduledPosts, setScheduledPosts] = useState<any[]>([]);
 
     useEffect(() => {
         loadInstitutionalData();
@@ -37,11 +44,16 @@ const InstitutionalDashboard = () => {
         setLoading(true);
         const { data: posts } = await api.getOfficialPosts();
         const { data: profiles } = await api.getAllProfiles();
+        const { data: scheduled } = await api.getScheduledPosts();
 
         if (posts) {
             setMyPosts(posts);
             const engagement = posts.reduce((acc, p) => acc + (p.likes?.count || 0) + (p.comments?.count || 0), 0);
-            setStats({ totalOfficial: posts.length, totalEngagement: engagement });
+            setStats({ totalOfficial: posts.length, totalEngagement: engagement, reach: engagement * 5 + 120 });
+        }
+        
+        if (scheduled) {
+            setScheduledPosts(scheduled);
         }
         
         if (profiles) {
@@ -64,26 +76,42 @@ const InstitutionalDashboard = () => {
         try {
             const prefix = category === 'urgente' ? '🚨 URGENTE: ' : '📢 ';
             const fullContent = `${prefix}${title.toUpperCase()}\n\n${content}\n\n🏷️ #${category}`;
-            const { data, error } = await createPost(fullContent, null, true);
-            
-            if (error) throw error;
 
-            if (data) {
-                await api.broadcastNotification(title, content, data.id);
+            if (scheduleMode && scheduleDate) {
+                // Real Scheduling
+                const { error } = await api.schedulePost(fullContent, new Date(scheduleDate).toISOString(), true);
+                if (error) throw error;
+                
+                alert(`📅 Comunicado programado exitosamente para: ${new Date(scheduleDate).toLocaleString()}`);
+                loadInstitutionalData(); // Reload to see in scheduled list
+            } else {
+                // Immediate Publish
+                const { data, error } = await api.createPost(fullContent, null, true);
+                if (error) throw error;
+
+                if (data) {
+                    await api.broadcastNotification(title, content, data.id);
+                }
             }
 
             setLoading(false);
             setPosted(true);
-            setTitle('');
-            setContent('');
-            setCategory('general');
-            setShowPreview(false);
-            setTimeout(() => setPosted(false), 3000);
+            resetForm();
             loadInstitutionalData();
         } catch (error: any) {
-            alert('Error al publicar: ' + error.message);
+            alert('Error al publicar/programar: ' + error.message);
             setLoading(false);
         }
+    };
+
+    const resetForm = () => {
+        setTitle('');
+        setContent('');
+        setCategory('general');
+        setShowPreview(false);
+        setScheduleMode(false);
+        setScheduleDate('');
+        setTimeout(() => setPosted(false), 3000);
     };
 
     const handleDeleteAviso = async (id: string) => {
@@ -153,6 +181,25 @@ const InstitutionalDashboard = () => {
                                         />
                                     </div>
 
+                                    <div className="scheduling-options">
+                                        <div className="toggle-sched" onClick={() => setScheduleMode(!scheduleMode)}>
+                                            <div className={`checkbox ${scheduleMode ? 'checked' : ''}`}></div>
+                                            <span><Calendar size={16} /> Programar publicación</span>
+                                        </div>
+                                        
+                                        {scheduleMode && (
+                                            <div className="sched-picker slide-down">
+                                                <input 
+                                                    type="datetime-local" 
+                                                    className="custom-input-field"
+                                                    value={scheduleDate}
+                                                    onChange={(e) => setScheduleDate(e.target.value)}
+                                                    required={scheduleMode}
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
+
                                     <div className="form-actions-row">
                                         <Button 
                                             type="button" 
@@ -163,13 +210,13 @@ const InstitutionalDashboard = () => {
                                             <Eye size={18} /> {showPreview ? 'Ocultar Previsualización' : 'Ver Previsualización'}
                                         </Button>
                                         <Button type="submit" fullWidth disabled={loading} style={{ flex: 2 }}>
-                                            <Send size={18} /> {loading ? 'Enviando...' : 'Publicar Comunicado'}
+                                            <Send size={18} /> {loading ? (scheduleMode ? 'Programando...' : 'Enviando...') : (scheduleMode ? 'Programar Aviso' : 'Publicar Comunicado')}
                                         </Button>
                                     </div>
 
                                     {posted && (
                                         <div className="success-notif bounce-in">
-                                            <CheckCircle size={20} /> ¡Aviso publicado y notificado a toda la comunidad!
+                                            <CheckCircle size={20} /> {scheduleMode ? '¡Aviso programado con éxito!' : '¡Aviso publicado y notificado a toda la comunidad!'}
                                         </div>
                                     )}
                                 </form>
@@ -224,6 +271,13 @@ const InstitutionalDashboard = () => {
                                     <div className="stat-data">
                                         <span className="count">{stats.totalEngagement}</span>
                                         <span className="label">Interacciones</span>
+                                    </div>
+                                </Card>
+                                <Card className="compact-stat-card glass-indigo" style={{ gridColumn: 'span 2', background: '#e0e7ff', color: '#3730a3' }}>
+                                    <Users size={24} />
+                                    <div className="stat-data">
+                                        <span className="count">~{stats.reach}</span>
+                                        <span className="label">Alcance Estimado</span>
                                     </div>
                                 </Card>
                             </div>
@@ -293,7 +347,7 @@ const InstitutionalDashboard = () => {
                                     {facultyUsers.map((user, i) => (
                                         <tr key={user.id} style={{ animationDelay: `${i * 0.05}s` }}>
                                             <td className="user-cell">
-                                                <img src={user.avatar_url || 'https://via.placeholder.com/40'} alt="" />
+                                                <img src={user.avatar_url || DEFAULT_AVATAR} alt="Usuario Institucional" />
                                                 <div className="user-details-mini">
                                                     <strong>{user.full_name}</strong>
                                                     <span>@{user.username || 'usuario'}</span>

@@ -11,6 +11,8 @@ import { formatCount } from '../../utils/formatters';
 import { Heart, MessageCircle, Share2, Trash2, Megaphone, X } from 'lucide-react';
 import './Post.css';
 
+const DEFAULT_AVATAR = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+
 interface PostProps {
   post: PostType;
   onPostDeleted?: () => void;
@@ -56,7 +58,7 @@ const Post: React.FC<PostProps> = ({
           <div className="post-header-wrapper" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <PostHeader 
               userId={post.user_id}
-              avatarUrl={post.profiles?.avatar_url}
+              avatarUrl={post.profiles?.avatar_url || DEFAULT_AVATAR}
               fullName={post.profiles?.full_name}
               userType={post.profiles?.user_type}
               createdAt={post.created_at}

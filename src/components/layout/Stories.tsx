@@ -7,6 +7,8 @@ import StoryViewer from '../stories/StoryViewer';
 import CreateStoryModal from '../stories/CreateStoryModal';
 import './Stories.css';
 
+const DEFAULT_AVATAR = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+
 const getFacultyColor = (faculty?: string) => {
   const f = faculty?.toLowerCase() || '';
   if (f.includes('ing') || f.includes('eng')) return 'var(--faculty-eng)';
@@ -82,7 +84,7 @@ const Stories: React.FC = () => {
             className={`story-avatar-wrapper ${currentUserGroup ? 'unviewed' : 'viewed'}`}
             style={currentUserGroup ? { background: getFacultyColor(profile?.faculty), boxShadow: `0 0 10px ${getFacultyColor(profile?.faculty)}44` } : {}}
           >
-             <Avatar src={profile?.avatar_url} size="large" className="story-avatar" />
+             <Avatar src={profile?.avatar_url || DEFAULT_AVATAR} size="large" className="story-avatar" />
              <div className="minimal-add-badge" onClick={(e) => { e.stopPropagation(); setShowCreator(true); }}>
                 <Plus size={14} />
              </div>
@@ -104,7 +106,7 @@ const Stories: React.FC = () => {
                 className="story-avatar-wrapper unviewed"
                 style={{ background: getFacultyColor(group.profiles.faculty), boxShadow: `0 0 10px ${getFacultyColor(group.profiles.faculty)}44` }}
               >
-                 <Avatar src={group.profiles.avatar_url} size="large" className="story-avatar" />
+                 <Avatar src={group.profiles.avatar_url || DEFAULT_AVATAR} size="large" className="story-avatar" />
               </div>
               <span className="story-username">{group.profiles.full_name.split(' ')[0]}</span>
             </div>

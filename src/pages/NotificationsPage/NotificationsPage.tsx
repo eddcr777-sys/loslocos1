@@ -8,6 +8,8 @@ import Button from '../../components/ui/Button';
 import { Check, CheckCheck, Heart, Megaphone, MessageCircle, Reply, UserPlus } from 'lucide-react';
 import { timeAgo } from '../../utils/dateUtils';
 
+const DEFAULT_AVATAR = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+
 const NotificationsPage = () => {
   const navigate = useNavigate();
   const { user, decrementUnreadNotifications, clearUnreadNotifications } = useAuth();
@@ -27,7 +29,7 @@ const NotificationsPage = () => {
       setLoading(true);
       setError(null);
       const { data, error } = await api.getNotifications(user.id);
-      console.log('Diagnostic - Notifications result:', { data, error });
+      // Log removed
       
       if (error) {
         setError(error.message);
@@ -137,7 +139,7 @@ const NotificationsPage = () => {
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                 <div style={{ position: 'relative' }}>
-                  <Avatar src={notif.type === 'official' ? '/logo-inst.png' : notif.actor?.avatar_url} size="small" />
+                  <Avatar src={notif.type === 'official' ? '/logo-inst.png' : (notif.actor?.avatar_url || DEFAULT_AVATAR)} size="small" />
                   <div style={{ 
                     position: 'absolute', 
                     bottom: -4, 
