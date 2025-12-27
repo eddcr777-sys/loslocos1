@@ -113,11 +113,11 @@ const PostDetailPage = () => {
       <div style={{ 
         position: 'sticky', 
         top: 0, 
-        backgroundColor: 'var(--glass-bg)', 
-        backdropFilter: 'var(--glass-blur)',
+        backgroundColor: 'rgba(255, 255, 255, 0.9)', 
+        backdropFilter: 'blur(8px)',
         zIndex: 100,
         padding: '0.75rem 1rem',
-        borderBottom: '1px solid var(--border-color)',
+        borderBottom: '1px solid #e2e8f0',
         display: 'flex',
         alignItems: 'center',
         gap: '1rem',
@@ -125,7 +125,6 @@ const PostDetailPage = () => {
       }}>
         <button 
           onClick={handleBack} 
-          className="post-detail-back-btn"
           style={{ 
             background: 'none', 
             border: 'none', 
@@ -136,12 +135,14 @@ const PostDetailPage = () => {
             padding: '8px',
             borderRadius: '50%',
             transition: 'background-color 0.2s',
-            color: 'var(--text-primary)'
+            color: '#1e293b'
           }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f1f5f9'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
         >
           <ArrowLeft size={22} />
         </button>
-        <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)' }}>Publicación</h2>
+        <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 700, color: '#1e293b' }}>Publicación</h2>
       </div>
 
       <div className="feed-container" style={{ padding: '0 10px' }}>

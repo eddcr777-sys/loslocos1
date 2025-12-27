@@ -12,14 +12,9 @@ const NotificationSettings = () => {
   };
 
   return (
-<<<<<<< HEAD
-    <div>
-      <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '2rem' }}>Preferencias de Notificaciones</h2>
-=======
     <div className="notification-settings">
       <h2 className="settings-section-title">Notificaciones</h2>
       <p className="settings-section-desc">Gestiona cómo y cuándo quieres recibir noticias de nosotros.</p>
->>>>>>> d47ff0e (25)
       
       <div className="settings-group">
         <ToggleItem 
@@ -65,18 +60,6 @@ const NotificationSettings = () => {
 };
 
 const ToggleItem = ({ title, desc, checked, onChange }: any) => (
-<<<<<<< HEAD
-  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '1rem', borderBottom: '1px solid #f1f5f9' }}>
-    <div>
-      <h4 style={{ margin: 0, fontSize: '1rem' }}>{title}</h4>
-      <p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>{desc}</p>
-    </div>
-    <label style={{ position: 'relative', display: 'inline-block', width: '48px', height: '24px' }}>
-      <input type="checkbox" checked={checked} onChange={onChange} style={{ opacity: 0, width: 0, height: 0 }} />
-      <span style={{ position: 'absolute', cursor: 'pointer', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: checked ? '#2563eb' : '#ccc', transition: '.4s', borderRadius: '34px' }}></span>
-      <span style={{ position: 'absolute', content: '""', height: '16px', width: '16px', left: checked ? '26px' : '4px', bottom: '4px', backgroundColor: 'white', transition: '.4s', borderRadius: '50%' }}></span>
-    </label>
-=======
   <div 
     onClick={onChange}
     style={{ 
@@ -123,7 +106,6 @@ const ToggleItem = ({ title, desc, checked, onChange }: any) => (
         transform: scale(1.01);
       }
     `}</style>
->>>>>>> d47ff0e (25)
   </div>
 );
 

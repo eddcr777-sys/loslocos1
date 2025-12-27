@@ -3,17 +3,10 @@
   top: 0;
   left: 0;
   right: 0;
-<<<<<<< HEAD
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-bottom: 1px solid #e2e8f0;
-=======
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   border-bottom: 1px solid var(--glass-border);
->>>>>>> d47ff0e (25)
   z-index: 100;
   height: 60px;
 }
@@ -44,16 +37,6 @@
   align-items: center;
   justify-content: center;
   padding: 0.5rem;
-<<<<<<< HEAD
-  color: #64748b;
-  border-radius: 8px;
-  transition: color 0.2s, background-color 0.2s;
-}
-
-.header-nav-item.active {
-  color: #4338ca;
-  background-color: #eef2ff;
-=======
   color: var(--text-secondary);
   border-radius: var(--radius-sm);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -67,7 +50,6 @@
 .header-nav-item.active {
   color: var(--accent-color);
   background-color: var(--accent-soft);
->>>>>>> d47ff0e (25)
 }
 
 .menu-section {
@@ -82,21 +64,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-<<<<<<< HEAD
-  color: #334155;
-  border-radius: 99px;
-}
-
-.menu-button:hover {
-  background-color: #f1f5f9;
-=======
   color: var(--text-primary);
   border-radius: var(--radius-full);
 }
 
 .menu-button:hover {
   background-color: var(--surface-hover);
->>>>>>> d47ff0e (25)
 }
 
 .menu-popover {
@@ -104,17 +77,10 @@
   top: calc(100% + 10px);
   right: 0;
   width: 220px;
-<<<<<<< HEAD
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e2e8f0;
-=======
   background: var(--surface-color);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-xl);
   border: 1px solid var(--border-color);
->>>>>>> d47ff0e (25)
   padding: 0.5rem;
   z-index: 110;
   animation: slideIn 0.2s ease-out;
@@ -134,7 +100,7 @@
 
 .menu-divider {
   border: none;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--border-color);
   margin: 0.5rem 0;
 }
 
@@ -161,4 +127,5 @@
   justify-content: center;
   padding: 0 4px;
   border: 2px solid var(--surface-color);
+  box-shadow: var(--shadow-sm);
 }

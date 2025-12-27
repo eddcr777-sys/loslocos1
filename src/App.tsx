@@ -30,12 +30,6 @@ const PageLoader = () => (
     justifyContent: 'center', 
     alignItems: 'center', 
     height: '100vh',
-<<<<<<< HEAD
-    background: 'var(--bg-primary)',
-    color: 'var(--text-secondary)'
-  }}>
-    Cargando...
-=======
     background: 'var(--bg-color)',
     flexDirection: 'column',
     gap: '1rem'
@@ -58,7 +52,6 @@ const PageLoader = () => (
         100% { opacity: 0.4; }
       }
     `}</style>
->>>>>>> d47ff0e (25)
   </div>
 );
 

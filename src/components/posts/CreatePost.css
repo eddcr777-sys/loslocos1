@@ -12,15 +12,15 @@
     padding: 10px 16px;
     background-color: var(--surface-color);
     border: 1px solid var(--border-color);
-    border-radius: var(--radius-full);
+    border-radius: 999px;
+    /* Forma de píldora para look moderno */
     transition: all 0.2s ease;
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
 .create-post-card:hover {
     border-color: var(--accent-color);
     box-shadow: var(--shadow-md);
-    background-color: var(--surface-hover);
 }
 
 .create-post-avatar {
@@ -44,14 +44,13 @@
     font-size: 0.9rem;
     padding: 6px 16px;
     border-radius: var(--radius-full);
-    transition: background-color 0.2s;
 }
 
 /* Expanded State - Modal Feel */
 .create-post-expanded {
     padding: 0;
     overflow: hidden;
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-xl);
     border: 1px solid var(--border-color);
     box-shadow: var(--shadow-lg);
     background-color: var(--surface-color);
@@ -87,8 +86,8 @@
 }
 
 .create-post-close:hover {
-    background-color: var(--border-color);
-    color: var(--text-primary);
+    background-color: var(--accent-soft);
+    color: var(--accent-color);
 }
 
 .create-post-body {
@@ -145,7 +144,6 @@
     color: var(--text-primary);
 }
 
-
 .create-post-file-input {
     display: none;
 }
@@ -153,14 +151,14 @@
 .post-submit-btn {
     padding: 10px 24px !important;
     font-weight: 700 !important;
-    border-radius: 999px !important;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: var(--radius-full) !important;
 }
 
 .post-submit-btn:disabled {
     box-shadow: none;
     opacity: 0.6;
 }
+
 
 /* Mobile Adjustments */
 @media (max-width: 768px) {

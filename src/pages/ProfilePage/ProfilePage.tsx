@@ -23,43 +23,43 @@ const ProfilePage = () => {
 
   const [hoveringUnfollow, setHoveringUnfollow] = useState(false);
 
-  if (!viewProfile) return <div style={{ padding: '2rem', textAlign: 'center', color: '#64748b' }}>Cargando perfil...</div>;
+  if (!viewProfile) return <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>Cargando perfil...</div>;
 
   return (
     <div style={styles.container}>
       <div style={{ 
-        backgroundColor: 'white', 
-        borderRadius: '16px', 
-        padding: '2rem', 
-        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-        marginBottom: '1rem',
+        backgroundColor: 'var(--surface-color)', 
+        borderRadius: 'var(--radius-xl)', 
+        padding: '2.5rem 2rem', 
+        boxShadow: 'var(--shadow-md)',
+        marginBottom: '1.5rem',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         textAlign: 'center',
-        gap: '1rem',
-        position: 'relative'
+        gap: '1.25rem',
+        position: 'relative',
+        border: '1px solid var(--border-color)'
       }}>
-        <Avatar src={viewProfile.avatar_url} size="large" style={{ width: '120px', height: '120px', fontSize: '3rem' }} />
+        <Avatar src={viewProfile.avatar_url} size="large" style={{ width: '128px', height: '128px', fontSize: '3.5rem', border: '4px solid var(--surface-color)', boxShadow: 'var(--shadow-lg)' }} />
         
-        <div>
-          <h1 style={{ margin: '0 0 0.5rem 0', fontSize: '1.8rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: '#1e293b' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+          <h1 style={{ margin: 0, fontSize: '2rem', fontWeight: '800', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: 'var(--text-primary)' }}>
             {viewProfile.full_name}
             <VerificationBadge type={viewProfile.user_type} />
           </h1>
           
-          {/* Nombre de usuario y Facultad */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'center', color: '#64748b' }}>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
             {viewProfile.username && (
-              <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '1rem' }}>
-                <AtSign size={16} />
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.95rem', color: 'var(--text-secondary)' }}>
+                <AtSign size={14} className="text-secondary" />
                 {viewProfile.username}
               </span>
             )}
             
             {viewProfile.faculty && (
-              <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '1rem' }}>
-                <Briefcase size={16} />
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.95rem', color: 'var(--text-secondary)' }}>
+                <Briefcase size={14} className="text-secondary" />
                 {viewProfile.faculty}
               </span>
             )}
@@ -67,36 +67,48 @@ const ProfilePage = () => {
         </div>
 
         {viewProfile.bio && (
-          <p style={{ maxWidth: '600px', lineHeight: '1.6', color: '#334155' }}>
+          <p style={{ maxWidth: '500px', lineHeight: '1.6', color: 'var(--text-secondary)', margin: '0' }}>
             {viewProfile.bio}
           </p>
         )}
 
-        <div style={{ display: 'flex', gap: '1.5rem', color: '#475569', fontSize: '1rem', marginTop: '0.5rem' }}>
-          <span><strong>{stats.posts}</strong> Posts</span>
-          <span><strong>{stats.followers}</strong> Seguidores</span>
-          <span><strong>{stats.following}</strong> Siguiendo</span>
+        <div style={{ display: 'flex', gap: '2rem', padding: '1rem 2rem', background: 'var(--bg-color)', borderRadius: 'var(--radius-lg)', color: 'var(--text-primary)', fontSize: '0.95rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <span style={{ fontWeight: '800', fontSize: '1.1rem' }}>{stats.posts}</span>
+            <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem', textTransform: 'uppercase' }}>Posts</span>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <span style={{ fontWeight: '800', fontSize: '1.1rem' }}>{stats.followers}</span>
+            <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem', textTransform: 'uppercase' }}>Seguidores</span>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <span style={{ fontWeight: '800', fontSize: '1.1rem' }}>{stats.following}</span>
+            <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem', textTransform: 'uppercase' }}>Siguiendo</span>
+          </div>
         </div>
 
         {user && user.id !== viewProfile.id && (
           <button
             onClick={isFollowing ? handleUnfollow : handleFollow}
             disabled={isFollowLoading}
-            style={isFollowing ? (hoveringUnfollow ? styles.unfollowButtonHover : styles.unfollowButton) : styles.followButton}
+            style={{
+              ...styles.baseButton,
+              ...(isFollowing ? (hoveringUnfollow ? styles.unfollowButtonHover : styles.unfollowButton) : styles.followButton)
+            }}
             onMouseEnter={() => setHoveringUnfollow(true)}
             onMouseLeave={() => setHoveringUnfollow(false)}
           >
             {isFollowLoading ? 'Cargando...' : (
               isFollowing 
-                ? (hoveringUnfollow ? 'Dejar de seguir' : <><UserCheck size={16} /> Siguiendo</>) 
-                : <><UserPlus size={16} /> Seguir</>
+                ? (hoveringUnfollow ? 'Dejar de seguir' : <><UserCheck size={18} /> Siguiendo</>) 
+                : <><UserPlus size={18} /> Seguir</>
             )}
           </button>
         )}
 
-        <div style={{ display: 'flex', gap: '1rem', color: '#94a3b8', fontSize: '0.9rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', gap: '1rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
            <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-             <Calendar size={16} />
+             <Calendar size={14} />
              Se unió en {new Date(viewProfile.created_at).toLocaleDateString()}
            </span>
         </div>
@@ -114,55 +126,41 @@ const ProfilePage = () => {
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
     padding: '1rem', 
-    maxWidth: '100%',
+    maxWidth: '800px',
     margin: '0 auto',
-    overflowX: 'hidden' 
   },
   contentSections: {
-    marginTop: '1rem'
+    marginTop: '1.5rem'
+  },
+  baseButton: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '0.5rem',
+    padding: '0.75rem 2rem',
+    borderRadius: 'var(--radius-full)',
+    cursor: 'pointer',
+    fontWeight: '700',
+    fontSize: '0.95rem',
+    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+    border: 'none',
+    minWidth: '160px'
   },
   followButton: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5rem',
-    backgroundColor: '#000000ff',
-    color: 'white',
-    border: 'none',
-    padding: '0.6rem 1.2rem',
-    borderRadius: '9999px',
-    cursor: 'pointer',
-    fontWeight: 'bold',
-    fontSize: '0.9rem',
-    transition: 'background-color 0.2s',
+    backgroundColor: 'var(--text-primary)',
+    color: 'var(--bg-color)',
   },
   unfollowButton: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5rem',
     backgroundColor: 'transparent',
-    color: '#334155',
-    border: '1px solid #e2e8f0',
-    padding: '0.6rem 1.2rem',
-    borderRadius: '9999px',
-    cursor: 'pointer',
-    fontWeight: 'bold',
-    fontSize: '0.9rem',
-    transition: 'background-color 0.2s, color 0.2s',
+    color: 'var(--text-primary)',
+    border: '1px solid var(--border-color)',
   },
   unfollowButtonHover: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5rem',
-    backgroundColor: '#fee2e2',
-    color: '#dc2626',
-    border: '1px solid #fecaca',
-    padding: '0.6rem 1.2rem',
-    borderRadius: '9999px',
-    cursor: 'pointer',
-    fontWeight: 'bold',
-    fontSize: '0.9rem',
-    transition: 'background-color 0.2s, color 0.2s',
+    backgroundColor: 'var(--error-soft)',
+    color: 'var(--error)',
+    border: '1px solid var(--error)',
   },
 };
+
 
 export default ProfilePage;

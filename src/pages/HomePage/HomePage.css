@@ -4,22 +4,12 @@
   padding-top: 24px;
 }
 
+
 .feed-container {
   max-width: 680px;
   /* Ancho máximo para el feed en web, como Facebook/Instagram */
   margin: 0 auto;
   /* Centra el feed en la pantalla */
-}
-
-.aside-nav-item:hover {
-  background-color: var(--surface-hover);
-  color: var(--text-primary);
-}
-
-.aside-nav-item.active {
-  background-color: var(--accent-soft);
-  color: var(--accent-color);
-  font-weight: 600;
 }
 
 /* Media Query para pantallas más pequeñas (móviles) */

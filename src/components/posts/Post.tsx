@@ -76,16 +76,17 @@ const Post: React.FC<PostProps> = ({
                 display: 'inline-flex', 
                 alignItems: 'center', 
                 gap: '4px', 
-                backgroundColor: '#ecfdf5', 
-                color: '#10b981', 
-                padding: '4px 8px', 
-                borderRadius: '12px', 
+                backgroundColor: 'var(--success-soft)', 
+                color: 'var(--success)', 
+                padding: '0.4rem 0.75rem', 
+                borderRadius: 'var(--radius-full)', 
                 fontSize: '0.75rem', 
-                fontWeight: 'bold',
-                marginBottom: '8px',
-                border: '1px solid #10b981'
+                fontWeight: '800',
+                marginBottom: '1rem',
+                border: '1px solid var(--success)',
+                letterSpacing: '0.05em'
               }}>
-                <Megaphone size={12} />
+                <Megaphone size={14} />
                 AVISO OFICIAL
               </span>
             )}
@@ -108,16 +109,17 @@ const Post: React.FC<PostProps> = ({
           />
         )}
 
-        <div className="post-actions" style={{ display: 'flex', padding: '0.75rem 0.5rem', justifyContent: 'space-between' }}>
-          <div className="action-item" onClick={handleLike} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: liked ? '#ef4444' : '#64748b', fontSize: '0.9rem', cursor: 'pointer', padding: '8px', borderRadius: '8px', flex: 1, justifyContent: 'center' }}>
-            <Heart size={20} fill={liked ? "currentColor" : "none"} />
-            <span style={{ fontWeight: '500', whiteSpace: 'nowrap' }}>Me gusta {formatCount(likes)}</span>
+        <div className="post-actions" style={{ display: 'flex', padding: '0.5rem', justifyContent: 'space-between', borderTop: '1px solid var(--border-color)' }}>
+          <div className="action-item" onClick={handleLike} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: liked ? 'var(--error)' : 'var(--text-secondary)', fontSize: '0.95rem', cursor: 'pointer', padding: '0.75rem', borderRadius: 'var(--radius-md)', flex: 1, justifyContent: 'center', transition: 'all 0.2s ease' }}>
+            <Heart size={22} fill={liked ? "var(--error)" : "none"} />
+            <span style={{ fontWeight: '600' }}>{formatCount(likes)}</span>
           </div>
-          <div className="action-item" onClick={() => setShowComments(!showComments)} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#64748b', fontSize: '0.9rem', cursor: 'pointer', padding: '8px', borderRadius: '8px', flex: 1, justifyContent: 'center' }}>
-            <MessageCircle size={20} />
-            <span style={{ fontWeight: '500', whiteSpace: 'nowrap' }}>Comentarios {formatCount(commentsCount)}</span>
+          <div className="action-item" onClick={() => setShowComments(!showComments)} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)', fontSize: '0.95rem', cursor: 'pointer', padding: '0.75rem', borderRadius: 'var(--radius-md)', flex: 1, justifyContent: 'center', transition: 'all 0.2s ease' }}>
+            <MessageCircle size={22} />
+            <span style={{ fontWeight: '600' }}>{formatCount(commentsCount)}</span>
           </div>
         </div>
+
 
       {showComments && (
         <CommentSection 

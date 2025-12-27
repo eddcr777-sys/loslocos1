@@ -82,8 +82,8 @@ const NotificationsPage = () => {
 
   return (
     <div style={{ padding: '1rem', width: '100%', maxWidth: '600px', margin: '0 auto', boxSizing: 'border-box' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <h1 style={{ margin: 0 }}>Notificaciones</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+        <h1 style={{ margin: 0, color: 'var(--text-primary)', fontWeight: '800' }}>Notificaciones</h1>
         {notifications.some((n) => !n.read) && (
           <Button variant="ghost" size="small" onClick={handleMarkAllAsRead}>
             <CheckCheck size={16} />
@@ -92,40 +92,32 @@ const NotificationsPage = () => {
         )}
       </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      
-      
       {notifications.length === 0 ? (
-        <div style={{ textAlign: 'center', color: '#64748b', marginTop: '2rem' }}>
+        <div style={{ 
+          textAlign: 'center', 
+          color: 'var(--text-secondary)', 
+          marginTop: '4rem',
+          padding: '2rem',
+          background: 'var(--surface-color)',
+          borderRadius: 'var(--radius-lg)',
+          border: '1px solid var(--border-color)'
+        }}>
           <p>No tienes notificaciones nuevas.</p>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {notifications.map((notif) => (
             <Card 
               key={notif.id} 
               style={{ 
                 marginBottom: 0, 
-                padding: '1rem', 
+                padding: '1.25rem', 
                 cursor: (notif.type === 'like' || notif.type === 'comment' || notif.type === 'reply' || notif.type === 'official') ? 'pointer' : 'default',
-                transition: 'background-color 0.2s',
-                backgroundColor: !notif.read ? '#f8fafc' : 'white'
+                transition: 'all 0.2s ease',
+                backgroundColor: !notif.read ? 'var(--accent-soft)' : 'var(--surface-color)',
+                borderColor: !notif.read ? 'var(--accent-color)' : 'var(--border-color)',
+                borderWidth: '1px',
+                borderStyle: 'solid'
               }}
               onClick={() => {
                 if (notif.type === 'like' || notif.type === 'comment' || notif.type === 'reply' || notif.type === 'official') {
@@ -144,43 +136,47 @@ const NotificationsPage = () => {
                     position: 'absolute', 
                     bottom: -4, 
                     right: -4, 
-                    backgroundColor: 'white', 
+                    backgroundColor: 'var(--surface-color)', 
                     borderRadius: '50%', 
                     padding: '2px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+                    boxShadow: 'var(--shadow-sm)',
+                    border: '1.5px solid var(--border-color)'
                   }}>
-                    {notif.type === 'like' && <Heart size={12} fill="#ef4444" color="#ef4444" />}
-                    {notif.type === 'comment' && <MessageCircle size={12} fill="#3b82f6" color="#3b82f6" />}
-                    {notif.type === 'reply' && <Reply size={12} color="#10b981" />}
-                    {notif.type === 'follow' && <UserPlus size={12} color="#8b5cf6" />}
-                    {notif.type === 'official' && <Megaphone size={12} color="#10b981" />}
+                    {notif.type === 'like' && <Heart size={10} fill="var(--error)" color="var(--error)" />}
+                    {notif.type === 'comment' && <MessageCircle size={10} fill="var(--accent-color)" color="var(--accent-color)" />}
+                    {notif.type === 'reply' && <Reply size={10} color="var(--success)" />}
+                    {notif.type === 'follow' && <UserPlus size={10} color="var(--faculty-law)" />}
+                    {notif.type === 'official' && <Megaphone size={10} color="var(--success)" />}
                   </div>
                 </div>
                 <div style={{ flex: 1 }}>
-                  <p style={{ margin: 0, fontSize: '0.95rem', lineHeight: '1.4' }}>
-                    <strong style={{ color: '#1e293b' }}>
+                  <p style={{ margin: 0, fontSize: '0.95rem', lineHeight: '1.4', color: 'var(--text-primary)' }}>
+                    <strong style={{ fontWeight: '700' }}>
                       {notif.type === 'official' ? (notif.title || 'Aviso Oficial') : (notif.actor?.full_name || 'Alguien')}
                     </strong>
-                    <span style={{ color: '#475569' }}>
-                      {notif.type === 'like' && ' le gustó tu publicación.'}
-                      {notif.type === 'comment' && ' comentó en tu publicación.'}
-                      {notif.type === 'reply' && ' respondió a tu comentario.'}
-                      {notif.type === 'follow' && ' comenzó a seguirte.'}
+                    <span style={{ color: 'var(--text-secondary)', marginLeft: '4px' }}>
+                      {notif.type === 'like' && 'le gustó tu publicación.'}
+                      {notif.type === 'comment' && 'comentó en tu publicación.'}
+                      {notif.type === 'reply' && 'respondió a tu comentario.'}
+                      {notif.type === 'follow' && 'comenzó a seguirte.'}
                       {notif.type === 'official' && `: ${notif.content}`}
                     </span>
                   </p>
-                  <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{timeAgo(notif.created_at)}</span>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{timeAgo(notif.created_at)}</span>
                 </div>
                 {!notif.read && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#2563eb' }} />
+                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--accent-color)' }} />
                     <Button
                       variant="ghost"
                       size="small"
-                      onClick={() => handleMarkAsRead(notif.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleMarkAsRead(notif.id);
+                      }}
                       title="Marcar como leída"
                       style={{ padding: '4px', minWidth: 'auto', height: '32px', width: '32px', borderRadius: '50%' }}
                     >

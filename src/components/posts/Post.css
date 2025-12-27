@@ -58,10 +58,12 @@
   height: auto;
   max-height: 750px;
   object-fit: cover;
-  background-color: var(--surface-hover);
+  /* Estilo Instagram: imagen inmersiva */
+  background-color: var(--surface-color);
   border-top: 1px solid var(--border-color);
   border-bottom: 1px solid var(--border-color);
 }
+
 
 /* Actions */
 .post-actions {

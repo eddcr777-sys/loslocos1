@@ -3,8 +3,6 @@
   max-width: 680px;
   margin: 0 auto;
   box-sizing: border-box;
-  background-color: var(--bg-color);
-  color: var(--text-primary);
 }
 
 .back-button {
@@ -12,13 +10,13 @@
   align-items: center;
   gap: 0.5rem;
   margin-bottom: 1.5rem;
-  color: var(--text-secondary);
+  color: #64748b;
   font-weight: 500;
   transition: color 0.2s;
 }
 
 .back-button:hover {
-  color: var(--text-primary);
+  color: #0f172a;
 }
 
 .loading-container,
@@ -29,14 +27,9 @@
   justify-content: center;
   padding: 4rem 2rem;
   text-align: center;
-  color: var(--text-secondary);
 }
 
 .error-message {
-  color: var(--error);
+  color: #ef4444;
   margin-bottom: 1rem;
-}
-
-.post-detail-back-btn:hover {
-  background-color: var(--surface-hover) !important;
 }

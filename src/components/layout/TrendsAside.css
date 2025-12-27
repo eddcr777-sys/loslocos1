@@ -10,17 +10,18 @@
 }
 
 .trends-widget {
-  background-color: #ffffff;
-  border-radius: 1rem;
+  background-color: var(--surface-color);
+  border-radius: var(--radius-lg);
   padding: 1.5rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-color);
   height: fit-content;
+  box-shadow: var(--shadow-sm);
 }
 
 .trends-title {
   font-size: 1.25rem;
   font-weight: 800;
-  color: #1e293b;
+  color: var(--text-primary);
   margin: 0 0 1.5rem 0;
 }
 
@@ -35,7 +36,12 @@
   flex-direction: column;
   cursor: pointer;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--border-color);
+  transition: transform 0.2s ease;
+}
+
+.trend-item:hover {
+  transform: translateX(4px);
 }
 
 .trend-item:last-child {
@@ -50,13 +56,13 @@
 }
 
 .trend-icon {
-  color: #4338ca;
+  color: var(--accent-color);
 }
 
 .trend-label {
   font-size: 0.75rem;
   font-weight: 700;
-  color: #64748b;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -69,29 +75,30 @@
 
 .trend-name {
   font-weight: 600;
-  color: #334155;
+  color: var(--text-primary);
   font-size: 0.95rem;
 }
 
 .trend-name-small {
   font-weight: 600;
-  color: #334155;
+  color: var(--text-primary);
   font-size: 0.9rem;
 }
 
 .trend-snippet {
   font-size: 0.875rem;
-  color: #475569;
+  color: var(--text-secondary);
   line-height: 1.4;
-  background: #f8fafc;
+  background: var(--bg-color);
   padding: 0.5rem;
-  border-radius: 0.5rem;
+  border-radius: var(--radius-sm);
   margin: 0.25rem 0;
   font-style: italic;
+  border: 1px solid var(--border-color);
 }
 
-.trend-meta, .trend-posts {
+.trend-meta,
+.trend-posts {
   font-size: 0.875rem;
-  color: #94a3b8;
-  font-size: 0.8rem;
+  color: var(--text-muted);
 }

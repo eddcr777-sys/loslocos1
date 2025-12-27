@@ -20,11 +20,7 @@ const ProfileSettings = () => {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (user) fetchProfile();
-  }, [user]);
-
-  const fetchProfile = async () => {
+  const fetchProfile = React.useCallback(async () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
@@ -48,7 +44,11 @@ const ProfileSettings = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (user) fetchProfile();
+  }, [user, fetchProfile]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

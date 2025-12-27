@@ -103,7 +103,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
 
 const styles: { [key: string]: React.CSSProperties } = {
   commentContainer: {
-    marginBottom: '12px',
+    marginBottom: '1rem',
     padding: '4px 0',
   },
   commentRow: {
@@ -116,8 +116,8 @@ const styles: { [key: string]: React.CSSProperties } = {
       height: '36px',
       borderRadius: '50%',
       objectFit: 'cover',
-      border: '1.5px solid #fff',
-      boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+      border: '2px solid var(--surface-color)',
+      boxShadow: 'var(--shadow-sm)'
   },
   commentBody: {
     display: 'flex',
@@ -126,29 +126,30 @@ const styles: { [key: string]: React.CSSProperties } = {
     maxWidth: 'calc(100% - 48px)',
   },
   commentBubble: {
-    backgroundColor: '#f1f5f9', // Slate-100 for cleaner look
-    borderRadius: '18px',
-    padding: '10px 14px',
+    backgroundColor: 'var(--bg-color)', 
+    borderRadius: 'var(--radius-lg)',
+    padding: '0.85rem 1.15rem',
     position: 'relative',
-    boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
+    border: '1px solid var(--border-color)',
+    boxShadow: 'var(--shadow-xs)'
   },
   author: {
     fontSize: '0.85rem',
-    color: '#0f172a', // text-slate-900
+    color: 'var(--text-primary)',
     display: 'block',
     marginBottom: '2px',
     fontWeight: 700
   },
   commentText: {
     margin: 0,
-    fontSize: '0.9rem',
+    fontSize: '0.95rem',
     lineHeight: '1.5',
     wordBreak: 'break-word',
-    color: '#334155', // text-slate-700
+    color: 'var(--text-secondary)',
   },
   mention: {
-    color: '#2563eb', // Blue-600
-    fontWeight: 600,
+    color: 'var(--accent-color)',
+    fontWeight: 700,
     marginRight: '6px',
     textDecoration: 'none',
   },
@@ -157,22 +158,23 @@ const styles: { [key: string]: React.CSSProperties } = {
     gap: '16px',
     marginTop: '6px',
     marginLeft: '12px',
-    fontSize: '0.78rem',
-    color: '#64748b', // text-slate-500
+    fontSize: '0.8rem',
+    color: 'var(--text-muted)',
   },
   actionButton: {
       background: 'none',
       border: 'none',
       color: 'inherit',
       cursor: 'pointer',
-      fontWeight: 600,
+      fontWeight: 700,
       padding: 0,
       fontSize: 'inherit',
+      transition: 'color 0.2s ease'
   },
   repliesContainer: {
     paddingLeft: '0px',
     marginLeft: '18px',
-    borderLeft: '2px solid #f1f5f9',
+    borderLeft: '2px solid var(--border-color)',
     marginTop: '8px',
     paddingTop: '4px',
   },
@@ -190,26 +192,29 @@ const styles: { [key: string]: React.CSSProperties } = {
   replyInput: {
     flex: 1,
     padding: '10px 14px',
-    borderRadius: '20px',
-    border: '1px solid #e2e8f0',
+    borderRadius: 'var(--radius-full)',
+    border: '1px solid var(--border-color)',
     fontSize: '0.85rem',
     resize: 'none',
     overflow: 'hidden',
     fontFamily: 'inherit',
     lineHeight: '1.4',
     minHeight: '38px',
-    backgroundColor: '#f8fafc'
+    backgroundColor: 'var(--surface-color)',
+    color: 'var(--text-primary)',
+    outline: 'none'
   },
   buttonSmall: {
     padding: '6px 14px',
-    borderRadius: '20px',
+    borderRadius: 'var(--radius-full)',
     border: 'none',
-    backgroundColor: '#000',
-    color: '#fff',
+    backgroundColor: 'var(--text-primary)',
+    color: 'var(--bg-color)',
     cursor: 'pointer',
     fontSize: '0.8rem',
-    fontWeight: 600
+    fontWeight: 700
   }
 };
+
 
 export default CommentItem;

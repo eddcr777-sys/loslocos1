@@ -12,14 +12,13 @@
   align-items: center;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .notifications-header h1 {
   margin: 0;
   font-size: 1.75rem;
-  font-weight: 800;
-  color: var(--text-primary);
+  color: #1e293b;
 }
 
 .notifications-list {
@@ -28,24 +27,23 @@
   gap: 0.5rem;
 }
 
+/* Estilo minimalista para las tarjetas de notificación */
 .notification-card {
   cursor: pointer;
   margin-bottom: 0.5rem;
   padding: 1rem;
-  border-radius: var(--radius-md);
-  background-color: var(--surface-color);
-  border: 1px solid var(--border-color);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background-color 0.2s ease;
+  border: 1px solid transparent;
+  /* Para mantener el layout estable */
 }
 
 .notification-card:hover {
-  background-color: var(--surface-hover);
-  transform: translateX(4px);
+  background-color: #f8fafc;
 }
 
 .notification-card.unread {
-  background-color: var(--accent-soft);
-  border-color: var(--accent-color);
+  background-color: #f0f5ff;
+  border-color: #e2e8f0;
 }
 
 .notification-item-content {
@@ -54,39 +52,63 @@
   gap: 1rem;
 }
 
+.notification-avatar-container {
+  cursor: pointer;
+}
+
+.notification-text-container {
+  flex: 1;
+}
+
 .notification-text {
   margin: 0;
   font-size: 0.95rem;
   line-height: 1.4;
-  color: var(--text-primary);
+  color: #334155;
 }
 
 .notification-actor-name {
   cursor: pointer;
   margin-right: 4px;
-  color: var(--text-primary);
-  font-weight: 700;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.notification-actor-name:hover {
+  text-decoration: underline;
 }
 
 .notification-time {
   font-size: 0.8rem;
-  color: var(--text-secondary);
+  color: #94a3b8;
+}
+
+.notification-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mark-read-button {
+  padding: 4px;
+  min-width: auto;
+  height: 32px;
+  width: 32px;
+  border-radius: 50%;
 }
 
 .unread-dot {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background-color: var(--accent-color);
-  box-shadow: 0 0 8px var(--accent-color);
+  background-color: #3b82f6;
 }
 
 .empty-notifications {
   text-align: center;
-  color: var(--text-secondary);
+  color: #64748b;
   margin-top: 4rem;
-  padding: 3rem 2rem;
-  background-color: var(--surface-color);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border-color);
+  padding: 2rem;
+  background-color: #f8fafc;
+  border-radius: 12px;
 }

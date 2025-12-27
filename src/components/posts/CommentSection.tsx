@@ -36,8 +36,8 @@ const CommentSection: React.FC<CommentSectionProps> = ({
         const element = document.getElementById(`comment-${highlightCommentId}`);
         if (element) {
           element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          element.style.backgroundColor = '#e2e8f0'; // Professional Slate-200 highlight
-          element.style.borderRadius = '8px';
+          element.style.backgroundColor = 'var(--accent-soft)'; 
+          element.style.borderRadius = 'var(--radius-md)';
           setTimeout(() => {
             element.style.transition = 'background-color 2s';
             element.style.backgroundColor = 'transparent';
@@ -46,6 +46,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
       }, 500);
     }
   }, [loading, highlightCommentId, comments]);
+
 
   useEffect(() => {
     if (!loading && onCommentsChange) {
@@ -223,16 +224,18 @@ const CommentSection: React.FC<CommentSectionProps> = ({
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
     marginTop: '1rem',
-    borderTop: '1px solid #eee',
+    borderTop: '1px solid var(--border-color)',
     padding: '1rem 0',
     width: '100%',
     boxSizing: 'border-box'
   },
   header: {
     margin: '0 12px 10px 12px',
-    fontSize: '0.95rem',
-    fontWeight: 600,
-    color: '#65676b',
+    fontSize: '0.9rem',
+    fontWeight: 700,
+    color: 'var(--text-secondary)',
+    textTransform: 'uppercase',
+    letterSpacing: '0.025em'
   },
   list: {
     marginBottom: '1rem',
@@ -241,5 +244,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     boxSizing: 'border-box'
   },
 };
+
 
 export default CommentSection;
