@@ -15,7 +15,7 @@
   font-size: 1.75rem;
   font-weight: 700;
   margin-bottom: 1.5rem;
-  color: #1e293b;
+  color: var(--text-primary);
 }
 
 .settings-nav {
@@ -29,21 +29,21 @@
   align-items: center;
   gap: 0.75rem;
   padding: 1rem;
-  border-radius: 12px;
-  color: #64748b;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
   text-decoration: none;
   transition: all 0.2s ease;
   font-weight: 500;
 }
 
 .settings-nav-item:hover {
-  background-color: #f8fafc;
-  color: #1e293b;
+  background-color: var(--surface-hover);
+  color: var(--text-primary);
 }
 
 .settings-nav-item.active {
-  background-color: #eff6ff;
-  color: #2563eb;
+  background-color: var(--accent-soft);
+  color: var(--accent-color);
 }
 
 .settings-nav-item .arrow {
@@ -58,28 +58,29 @@
 
 .settings-content {
   flex: 1;
-  background: white;
-  border-radius: 16px;
+  background: var(--surface-color);
+  border-radius: var(--radius-lg);
   padding: 2rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
   min-height: 500px;
 }
 
 .settings-nav-divider {
   height: 1px;
-  background-color: var(--border-color, #e2e8f0);
+  background-color: var(--border-color);
   margin: 0.5rem 1rem;
 }
 
 .settings-nav-item.admin-item {
   color: var(--text-primary);
-  background-color: #f8fafc;
+  background-color: var(--surface-hover);
   border: 1px dashed var(--border-color);
 }
 
 .settings-nav-item.admin-item:hover {
-  background-color: white;
-  border-color: var(--faculty-eng, #3b82f6);
+  background-color: var(--surface-color);
+  border-color: var(--faculty-eng);
   transform: translateX(4px);
 }
 

@@ -12,14 +12,14 @@ const VerificationBadge: React.FC<VerificationBadgeProps> = ({ type, size = 16 }
   // popular: Azul Twitter
   // admin/ceo: Dorado/Ambar (Poder)
   // institutional: Esmeralda (Confianza/Oficialismo)
-  let color = '#1D9BF0';
+  let color = 'var(--faculty-eng)';
   let title = 'Verificado';
 
   if (type === 'admin' || type === 'ceo') {
-    color = '#f59e0b'; // Amber 500
+    color = 'var(--warning)'; // Amber / Gold
     title = 'Administrador';
   } else if (type === 'institutional') {
-    color = '#10b981'; // Emerald 500
+    color = 'var(--success)'; // Emerald / Green
     title = 'Personal Universitario';
   }
 
@@ -31,7 +31,7 @@ const VerificationBadge: React.FC<VerificationBadgeProps> = ({ type, size = 16 }
   };
 
   if (type === 'admin' || type === 'ceo' || type === 'institutional') {
-    badgeStyle.filter = `drop-shadow(0 0 4px ${color}66)`;
+    badgeStyle.filter = `drop-shadow(0 0 4px var(--accent-soft))`;
   }
 
   return (
@@ -44,6 +44,7 @@ const VerificationBadge: React.FC<VerificationBadgeProps> = ({ type, size = 16 }
       </svg>
     </span>
   );
+
 };
 
 export default VerificationBadge;

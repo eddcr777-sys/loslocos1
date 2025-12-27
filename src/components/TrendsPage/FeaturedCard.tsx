@@ -19,41 +19,22 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({ type, data }) => {
   if (type === 'user') {
     return (
       <Link to={`/profile/${data.id}`} className="featured-card-link" style={{ textDecoration: 'none', color: 'inherit', display: 'block', height: '100%' }}>
-        <div className="featured-card user-card" style={{
-          padding: '2rem',
-          backgroundColor: 'white',
-          borderRadius: '20px',
-          boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '1.5rem',
-          height: '100%',
-          border: '1px solid #f1f5f9'
-        }}>
-          <div className="card-badge" style={{
-            alignSelf: 'flex-start',
-            padding: '0.5rem 1rem',
-            backgroundColor: '#f0f9ff',
-            color: '#0284c7',
-            borderRadius: '9999px',
-            fontSize: '0.85rem',
-            fontWeight: '600',
-            letterSpacing: '0.025em'
-          }}>{data.reason}</div>
+        <div className="featured-card">
+          <div className="card-badge">{data.reason}</div>
           
-          <div className="user-profile" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div className="user-profile">
             <Avatar src={data.avatar_url} size="large" />
             <div className="user-info">
-              <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#0f172a', fontWeight: '700' }}>{data.name}</h3>
-              <span className="user-handle" style={{ color: '#64748b', fontSize: '1rem' }}>{data.handle}</span>
+              <h3>{data.name}</h3>
+              <span className="user-handle">{data.handle}</span>
             </div>
           </div>
-          <p className="user-bio" style={{ margin: 0, color: '#334155', lineHeight: '1.6', fontSize: '1.05rem' }}>{data.bio}</p>
+          <p className="user-bio">{data.bio}</p>
           
-          <div className="user-stats" style={{ display: 'flex', justifyContent: 'space-between', marginTop: 'auto', paddingTop: '1.5rem', borderTop: '1px solid #f1f5f9' }}>
-            <div className="stat-item" style={{ textAlign: 'center' }}><strong style={{ display: 'block', fontSize: '1.25rem', color: '#0f172a' }}>{formatCount(data.stats.posts)}</strong> <span style={{ color: '#64748b', fontSize: '0.9rem' }}>Posts</span></div>
-            <div className="stat-item" style={{ textAlign: 'center' }}><strong style={{ display: 'block', fontSize: '1.25rem', color: '#0f172a' }}>{formatCount(data.stats.followers)}</strong> <span style={{ color: '#64748b', fontSize: '0.9rem' }}>Seguidores</span></div>
-            <div className="stat-item" style={{ textAlign: 'center' }}><strong style={{ display: 'block', fontSize: '1.25rem', color: '#0f172a' }}>{formatCount(data.stats.following)}</strong> <span style={{ color: '#64748b', fontSize: '0.9rem' }}>Seguidos</span></div>
+          <div className="user-stats">
+            <div className="stat-item"><strong>{formatCount(data.stats.posts)}</strong> <span>Posts</span></div>
+            <div className="stat-item"><strong>{formatCount(data.stats.followers)}</strong> <span>Seguidores</span></div>
+            <div className="stat-item"><strong>{formatCount(data.stats.following)}</strong> <span>Seguidos</span></div>
           </div>
         </div>
       </Link>
@@ -67,39 +48,20 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({ type, data }) => {
 
     return (
       <>
-        <div className="featured-card post-card" style={{
-          padding: '2rem',
-          backgroundColor: 'white',
-          borderRadius: '20px',
-          boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '1.5rem',
-          height: '100%',
-          border: '1px solid #f1f5f9'
-        }}>
-          <div className="card-badge" style={{
-            alignSelf: 'flex-start',
-            padding: '0.5rem 1rem',
-            backgroundColor: '#fdf2f8',
-            color: '#ff6a00ff',
-            borderRadius: '9999px',
-            fontSize: '0.85rem',
-            fontWeight: '600',
-            marginBottom: '0.5rem'
-        }}>{data.reason || 'Destacado'}</div>
+        <div className="featured-card">
+          <div className="card-badge">{data.reason || 'Destacado'}</div>
         
-        <div className="user-profile" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div className="user-profile">
           <Avatar src={data.profiles?.avatar_url} size="medium" />
           <div className="user-info">
-            <h3 style={{ fontSize: '1.1rem', margin: 0, color: '#0f172a', fontWeight: '600' }}>{data.profiles?.full_name || 'Usuario'}</h3>
-            <span className="user-handle" style={{ fontSize: '0.9rem', color: '#64748b' }}>
+            <h3 style={{ fontSize: '1.1rem' }}>{data.profiles?.full_name || 'Usuario'}</h3>
+            <span className="user-handle">
               {new Date(data.created_at).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
             </span>
           </div>
         </div>
         
-        <p className="post-content-snippet" style={{ margin: 0, color: '#1e293b', lineHeight: '1.7', fontSize: '1.1rem' }}>
+        <p className="post-content-snippet">
           {data.content}
         </p>
         
@@ -113,31 +75,23 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({ type, data }) => {
               e.stopPropagation();
               setIsLightboxOpen(true);
             }}
-            style={{ width: '100%', height: 'auto', borderRadius: '16px', objectFit: 'cover', maxHeight: '750px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', cursor: 'zoom-in' }}
           />
         )}
         
-        <div className="post-actions" style={{ 
-          display: 'flex', 
-          justifyContent: 'space-around',
-          alignItems: 'center',
-          marginTop: 'auto', 
-          paddingTop: '1.5rem', 
-          borderTop: '1px solid #e2e8f0' 
-        }}>
-          <div className="action-item" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b', fontSize: '1rem', cursor: 'pointer', padding: '8px', borderRadius: '8px' }}>
+        <div className="post-actions">
+          <div className="action-item">
             <Heart 
               size={24} 
-              fill={liked ? "currentColor" : "none"} 
-              color={liked ? "#ff0000ff" : "currentColor"}
+              fill={liked ? "var(--error)" : "none"} 
+              style={{ color: liked ? "var(--error)" : "currentColor" }}
             /> 
             <span style={{ fontWeight: '500' }}>{formatCount(likesCount)}</span>
           </div>
-          <div className="action-item" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b', fontSize: '1rem', cursor: 'pointer', padding: '8px', borderRadius: '8px' }}>
+          <div className="action-item">
             <MessageCircle size={24} /> 
             <span style={{ fontWeight: '500' }}>{formatCount(commentsCount)}</span>
           </div>
-          <div className="action-item" style={{ display: 'flex', alignItems: 'center', color: '#64748b', cursor: 'pointer', padding: '8px', borderRadius: '8px' }}>
+          <div className="action-item">
             <Share2 size={24} />
           </div>
         </div>
@@ -145,58 +99,48 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({ type, data }) => {
 
         {isLightboxOpen && (
           <div 
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              backgroundColor: 'rgba(0, 0, 0, 0.9)',
-              zIndex: 99999,
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              cursor: 'zoom-out',
-              padding: '1rem'
-            }}
+            className="lightbox-overlay"
             onClick={() => setIsLightboxOpen(false)}
           >
-            <button
-              onClick={() => setIsLightboxOpen(false)}
-              style={{
-                position: 'absolute',
-                top: '20px',
-                right: '20px',
-                background: 'rgba(255, 255, 255, 0.1)',
-                border: 'none',
-                borderRadius: '50%',
-                padding: '8px',
-                color: 'white',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-            >
+            <button className="lightbox-close" onClick={() => setIsLightboxOpen(false)}>
               <X size={24} />
             </button>
             <img 
               src={data.image_url} 
               alt="Vista completa" 
-              style={{
-                maxWidth: '100%',
-                maxHeight: '100%',
-                objectFit: 'contain',
-                borderRadius: '8px',
-                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
-              }}
+              className="lightbox-image"
               onClick={(e) => e.stopPropagation()}
             />
           </div>
         )}
+
+        <style>{`
+          .lightbox-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 99999;
+            display: flex; justify-content: center; alignItems: center;
+            cursor: zoom-out; padding: 1rem;
+            backdrop-filter: blur(8px);
+          }
+          .lightbox-close {
+            position: absolute; top: 20px; right: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none; border-radius: 50%; padding: 8px;
+            color: white; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+          }
+          .lightbox-image {
+            maxWidth: 100%; maxHeight: 100%; objectFit: contain;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-xl);
+          }
+        `}</style>
       </>
     );
   }
+
 
   return null;
 };

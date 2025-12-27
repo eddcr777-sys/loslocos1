@@ -26,49 +26,124 @@ const SearchPage = () => {
   }, [query]);
 
   return (
-    <div style={{ padding: '1rem', maxWidth: '600px', margin: '0 auto' }}>
-      <h1>Explorar</h1>
-      <input
-        type="text"
-        placeholder="Buscar personas..."
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        style={{
-          width: '100%',
-          padding: '12px 16px',
-          borderRadius: '999px',
-          border: '1px solid #e2e8f0',
-          fontSize: '1rem',
-          marginBottom: '2rem',
-          outline: 'none',
-          boxSizing: 'border-box'
-        }}
-      />
+    <div className="search-page-container">
+      <h1 className="search-title">Explorar</h1>
+      <div className="search-input-wrapper">
+        <input
+          type="text"
+          placeholder="Buscar personas o grupos..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="search-input"
+        />
+      </div>
 
-      {loading && <p style={{ color: '#64748b' }}>Buscando...</p>}
+      {loading && <p className="search-status">Buscando...</p>}
 
       {!loading && results.length === 0 && query.length > 1 && (
-        <p style={{ color: '#64748b' }}>No se encontraron usuarios.</p>
+        <p className="search-status">No se encontraron usuarios.</p>
       )}
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <div className="search-results">
         {results.map((user) => (
-          <Link to={`/profile/${user.id}`} key={user.id} style={{ textDecoration: 'none' }}>
-            <Card style={{ marginBottom: 0, padding: '1rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <Link to={`/profile/${user.id}`} key={user.id} className="search-result-link">
+            <Card className="search-result-card">
               <Avatar src={user.avatar_url} size="medium" />
-              <div>
-                <strong style={{ display: 'flex', alignItems: 'center', color: '#0f172a' }}>
+              <div className="search-result-info">
+                <strong className="search-result-name">
                   {user.full_name}
                   <VerificationBadge type={user.user_type} />
                 </strong>
-                <span style={{ color: '#64748b', fontSize: '0.9rem' }}>Ver perfil</span>
+                <span className="search-result-meta">Ver perfil</span>
               </div>
             </Card>
           </Link>
         ))}
       </div>
+
+      <style>{`
+        .search-page-container {
+          padding: 1rem;
+          max-width: 600px;
+          margin: 0 auto;
+          animation: fadeIn 0.4s ease-out;
+        }
+        .search-title {
+          font-size: 2rem;
+          font-weight: 800;
+          margin-bottom: 2rem;
+          color: var(--text-primary);
+        }
+        .search-input-wrapper {
+          position: relative;
+          margin-bottom: 2rem;
+        }
+        .search-input {
+          width: 100%;
+          padding: 1rem 1.5rem;
+          border-radius: var(--radius-full);
+          border: 1px solid var(--border-color);
+          background: var(--surface-color);
+          color: var(--text-primary);
+          font-size: 1rem;
+          outline: none;
+          transition: all 0.3s ease;
+          box-shadow: var(--shadow-sm);
+        }
+        .search-input:focus {
+          border-color: var(--accent-color);
+          box-shadow: 0 0 0 4px var(--accent-soft);
+          transform: translateY(-2px);
+        }
+        .search-status {
+          color: var(--text-secondary);
+          text-align: center;
+          margin: 2rem 0;
+        }
+        .search-results {
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+        }
+        .search-result-link {
+          text-decoration: none;
+        }
+        .search-result-card {
+          padding: 1rem !important;
+          display: flex !important;
+          align-items: center !important;
+          gap: 1rem !important;
+          transition: all 0.2s ease !important;
+          border: 1px solid var(--border-color) !important;
+        }
+        .search-result-card:hover {
+          background: var(--surface-hover) !important;
+          transform: scale(1.02);
+          border-color: var(--accent-color) !important;
+        }
+        .search-result-info {
+          display: flex;
+          flex-direction: column;
+        }
+        .search-result-name {
+          display: flex;
+          align-items: center;
+          color: var(--text-primary);
+          font-size: 1.05rem;
+          gap: 4px;
+        }
+        .search-result-meta {
+          color: var(--text-secondary);
+          font-size: 0.85rem;
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </div>
   );
 };
+
 
 export default SearchPage;

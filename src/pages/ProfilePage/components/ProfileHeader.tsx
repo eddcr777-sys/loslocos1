@@ -38,7 +38,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
         />
         <div style={styles.userInfo}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
-              <h1 style={{ margin: 0, display: 'flex', alignItems: 'center' }}>
+              <h1 style={{ margin: 0, display: 'flex', alignItems: 'center', color: 'var(--text-primary)' }}>
                 {viewProfile.full_name || 'Usuario'}
                 <VerificationBadge type={viewProfile.user_type} size={24} />
               </h1>
@@ -56,11 +56,12 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           <p style={styles.description}>{viewProfile.bio || 'Sin biografía.'}</p>
           
           <div style={styles.stats}>
-              <span><strong>{postCount}</strong> posts</span>
-              <span><strong>{followCounts.followers}</strong> seguidores</span>
-              <span><strong>{followCounts.following}</strong> seguidos</span>
+              <span style={{ color: 'var(--text-secondary)' }}><strong style={{ color: 'var(--text-primary)' }}>{postCount}</strong> posts</span>
+              <span style={{ color: 'var(--text-secondary)' }}><strong style={{ color: 'var(--text-primary)' }}>{followCounts.followers}</strong> seguidores</span>
+              <span style={{ color: 'var(--text-secondary)' }}><strong style={{ color: 'var(--text-primary)' }}>{followCounts.following}</strong> seguidos</span>
           </div>
         </div>
+
       </div>
     </header>
   );

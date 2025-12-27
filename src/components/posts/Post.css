@@ -44,8 +44,7 @@
 .post-content-text {
   margin-bottom: 0.75rem;
   font-size: 1rem;
-  color: #334155;
-  /* Slate-700 */
+  color: var(--text-primary);
   line-height: 1.6;
 }
 
@@ -59,8 +58,7 @@
   height: auto;
   max-height: 750px;
   object-fit: cover;
-  /* Estilo Instagram: imagen inmersiva */
-  background-color: #fff;
+  background-color: var(--surface-hover);
   border-top: 1px solid var(--border-color);
   border-bottom: 1px solid var(--border-color);
 }

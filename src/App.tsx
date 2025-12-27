@@ -30,12 +30,38 @@ const PageLoader = () => (
     justifyContent: 'center', 
     alignItems: 'center', 
     height: '100vh',
+<<<<<<< HEAD
     background: 'var(--bg-primary)',
     color: 'var(--text-secondary)'
   }}>
     Cargando...
+=======
+    background: 'var(--bg-color)',
+    flexDirection: 'column',
+    gap: '1rem'
+  }}>
+    {/* Skeleton Loader Effect */}
+    <div style={{ width: '100%', maxWidth: '500px', padding: '20px' }}>
+      <div style={{ display: 'flex', gap: '15px', marginBottom: '20px' }}>
+        <div style={{ width: '50px', height: '50px', borderRadius: '50%', background: 'var(--border-color)', animation: 'pulse 1.5s infinite' }}></div>
+        <div style={{ flex: 1 }}>
+          <div style={{ width: '60%', height: '15px', background: 'var(--border-color)', borderRadius: '4px', marginBottom: '10px', animation: 'pulse 1.5s infinite' }}></div>
+          <div style={{ width: '40%', height: '15px', background: 'var(--border-color)', borderRadius: '4px', animation: 'pulse 1.5s infinite' }}></div>
+        </div>
+      </div>
+      <div style={{ width: '100%', height: '200px', background: 'var(--surface-hover)', borderRadius: 'var(--radius-lg)', animation: 'pulse 1.5s infinite' }}></div>
+    </div>
+    <style>{`
+      @keyframes pulse {
+        0% { opacity: 0.4; }
+        50% { opacity: 0.8; }
+        100% { opacity: 0.4; }
+      }
+    `}</style>
+>>>>>>> d47ff0e (25)
   </div>
 );
+
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();

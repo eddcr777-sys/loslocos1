@@ -36,7 +36,7 @@ const Button: React.FC<ButtonProps> = ({
       border: '1px solid transparent',
     },
     secondary: {
-      backgroundColor: '#f1f5f9', // slate-100
+      backgroundColor: 'var(--surface-hover)',
       color: 'var(--text-primary)',
       border: '1px solid transparent',
     },
@@ -50,9 +50,9 @@ const Button: React.FC<ButtonProps> = ({
         color: 'var(--text-secondary)'
     },
     danger: {
-        backgroundColor: '#fee2e2',
-        color: '#ef4444',
-        border: '1px solid #fecaca'
+        backgroundColor: 'var(--error-soft)',
+        color: 'var(--error)',
+        border: '1px solid var(--error)'
     }
   };
 
