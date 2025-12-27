@@ -192,7 +192,7 @@ return (
       <h2 className="section-title" style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.5rem', color: 'var(--text-primary)' }}>
         <Star className="section-icon" style={{ color: 'var(--warning)' }} /> Destacados {getTimeframeLabel()}
       </h2>
-      <div className="featured-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+      <div className="featured-grid">
         {/* Tarjeta de Usuario Destacado */}
         {featuredUser && (
           <FeaturedCard type="user" data={featuredUser} />

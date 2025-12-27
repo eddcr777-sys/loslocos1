@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, MapPin, Clock, Users, ChevronRight, Plus, X, Image as ImageIcon, Loader } from 'lucide-react';
-import Card from './components/ui/Card';
-import Button from './components/ui/Button';
-import { supabase } from './utils/supabaseClient';
-import { api } from './services/api';
-import { useAuth } from './context/AuthContext';
+import Card from '../../components/ui/Card';
+import Button from '../../components/ui/Button';
+import { supabase } from '../../utils/supabaseClient';
+import { api } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import './EventsPage.css';
 
 interface EventData {
@@ -111,13 +111,13 @@ const EventsPage = () => {
   };
 
   return (
-    <div className="events-container animate-fade-in" style={{ padding: '1.5rem', maxWidth: '1200px', margin: '0 auto' }}>
-      <header style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div className="events-container animate-fade-in">
+      <header className="events-header">
         <div>
-          <h1 style={{ fontSize: '1.8rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Calendar className="text-blue-600" /> Eventos Universitarios
+          <h1 className="events-title">
+            <Calendar className="text-accent" size={32} /> Eventos Universitarios
           </h1>
-          <p style={{ color: 'var(--text-secondary)' }}>Descubre lo que está pasando en el campus.</p>
+          <p className="events-subtitle">Descubre lo que está pasando en el campus.</p>
         </div>
         <Button onClick={() => setIsModalOpen(true)}>
           <Plus size={18} /> Crear Evento
@@ -125,67 +125,63 @@ const EventsPage = () => {
       </header>
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '4rem' }}>Cargando eventos...</div>
-      ) : events.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>
-          No hay eventos próximos. ¡Sé el primero en crear uno!
+            <Loader className="spin" size={32} style={{ marginBottom: '1rem', color: 'var(--accent-color)' }} />
+            <p>Cargando eventos...</p>
+        </div>
+      ) : events.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '4rem 2rem', color: 'var(--text-secondary)', background: 'var(--surface-color)', borderRadius: 'var(--radius-lg)', border: '1px dashed var(--border-color)' }}>
+          <Calendar size={48} style={{ opacity: 0.5, marginBottom: '1rem' }} />
+          <h3>No hay eventos próximos</h3>
+          <p>¡Sé el primero en crear uno para tu comunidad!</p>
         </div>
       ) : (
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
+      <div className="events-grid">
         {events.map(event => {
           const { day, month } = formatDate(event.date);
           return (
-          <Card key={event.id} className="event-card" style={{ overflow: 'hidden', transition: 'transform 0.2s', cursor: 'pointer' }}>
-            <div style={{ height: '160px', overflow: 'hidden', position: 'relative' }}>
+          <div key={event.id} className="event-card">
+            <div className="event-image-wrapper">
               <img 
                 src={event.image_url} 
                 alt={event.title} 
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                className="event-image"
               />
-              <div className="category-tag" style={{ 
-                position: 'absolute', top: '10px', right: '10px', 
-                color: getCategoryColor(event.category)
-              }}>
+              <div className="category-tag" style={{ borderBottom: `3px solid ${getCategoryColor(event.category)}` }}>
                 {event.category}
               </div>
             </div>
             
-            <div style={{ padding: '1.2rem' }}>
-              <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
-                <div style={{ 
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', 
-                  background: 'var(--surface-hover)', padding: '8px 12px', borderRadius: 'var(--radius-md)',
-                  height: 'fit-content', minWidth: '50px'
-                }}>
-                  <span style={{ fontSize: '1.1rem', fontWeight: 'bold', color: 'var(--error)' }}>{day}</span>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{month}</span>
+            <div className="event-content">
+              <div className="event-date-row">
+                <div className="event-date-box">
+                  <span className="date-day">{day}</span>
+                  <span className="date-month">{month}</span>
                 </div>
-                <div>
-                  <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '0.5rem', lineHeight: '1.3', color: 'var(--text-primary)' }}>{event.title}</h3>
+                <div className="event-info">
+                  <h3 className="event-title">{event.title}</h3>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '4px' }}>
-                    <Clock size={14} /> {event.time.substring(0, 5)}
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-                    <MapPin size={14} /> {event.location}
+                  <div className="event-meta">
+                    <div className="meta-item">
+                      <Clock size={16} /> {event.time.substring(0, 5)}
+                    </div>
+                    <div className="meta-item">
+                      <MapPin size={16} /> {event.location}
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                  <Users size={14} /> {event.attendees || 0} Asistirán
+              <div className="event-footer">
+                <div className="attendees-count">
+                  <Users size={16} /> {event.attendees || 0} Asistirán
                 </div>
-                <button style={{ 
-                  background: 'none', border: 'none', color: 'var(--accent-color)', 
-                  fontWeight: '600', fontSize: '0.9rem', cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', gap: '4px'
-                }}>
+                <button className="view-details-btn">
                   Ver Detalles <ChevronRight size={16} />
                 </button>
               </div>
             </div>
-          </Card>
+          </div>
           );
         })}
       </div>
@@ -196,17 +192,17 @@ const EventsPage = () => {
         <div className="modal-overlay">
           <div className="modal-content animate-fade-in">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>Nuevo Evento</h2>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--text-primary)', margin: 0 }}>Nuevo Evento</h2>
               <button onClick={() => setIsModalOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}>
                 <X size={24} />
               </button>
             </div>
 
-            <form onSubmit={handleCreateEvent} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <form onSubmit={handleCreateEvent} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div className="form-group">
                 <label>Título del Evento</label>
                 <input 
-                  type="text" required className="modal-input"
+                  type="text" required className="modal-input" placeholder="Ej. Torneo de Fútbol"
                   value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})}
                 />
               </div>
@@ -252,20 +248,20 @@ const EventsPage = () => {
 
               <div className="form-group">
                 <label>Imagen Promocional</label>
-                <div style={{ border: '2px dashed var(--border-color)', padding: '1rem', borderRadius: '8px', textAlign: 'center', cursor: 'pointer' }}>
+                <div style={{ border: '2px dashed var(--border-color)', padding: '2rem', borderRadius: 'var(--radius-lg)', textAlign: 'center', cursor: 'pointer', background: 'var(--bg-color)' }}>
                   <input 
                     type="file" accept="image/*" id="event-img" style={{ display: 'none' }}
                     onChange={e => setFormData({...formData, image: e.target.files ? e.target.files[0] : null})}
                   />
-                  <label htmlFor="event-img" style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)' }}>
-                    <ImageIcon size={24} />
-                    <span>{formData.image ? formData.image.name : 'Click para subir imagen'}</span>
+                  <label htmlFor="event-img" style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', color: 'var(--text-secondary)' }}>
+                    <ImageIcon size={32} style={{ color: 'var(--accent-color)' }} />
+                    <span style={{ fontWeight: 500 }}>{formData.image ? formData.image.name : 'Click para subir imagen o arrastra aquí'}</span>
                   </label>
                 </div>
               </div>
 
-              <Button type="submit" disabled={creating} style={{ marginTop: '1rem' }}>
-                {creating ? <><Loader className="spin" size={18} /> Creando...</> : 'Publicar Evento'}
+              <Button type="submit" disabled={creating} style={{ marginTop: '1rem', width: '100%' }}>
+                {creating ? <><Loader className="spin" size={20} /> Publicando...</> : 'Publicar Evento'}
               </Button>
             </form>
           </div>
@@ -274,5 +270,6 @@ const EventsPage = () => {
     </div>
   );
 };
+
 
 export default EventsPage;

@@ -40,7 +40,7 @@ const Aside = () => {
             </div>
             <span>Notificaciones</span>
           </NavLink>
-          <NavLink to="/profile" className={getNavLinkClass}>
+          <NavLink to="/profile" className={getNavLinkClass} end>
             <User size={20} />
             <span>Perfil</span>
           </NavLink>

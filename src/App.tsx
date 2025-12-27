@@ -13,6 +13,7 @@ const ProfilePage = lazy(() => import('./pages/ProfilePage/ProfilePage'));
 const SearchPage = lazy(() => import('./pages/SearchPage/SearchPage'));
 const NotificationsPage = lazy(() => import('./pages/NotificationsPage/NotificationsPage'));
 const TrendsPage = lazy(() => import('./components/TrendsPage/TrendsPage'));
+const EventsPage = lazy(() => import('./pages/EventsPage/EventsPage'));
 const PostDetailPage = lazy(() => import('./pages/NotificationsPage/PostDetailPage'));
 const LoginPage = lazy(() => import('./pages/AuthPage/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/AuthPage/RegisterPage'));
@@ -56,6 +57,21 @@ const PageLoader = () => (
 );
 
 
+// Theme initializer to handle persistence
+const ThemeInitializer = () => {
+  React.useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+      document.body.classList.add('dark');
+    } else {
+      document.body.classList.remove('dark');
+    }
+  }, []);
+  return null;
+};
+
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
   if (!user) {
@@ -92,6 +108,7 @@ const AppRoutes = () => (
         <Route path="/notifications" element={<NotificationsPage />} />
         <Route path="/post/:postId" element={<PostDetailPage />} />
         <Route path="/trends" element={<TrendsPage />} />
+        <Route path="/events" element={<EventsPage />} />
         <Route path="/verify-admin" element={<VerificationHub />} />
       </Route>
 
@@ -114,6 +131,7 @@ const AppRoutes = () => (
 function App() {
   return (
     <Router>
+      <ThemeInitializer />
       <AuthProvider>
         <FeedProvider>
           <AppRoutes />

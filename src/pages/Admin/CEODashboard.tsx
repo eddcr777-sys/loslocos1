@@ -272,7 +272,7 @@ const CEODashboard = () => {
                             <Card className="activity-log-card">
                                 <div className="log-list">
                                     {logs.length === 0 ? (
-                                        <div style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8' }}>
+                                        <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
                                             No hay registros de actividad recientes.
                                         </div>
                                     ) : (
@@ -286,7 +286,7 @@ const CEODashboard = () => {
                                                     </div>
                                                 </div>
                                                 <div className="log-content">
-                                                    <span style={{ fontWeight: 600, color: '#0f172a' }}>{log.action}</span>: {log.details}
+                                                    <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{log.action}</span>: {log.details}
                                                 </div>
                                                 <div className="log-meta">
                                                     <span className="log-time">{new Date(log.created_at).toLocaleTimeString()}</span>

@@ -273,7 +273,7 @@ const InstitutionalDashboard = () => {
                                         <span className="label">Interacciones</span>
                                     </div>
                                 </Card>
-                                <Card className="compact-stat-card glass-indigo" style={{ gridColumn: 'span 2', background: '#e0e7ff', color: '#3730a3' }}>
+                                <Card className="compact-stat-card glass-indigo" style={{ gridColumn: 'span 2' }}>
                                     <Users size={24} />
                                     <div className="stat-data">
                                         <span className="count">~{stats.reach}</span>

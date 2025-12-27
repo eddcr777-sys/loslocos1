@@ -15,16 +15,17 @@ export const useFullProfile = (userId: string | undefined, currentUser: any) => 
   const [stats, setStats] = useState({ followers: 0, following: 0, posts: 0 });
 
   useEffect(() => {
-    if (!userId) return;
+    const targetId = userId || currentUser?.id;
+    if (!targetId) return;
 
     const fetchStatsAndFollowing = async () => {
       try {
         setIsFollowLoading(true);
 
         // Fetch followers, following, and posts counts
-        const { count: followersCount } = await supabase.from('followers').select('*', { count: 'exact', head: true }).eq('following_id', userId);
-        const { count: followingCount } = await supabase.from('followers').select('*', { count: 'exact', head: true }).eq('follower_id', userId);
-        const { count: postsCount } = await supabase.from('posts').select('*', { count: 'exact', head: true }).eq('user_id', userId);
+        const { count: followersCount } = await supabase.from('followers').select('*', { count: 'exact', head: true }).eq('following_id', targetId);
+        const { count: followingCount } = await supabase.from('followers').select('*', { count: 'exact', head: true }).eq('follower_id', targetId);
+        const { count: postsCount } = await supabase.from('posts').select('*', { count: 'exact', head: true }).eq('user_id', targetId);
 
         setStats({
           followers: followersCount || 0,
@@ -33,7 +34,7 @@ export const useFullProfile = (userId: string | undefined, currentUser: any) => 
         });
 
         // Check if current user is following
-        if (currentUser && currentUser.id !== userId) {
+        if (currentUser && userId && currentUser.id !== userId) {
           const { data, error } = await supabase
             .from('followers')
             .select('*')
@@ -52,6 +53,7 @@ export const useFullProfile = (userId: string | undefined, currentUser: any) => 
 
     fetchStatsAndFollowing();
   }, [userId, currentUser]);
+
 
   const handleFollow = async () => {
     if (!currentUser || !userId || isFollowLoading) return;
