@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { api, Comment } from '../../services/api';
-import { useAuth } from '../../context/AuthContext';
-import CommentItem from './comments/CommentItem';
-import CommentForm from './comments/CommentForm';
+import { api, Comment } from '../../../services/api';
+import { useAuth } from '../../../context/AuthContext';
+import CommentItem from './CommentItem';
+import CommentForm from './CommentForm';
 
 interface CommentSectionProps {
   postId: string;

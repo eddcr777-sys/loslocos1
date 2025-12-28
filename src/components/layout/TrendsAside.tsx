@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { User, MessageSquare, TrendingUp, Star } from 'lucide-react';
+import { User, MessageSquare, TrendingUp, Star, Plus } from 'lucide-react';
 import { supabase } from '../../utils/supabaseClient';
+import FloatingActionButton from '../ui/FloatingActionButton';
+import CreatePostModal from '../../modals/CreatePostModal';
 import './TrendsAside.css';
 
 const TrendsAside = () => {
@@ -9,6 +11,7 @@ const TrendsAside = () => {
   const [featuredPost, setFeaturedPost] = useState<any>(null);
   const [trendingTopics, setTrendingTopics] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchTrendsData = async () => {
@@ -24,7 +27,8 @@ const TrendsAside = () => {
           .select(`
             *,
             profiles (full_name, username, avatar_url, faculty),
-            likes (user_id)
+            likes (user_id),
+            comments (count)
           `)
           .gte('created_at', isoDate)
           .limit(500);
@@ -70,6 +74,7 @@ const TrendsAside = () => {
                 author: (topPost.profiles as any)?.full_name || 'Institucional',
                 content: topPost.content,
                 likes: (topPost.likes as any)?.length || 0,
+                comments: (topPost.comments as any)?.[0]?.count || 0,
                 reason: 'Aviso Universitario'
             });
         } else {
@@ -86,6 +91,7 @@ const TrendsAside = () => {
                     author: (topPost.profiles as any)?.full_name || 'Usuario',
                     content: topPost.content,
                     likes: (topPost.likes as any)?.length || 0,
+                    comments: (topPost.comments as any)?.[0]?.count || 0,
                     reason: 'Post destacado'
                 });
             }
@@ -148,6 +154,7 @@ const TrendsAside = () => {
 
           {/* Publicación Destacada */}
           {featuredPost && (
+            <Link to={`/post/${featuredPost.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
             <div className="trend-item featured-item">
                 <div className="trend-header">
                 <MessageSquare size={16} className="trend-icon" />
@@ -156,9 +163,11 @@ const TrendsAside = () => {
                 <div className="trend-content">
                 <span className="trend-name">{featuredPost.author}</span>
                 <p className="trend-snippet">"{featuredPost.content?.substring(0, 50)}{featuredPost.content?.length > 50 ? '...' : ''}"</p>
-                <span className="trend-meta">{featuredPost.likes} likes</span>
+                <span className="trend-meta">{featuredPost.likes} Likes • {featuredPost.comments} Comentarios</span>
                 </div>
             </div>
+            </Link>
+
           )}
 
           {/* Hashtags / Temas */}
@@ -179,6 +188,17 @@ const TrendsAside = () => {
           )}
         </div>
       </div>
+
+      <FloatingActionButton 
+        onClick={() => setIsModalOpen(true)}
+        ariaLabel="Crear publicación"
+        icon={<Plus size={24} />}
+      />
+
+      <CreatePostModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+      />
     </aside>
   );
 };

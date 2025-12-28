@@ -6,6 +6,7 @@ import Avatar from '../../components/ui/Avatar';
 import VerificationBadge from '../../components/ui/VerificationBadge';
 import { Calendar, Briefcase, AtSign, UserPlus, UserCheck } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { api } from '../../services/api';
 
 const ProfilePage = () => {
   const { userId } = useParams<{ userId: string }>();
@@ -22,8 +23,59 @@ const ProfilePage = () => {
   } = useFullProfile(userId, user);
 
   const [hoveringUnfollow, setHoveringUnfollow] = useState(false);
+  
+  // Shared feed state
+  const [sharedPosts, setSharedPosts] = useState<any[]>([]);
+  const [loadingShared, setLoadingShared] = useState(false);
+
+  const [activeTab, setActiveTab] = useState<'posts' | 'shared'>('posts');
+
+  // Load shared posts when tab changes
+  const targetId = userId || user?.id;
+
+  React.useEffect(() => {
+    // Crucial: ensure targetId is evaluated correctly
+    const finalId = userId || user?.id;
+    
+    if (activeTab === 'shared' && finalId) {
+        setLoadingShared(true);
+        api.getProfileShares(finalId).then(({ data, error }) => {
+            if (data) {
+                const formatted = data.map((item: any) => {
+                    const isRepost = item.type === 'repost';
+                    const isQuote = item.type === 'quote';
+                    return {
+                        id: item.id,
+                        user_id: item.user_id,
+                        content: item.content,
+                        image_url: item.image_url,
+                        created_at: item.created_at,
+                        profiles: item.author_data, 
+                        original_post: item.original_post_data, 
+                        original_post_id: item.original_post_id,
+                        is_official: item.is_official,
+                        likes: { count: 0 }, 
+                        comments: { count: 0 },
+                        is_repost_from_shares: isRepost,
+                        is_quote: isQuote
+                    };
+                });
+                setSharedPosts(formatted);
+            } else if (error) {
+                console.error("Error loading shares:", error);
+            }
+            setLoadingShared(false);
+        });
+    }
+  }, [activeTab, userId, user?.id]);
+
 
   if (!viewProfile) return <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>Cargando perfil...</div>;
+
+  // Filter posts based on active tab
+  const displayPosts = activeTab === 'posts' 
+    ? userPosts.filter(p => !p.original_post_id)  // Solo posts originales
+    : sharedPosts;  // Usar sharedPosts para la pestaña compartidos
 
   return (
     <div style={styles.container}>
@@ -113,10 +165,38 @@ const ProfilePage = () => {
            </span>
         </div>
       </div>
+
+       <div className="profile-tabs" style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', marginBottom: '1rem' }}>
+            <div 
+                onClick={() => setActiveTab('posts')}
+                style={{
+                    padding: '1rem 2rem', cursor: 'pointer', fontWeight: 600, 
+                    borderBottom: activeTab === 'posts' ? '3px solid var(--accent-color)' : '3px solid transparent',
+                    color: activeTab === 'posts' ? 'var(--text-primary)' : 'var(--text-secondary)'
+                }}
+            >
+                Publicaciones
+            </div>
+            <div 
+                onClick={() => setActiveTab('shared')}
+                style={{
+                    padding: '1rem 2rem', cursor: 'pointer', fontWeight: 600, 
+                    borderBottom: activeTab === 'shared' ? '3px solid var(--accent-color)' : '3px solid transparent',
+                    color: activeTab === 'shared' ? 'var(--text-primary)' : 'var(--text-secondary)'
+                }}
+            >
+                Compartidos
+            </div>
+       </div>
       
       <main>
         <div style={styles.contentSections}>
-          <PostsSection posts={userPosts} loading={loadingPosts} />
+        <div style={styles.contentSections}>
+          <PostsSection 
+            posts={displayPosts} 
+            loading={activeTab === 'posts' ? loadingPosts : loadingShared} 
+          />
+        </div>
         </div>
       </main>
     </div>

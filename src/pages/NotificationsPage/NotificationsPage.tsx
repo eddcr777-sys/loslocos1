@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import Avatar from '../../components/ui/Avatar';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
-import { Check, CheckCheck, Heart, Megaphone, MessageCircle, Reply, UserPlus } from 'lucide-react';
+import { Check, CheckCheck, Heart, Megaphone, MessageCircle, Reply, UserPlus, Repeat, Quote, AtSign } from 'lucide-react';
 import { timeAgo } from '../../utils/dateUtils';
 
 const DEFAULT_AVATAR = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
@@ -112,7 +112,7 @@ const NotificationsPage = () => {
               style={{ 
                 marginBottom: 0, 
                 padding: '1.25rem', 
-                cursor: (notif.type === 'like' || notif.type === 'comment' || notif.type === 'reply' || notif.type === 'official') ? 'pointer' : 'default',
+                cursor: (['like', 'comment', 'reply', 'official', 'repost', 'quote', 'mention'].includes(notif.type)) ? 'pointer' : 'default',
                 transition: 'all 0.2s ease',
                 backgroundColor: !notif.read ? 'var(--accent-soft)' : 'var(--surface-color)',
                 borderColor: !notif.read ? 'var(--accent-color)' : 'var(--border-color)',
@@ -120,10 +120,12 @@ const NotificationsPage = () => {
                 borderStyle: 'solid'
               }}
               onClick={() => {
-                if (notif.type === 'like' || notif.type === 'comment' || notif.type === 'reply' || notif.type === 'official') {
+                if (['like', 'comment', 'reply', 'official', 'repost', 'quote', 'mention'].includes(notif.type)) {
                   if (!notif.read) handleMarkAsRead(notif.id);
-                  if (notif.entity_id) {
-                    navigate(`/post/${notif.entity_id}`);
+                  // For repost/quote, post_id (or entity_id) links to the relevant post
+                  const linkId = notif.post_id || notif.entity_id;
+                  if (linkId) {
+                    navigate(`/post/${linkId}`);
                   }
                 }
               }}
@@ -150,6 +152,9 @@ const NotificationsPage = () => {
                     {notif.type === 'reply' && <Reply size={10} color="var(--success)" />}
                     {notif.type === 'follow' && <UserPlus size={10} color="var(--faculty-law)" />}
                     {notif.type === 'official' && <Megaphone size={10} color="var(--success)" />}
+                    {notif.type === 'repost' && <Repeat size={10} color="var(--success)" />}
+                    {notif.type === 'quote' && <Quote size={10} color="var(--accent-color)" />}
+                    {notif.type === 'mention' && <AtSign size={10} color="var(--accent-color)" />}
                   </div>
                 </div>
                 <div style={{ flex: 1 }}>
@@ -163,6 +168,9 @@ const NotificationsPage = () => {
                       {notif.type === 'reply' && 'respondió a tu comentario.'}
                       {notif.type === 'follow' && 'comenzó a seguirte.'}
                       {notif.type === 'official' && `: ${notif.content}`}
+                      {notif.type === 'repost' && (notif.group_count > 1 ? ` y ${notif.group_count - 1} más compartieron tu publicación.` : 'compartió tu publicación.')}
+                      {notif.type === 'quote' && (notif.group_count > 1 ? ` y ${notif.group_count - 1} más citaron tu publicación.` : 'citó tu publicación.')}
+                      {notif.type === 'mention' && 'te mencionó en una publicación.'}
                     </span>
                   </p>
                   <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{timeAgo(notif.created_at)}</span>

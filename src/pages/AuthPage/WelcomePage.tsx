@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../components/ui/Button';
 import './WelcomePage.css';
+import logo from '../../assets/images/Untitled__1_-removebg-preview.png';
 
 const WelcomePage = () => {
   const navigate = useNavigate();
@@ -31,6 +32,10 @@ const WelcomePage = () => {
       >
         <div className="welcome-header">
           <div className="logo-container">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <img src={logo} alt="Logo" style={{ width: '200px', height: '200px', objectFit: 'contain' }} />
+      
+        </div>
           </div>
           <h1 className="welcome-title">
             Bienvenido a <span className="text-gradient">UniFeed</span>
@@ -41,9 +46,9 @@ const WelcomePage = () => {
         </div>
 
         <div className="welcome-actions">
-          <Button
+          <Button 
             onClick={() => navigate('/login')}
-            style={{ width: '100%', justifyContent: 'center', height: '48px', fontSize: '1rem' }}
+            style={{ width: '100%', justifyContent: 'center', height: '48px', fontSize: '1rem', backgroundColor: '#008CBB' }}
           >
             Iniciar Sesión
           </Button>
@@ -62,7 +67,7 @@ const WelcomePage = () => {
         </div>
 
         <footer className="welcome-footer">
-          <p>© 2024 UniFeed. Conectando el campus.</p>
+          <p>© 2025 UniFeed. Conectando el campus.</p>
         </footer>
       </div>
     </div>

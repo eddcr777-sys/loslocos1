@@ -4,6 +4,7 @@ import Card from '../ui/Card';
 import Avatar from '../ui/Avatar';
 import { Link } from 'react-router-dom';
 
+
 const TrendsWidget = () => {
     const [posts, setPosts] = useState<any[]>([]);
 
@@ -19,14 +20,17 @@ const TrendsWidget = () => {
 
     return (
         <div style={{ width: '100%', marginBottom: '20px' }}>
-            <h3 style={{ margin: '0 0 15px 0', fontSize: '1.1rem', fontWeight: 800 }}>Tendencias para ti</h3>
+            <h3 style={{ margin: '0 0 15px 0', fontSize: '1.1rem', fontWeight: 800, color: '#64748b' }}>Tendencias para ti</h3>
             <Card style={{ padding: '0' }}>
                 {posts.length === 0 && <p style={{ padding: '15px', color: '#64748b' }}>No hay tendencias aún.</p>}
                 
                 {posts.map((post, index) => (
-                     <div key={post.id} style={{ 
+                    <Link key={post.id} to={`/post/${post.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+                        
+                     <div style={{ 
                          padding: '15px', 
-                         borderBottom: index < posts.length - 1 ? '1px solid #e2e8f0' : 'none'
+                         borderBottom: index < posts.length - 1 ? '1px solid #e2e8f0' : 'none',
+                         cursor: 'pointer'
                      }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                              <Avatar src={post.profiles?.avatar_url} size="small" />
@@ -48,6 +52,7 @@ const TrendsWidget = () => {
                             {post.likes && post.likes[0]?.count ? `${post.likes[0].count} likes` : 'Nuevo'}
                         </span>
                      </div>
+                    </Link>
                 ))}
             </Card>
         </div>

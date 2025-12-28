@@ -22,6 +22,9 @@ export interface Post {
     comments?: any; // Joined data (conteo)
     user_has_liked?: boolean;
     is_official?: boolean;
+    original_post?: Post; // Recursive definition for quoted post
+    original_post_id?: string | null;
+    deleted_at?: string | null;
 }
 
 export interface Comment {
@@ -48,6 +51,19 @@ export interface ScheduledPost {
     scheduled_for: string;
     status: 'pending' | 'published' | 'failed';
     created_at: string;
+}
+
+export interface Notification {
+    id: string;
+    user_id: string;
+    actor_id: string;
+    type: 'repost' | 'quote' | 'like' | 'official' | 'follow' | 'comment' | 'reply';
+    post_id?: string;
+    entity_id?: string;
+    group_count: number;
+    read: boolean;
+    created_at: string;
+    actor?: Profile;
 }
 
 export const api = {
@@ -135,17 +151,39 @@ export const api = {
 
     // --- POSTS ---
     getPosts: async () => {
-        const { data, error } = await supabase
-            .from('posts')
-            .select(`
-        *,
-        profiles (id, full_name, avatar_url, user_type),
-        likes (count),
-        comments (count)
-      `)
-            .order('created_at', { ascending: false });
+        // Use the complete feed RPC that includes both posts and reposts
+        const { data, error } = await supabase.rpc('get_complete_feed');
 
-        return { data, error };
+        if (error) {
+            console.warn("Complete feed RPC failed. Falling back...", error);
+            const { data: posts, error: standardError } = await supabase
+                .from('posts')
+                .select(`
+                    *,
+                    profiles (id, full_name, avatar_url, user_type, faculty),
+                    likes (count),
+                    comments (count),
+                    original_post:original_post_id (
+                        id, content, image_url, created_at,
+                        profiles (id, full_name, avatar_url, user_type)
+                    )
+                `)
+                .is('deleted_at', null)
+                .order('created_at', { ascending: false });
+            return { data: posts, error: standardError };
+        }
+
+        // Map RPC result to Post structure
+        const mappedPosts = data.map((p: any) => ({
+            ...p,
+            profiles: p.author_data,
+            likes: { count: p.likes_count },
+            comments: { count: p.comments_count },
+            original_post: p.original_post_data,
+            is_repost_from_shares: p.is_repost
+        }));
+
+        return { data: mappedPosts, error: null };
     },
 
     getPost: async (postId: string) => {
@@ -186,14 +224,23 @@ export const api = {
         *,
         profiles (id, full_name, avatar_url, user_type),
         likes (count),
-        comments (count)
+        comments (count),
+        original_post:original_post_id (
+            id,
+            content,
+            image_url,
+            created_at,
+            deleted_at,
+            profiles (id, full_name, avatar_url, user_type)
+        )
       `)
             .eq('user_id', userId)
+            .is('deleted_at', null)
             .order('created_at', { ascending: false });
         return { data, error };
     },
 
-    createPost: async (content: string, imageUrl: string | null, isOfficial: boolean = false) => {
+    createPost: async (content: string, imageUrl: string | null = null, isOfficial: boolean = false, originalPostId: string | null = null) => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return { error: { message: 'No authenticated user' } };
 
@@ -203,10 +250,17 @@ export const api = {
                 user_id: user.id,
                 content,
                 image_url: imageUrl,
-                is_official: isOfficial
+                is_official: isOfficial,
+                original_post_id: originalPostId
             })
             .select()
             .single();
+
+        // If it's a quote, increment share count of original
+        if (!error && originalPostId) {
+            await supabase.rpc('increment_shares_count', { post_id_param: originalPostId });
+        }
+
         return { data, error };
     },
 
@@ -215,6 +269,12 @@ export const api = {
             .from('posts')
             .delete()
             .eq('id', postId);
+        return { error };
+    },
+
+    sharePost: async (postId: string) => {
+        // Increment share count
+        const { error } = await supabase.rpc('increment_shares_count', { post_id_param: postId });
         return { error };
     },
 
@@ -438,23 +498,8 @@ export const api = {
         const { data, error } = await supabase
             .from('profiles')
             .select('*')
-            .ilike('full_name', `%${query}%`)
-            .limit(20);
-        return { data, error };
-    },
-
-    // --- TRENDS ---
-    getTrendingPosts: async () => {
-        const { data, error } = await supabase
-            .from('posts')
-            .select(`
-                *,
-                profiles (id, full_name, avatar_url, user_type),
-                likes (count)
-             `)
-            .order('created_at', { ascending: false })
+            .or(`full_name.ilike.%${query}%,username.ilike.%${query}%`)
             .limit(10);
-
         return { data, error };
     },
 
@@ -547,7 +592,7 @@ export const api = {
 
         // Log removed
 
-        const { error, status, statusText } = await supabase
+        const { error } = await supabase
             .from('stories')
             .delete()
             .eq('id', storyId)
@@ -651,5 +696,92 @@ export const api = {
     deleteScheduledPost: async (id: string) => {
         const { error } = await supabase.from('scheduled_posts').delete().eq('id', id);
         return { error };
+    },
+    // --- SETTINGS (NEW) ---
+    getSettings: async (userId: string) => {
+        const { data, error } = await supabase
+            .from('user_settings')
+            .select('*')
+            .eq('user_id', userId)
+            .maybeSingle();
+        return { data, error };
+    },
+
+    updateSettings: async (userId: string, settings: any) => {
+        // Upsert allows creating the row if it doesn't exist yet
+        const { data, error } = await supabase
+            .from('user_settings')
+            .upsert({ user_id: userId, ...settings })
+            .select()
+            .single();
+        return { data, error };
+    },
+
+    deleteUserAccount: async () => {
+        // Calls the RPC we defined in SQL
+        const { error } = await supabase.rpc('delete_user_account');
+        return { error };
+    },
+
+    // --- SHARING & ADVANCED POSTS ---
+    toggleRepost: async (postId: string) => {
+        const { data, error } = await supabase.rpc('toggle_repost', { post_id_param: postId });
+        return { data, error };
+    },
+
+    softDeletePost: async (postId: string) => {
+        const { data, error } = await supabase.rpc('soft_delete_post', { post_id_param: postId });
+        return { data, error };
+    },
+
+    getProfileShares: async (userId: string) => {
+        const { data, error } = await supabase.rpc('get_profile_shares', { user_id_param: userId });
+
+        // Transform the data to match expected Post structure if possible, or a new structure
+        // The RPC returns mixed types. We might need to map them to 'Post' like objects for the UI
+        // or the UI handles a 'ShareItem' interface.
+        // Let's try to map to a structure compatible with our Post component if possible, 
+        // OR return as is and let UI handle.
+        // Given 'original_post_data' comes as JSONB, we should ensure it has profiles.
+        // For simplicity, we pass the raw data and let the specific component adapt it.
+        return { data, error };
+    },
+
+    // --- SMART FEED (Algoritmo Avanzado) ---
+    getSmartFeed: async () => {
+        const { data, error } = await supabase.rpc('get_smart_feed');
+
+        if (error) {
+            console.warn("Smart feed RPC failed. Falling back to complete feed...", error);
+            // Fallback to complete feed
+            return api.getPosts();
+        }
+
+        // Map RPC result to Post structure with additional metadata
+        const mappedPosts = data.map((p: any) => ({
+            ...p,
+            profiles: p.author_data,
+            likes: { count: p.likes_count },
+            comments: { count: p.comments_count },
+            original_post: p.original_post_data,
+            is_repost_from_shares: p.is_repost,
+            // Additional smart feed metadata
+            _relevance_score: p.relevance_score,
+            _is_trending: p.is_trending,
+            _trending_period: p.trending_period,
+            _reposters: p.reposters_data
+        }));
+
+        return { data: mappedPosts, error: null };
+    },
+
+    getTrendingPosts: async (period: 'day' | 'week' | 'month' | 'year' = 'day') => {
+        const { data, error } = await supabase.rpc('get_trending_posts', { period_param: period });
+        return { data, error };
+    },
+
+    updateTrendingPosts: async () => {
+        const { data, error } = await supabase.rpc('update_trending_posts');
+        return { data, error };
     }
 };

@@ -1,113 +1,122 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Bell, Smartphone, Zap, Mail } from 'lucide-react';
+import SettingsCard from './ui/SettingsCard';
+import SettingsToggle from './ui/SettingsToggle';
+import { useAuth } from '../../context/AuthContext';
+import { api } from '../../services/api';
 
 const NotificationSettings = () => {
+  const { user } = useAuth(); // Assuming useAuth exposes user.id
+  const [loading, setLoading] = useState(true);
   const [settings, setSettings] = useState({
     emailNotifs: true,
     pushNotifs: true,
+    mentions: true,
+    likes: true,
     marketing: false
   });
 
-  const toggle = (key: keyof typeof settings) => {
-    setSettings(prev => ({ ...prev, [key]: !prev[key] }));
+  useEffect(() => {
+    if (user?.id) {
+        loadSettings();
+    }
+  }, [user]);
+
+  const loadSettings = async () => {
+    setLoading(true);
+    const { data } = await api.getSettings(user!.id);
+    if (data) {
+        setSettings({
+            emailNotifs: data.email_notifs ?? true,
+            pushNotifs: data.push_notifs ?? true,
+            mentions: data.notify_mentions ?? true,
+            likes: data.notify_likes ?? true,
+            marketing: data.notify_marketing ?? false
+        });
+    }
+    setLoading(false);
   };
 
+  const toggle = async (key: keyof typeof settings) => {
+    // Optimistic update
+    const newValue = !settings[key];
+    setSettings(prev => ({ ...prev, [key]: newValue }));
+
+    // Map state keys to DB column names
+    const dbKeyMap: Record<string, string> = {
+        emailNotifs: 'email_notifs',
+        pushNotifs: 'push_notifs',
+        mentions: 'notify_mentions',
+        likes: 'notify_likes',
+        marketing: 'notify_marketing'
+    };
+
+    if (user?.id) {
+        await api.updateSettings(user.id, { [dbKeyMap[key]]: newValue });
+    }
+  };
+
+  if (loading) return <div className="settings-section" style={{ padding: '2rem', textAlign: 'center' }}>Cargando preferencias...</div>;
+
   return (
-    <div className="notification-settings">
-      <h2 className="settings-section-title">Notificaciones</h2>
-      <p className="settings-section-desc">Gestiona cómo y cuándo quieres recibir noticias de nosotros.</p>
+    <div className="settings-section animate-fade-in">
+      <div className="settings-section-header">
+        <h2>Notificaciones</h2>
+        <p>Controla cómo quieres que te avisemos sobre lo que pasa en tu red.</p>
+      </div>
       
-      <div className="settings-group">
-        <ToggleItem 
-          title="Notificaciones por Correo" 
-          desc="Recibe actualizaciones sobre tu cuenta, mensajes y actividad de seguidores."
-          checked={settings.emailNotifs} 
-          onChange={() => toggle('emailNotifs')} 
-        />
-        <ToggleItem 
+      <SettingsCard 
+        title="Canales Preferidos" 
+        description="Elige dónde quieres que aparezcan nuestras alertas."
+        icon={<Smartphone size={24} />}
+      >
+        <SettingsToggle 
           title="Notificaciones Push" 
-          desc="Recibe alertas instantáneas en tu navegador o dispositivo móvil."
+          description="Alertas inmediatas en tu navegador o dispositivo móvil."
           checked={settings.pushNotifs} 
           onChange={() => toggle('pushNotifs')} 
         />
-        <ToggleItem 
-          title="Novedades y Marketing" 
-          desc="Mantente al día con nuevas funciones y recomendaciones personalizadas."
+        <SettingsToggle 
+          title="Resúmenes por Correo" 
+          description="Recibe lo más importante de la semana en tu bandeja de entrada."
+          checked={settings.emailNotifs} 
+          onChange={() => toggle('emailNotifs')} 
+        />
+      </SettingsCard>
+
+      <SettingsCard 
+        title="Interacciones y Social" 
+        description="Personaliza qué tipo de actividad social genera una notificación."
+        icon={<Zap size={24} />}
+      >
+        <SettingsToggle 
+          title="Menciones" 
+          description="Te avisaremos cuando alguien te etiquete en un post."
+          checked={settings.mentions} 
+          onChange={() => toggle('mentions')} 
+        />
+        <SettingsToggle 
+          title="Likes y Reacciones" 
+          description="Mantente al tanto de quién reacciona a tus publicaciones."
+          checked={settings.likes} 
+          onChange={() => toggle('likes')} 
+        />
+      </SettingsCard>
+
+      <SettingsCard 
+        title="UniFeed Oficial" 
+        description="Novedades sobre la plataforma y nuevas funcionalidades."
+        icon={<Bell size={24} />}
+      >
+        <SettingsToggle 
+          title="Anuncios y Novedades" 
+          description="Aprende sobre nuevas herramientas antes que nadie."
           checked={settings.marketing} 
           onChange={() => toggle('marketing')} 
         />
-      </div>
-
-      <style>{`
-        .notification-settings {
-          animation: fadeIn 0.4s ease-out;
-        }
-        .settings-group {
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
-          background: var(--bg-color);
-          border-radius: var(--radius-lg);
-          padding: 0.5rem;
-          border: 1px solid var(--border-color);
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
+      </SettingsCard>
     </div>
   );
 };
-
-const ToggleItem = ({ title, desc, checked, onChange }: any) => (
-  <div 
-    onClick={onChange}
-    style={{ 
-      display: 'flex', 
-      justifyContent: 'space-between', 
-      alignItems: 'center', 
-      padding: '1.25rem',
-      cursor: 'pointer',
-      borderRadius: 'var(--radius-md)',
-      transition: 'all 0.2s ease',
-      background: 'var(--surface-color)',
-    }}
-    className="toggle-item-hover"
-  >
-    <div style={{ flex: 1, paddingRight: '1rem' }}>
-      <h4 style={{ margin: '0 0 0.25rem 0', fontSize: '1rem', fontWeight: '600', color: 'var(--text-primary)' }}>{title}</h4>
-      <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.875rem', lineHeight: '1.4' }}>{desc}</p>
-    </div>
-    <div style={{ position: 'relative', width: '44px', height: '24px', flexShrink: 0 }}>
-      <input type="checkbox" checked={checked} onChange={() => {}} style={{ opacity: 0, width: 0, height: 0 }} />
-      <span style={{ 
-        position: 'absolute', 
-        top: 0, left: 0, right: 0, bottom: 0, 
-        backgroundColor: checked ? 'var(--accent-color)' : 'var(--text-muted)', 
-        opacity: checked ? 1 : 0.3,
-        transition: '.3s cubic-bezier(0.4, 0, 0.2, 1)', 
-        borderRadius: '34px' 
-      }}></span>
-      <span style={{ 
-        position: 'absolute', 
-        height: '18px', width: '18px', 
-        left: checked ? '22px' : '3px', 
-        bottom: '3px', 
-        backgroundColor: 'white', 
-        transition: '.3s cubic-bezier(0.4, 0, 0.2, 1)', 
-        borderRadius: '50%',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-      }}></span>
-    </div>
-
-    <style>{`
-      .toggle-item-hover:hover {
-        background: var(--surface-hover) !important;
-        transform: scale(1.01);
-      }
-    `}</style>
-  </div>
-);
-
 
 export default NotificationSettings;

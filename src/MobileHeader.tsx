@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { Menu as MenuIcon, X, Home, TrendingUp, Bell, User, Search, Shield } from 'lucide-react';
+import { Menu as MenuIcon, X, Home, TrendingUp, Bell, User, Search, Shield, Calendar } from 'lucide-react';
 import Menu from './Menu';
 import './MobileHeader.css';
 import Logo from './components/ui/logo';
@@ -34,6 +34,9 @@ const MobileHeader = () => {
           </NavLink>
           <NavLink to="/search" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
             <Search size={24} />
+          </NavLink>
+          <NavLink to="/events" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
+            <Calendar size={24} />
           </NavLink>
           <NavLink to="/trends" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
             <TrendingUp size={24} />

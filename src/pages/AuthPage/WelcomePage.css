@@ -45,14 +45,7 @@
   text-align: center;
 }
 
-.logo-container {
-  margin-bottom: 1.5rem;
-  transition: transform 0.3s ease;
-}
 
-.logo-container:hover {
-  transform: scale(1.05);
-}
 
 .welcome-title {
   font-size: 2rem;
@@ -62,7 +55,7 @@
 }
 
 .text-gradient {
-  background: linear-gradient(45deg, #034eff, #000dff);
+  background: linear-gradient(45deg, #008CBB, #008CBB);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }

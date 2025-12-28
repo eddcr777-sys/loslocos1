@@ -2,7 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../utils/supabaseClient';
 import { api } from '../../services/api';
-import { Camera } from 'lucide-react';
+import { Camera, User, School, Edit3 } from 'lucide-react';
+import SettingsCard from './ui/SettingsCard';
+import SettingsInput from './ui/SettingsInput';
+import Button from '../ui/Button';
 
 const DEFAULT_AVATAR = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
 
@@ -102,53 +105,96 @@ const ProfileSettings = () => {
     }
   };
 
-  if (loading) return <div style={{ padding: '2rem', textAlign: 'center' }}>Cargando...</div>;
+  if (loading) return <div className="settings-section" style={{ padding: '4rem', textAlign: 'center' }}>Cargando perfil...</div>;
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-      <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '0.5rem' }}>Editar Perfil</h2>
-      
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-        <div style={{ position: 'relative', cursor: 'pointer' }}>
-          <div style={{ width: '100px', height: '100px', borderRadius: '50%', overflow: 'hidden', border: '4px solid #f1f5f9' }}>
-            <img src={avatarPreview || formData.avatar_url || DEFAULT_AVATAR} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+    <div className="settings-section animate-fade-in">
+      <div className="settings-section-header">
+        <h2>Editar Perfil</h2>
+        <p>Esta información será pública para todos los usuarios.</p>
+      </div>
+
+      <form onSubmit={handleSubmit}>
+        <SettingsCard 
+          title="Foto de Perfil" 
+          description="Sube una foto para que otros te reconozcan."
+          icon={<Camera size={24} />}
+        >
+          <div className="avatar-section">
+            <div className="avatar-preview-container">
+              <div className="avatar-preview-wrapper">
+                <img src={avatarPreview || formData.avatar_url || DEFAULT_AVATAR} alt="Avatar" />
+              </div>
+              <label htmlFor="avatar-upload" className="avatar-upload-badge">
+                <Camera size={20} />
+              </label>
+              <input id="avatar-upload" type="file" accept="image/*" onChange={handleAvatarChange} style={{ display: 'none' }} />
+            </div>
+            <div className="avatar-section-info">
+              <Button type="button" variant="outline" size="small" onClick={() => document.getElementById('avatar-upload')?.click()}>Cambiar imagen</Button>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0 }}>JPG o PNG. Máximo 2MB.</p>
+            </div>
           </div>
-          <label htmlFor="avatar-upload" style={{ position: 'absolute', bottom: '0', right: '0', background: '#2563eb', color: 'white', padding: '6px', borderRadius: '50%', cursor: 'pointer' }}>
-            <Camera size={16} />
-          </label>
-          <input id="avatar-upload" type="file" accept="image/*" onChange={handleAvatarChange} style={{ display: 'none' }} />
-        </div>
-      </div>
+        </SettingsCard>
 
-      <div style={{ display: 'grid', gap: '1.5rem' }}>
-        <div className="form-group">
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Nombre Completo</label>
-          <input type="text" name="full_name" value={formData.full_name} onChange={handleChange} style={inputStyle} />
-        </div>
-        <div className="form-group">
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Usuario</label>
-          <input type="text" name="username" value={formData.username} onChange={handleChange} style={inputStyle} />
-        </div>
-        <div className="form-group">
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Facultad</label>
-          <input type="text" name="faculty" value={formData.faculty} onChange={handleChange} style={inputStyle} />
-        </div>
-        <div className="form-group">
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Biografía</label>
-          <textarea name="bio" value={formData.bio} onChange={handleChange} style={{ ...inputStyle, minHeight: '100px' }} />
-        </div>
-      </div>
+        <SettingsCard 
+          title="Información Personal" 
+          description="Detalles básicos sobre ti."
+          icon={<User size={24} />}
+        >
+          <SettingsInput 
+            label="Nombre Completo"
+            name="full_name"
+            value={formData.full_name}
+            onChange={handleChange}
+            placeholder="Tu nombre real"
+          />
+          <SettingsInput 
+            label="Nombre de Usuario"
+            name="username"
+            value={formData.username}
+            onChange={handleChange}
+            placeholder="@usuario"
+          />
+        </SettingsCard>
 
-      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <button type="submit" disabled={saving} style={buttonStyle}>
-          {saving ? 'Guardando...' : 'Guardar Cambios'}
-        </button>
-      </div>
-    </form>
+        <SettingsCard 
+          title="Vida Universitaria" 
+          description="Cuéntanos sobre tu rol en la facultad."
+          icon={<School size={24} />}
+        >
+          <SettingsInput 
+            label="Facultad"
+            name="faculty"
+            value={formData.faculty}
+            onChange={handleChange}
+            placeholder="Ej: Facultad de Ingeniería"
+          />
+        </SettingsCard>
+
+        <SettingsCard 
+          title="Acerca de mí" 
+          description="Una pequeña descripción para tu perfil."
+          icon={<Edit3 size={24} />}
+        >
+          <SettingsInput 
+            label="Biografía"
+            name="bio"
+            value={formData.bio}
+            onChange={handleChange}
+            placeholder="Cuéntanos algo sobre ti..."
+            multiline
+          />
+        </SettingsCard>
+
+        <div className="form-footer">
+          <Button type="submit" disabled={saving} size="large">
+            {saving ? 'Guardando...' : 'Guardar Todos los Cambios'}
+          </Button>
+        </div>
+      </form>
+    </div>
   );
 };
-
-const inputStyle = { width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.95rem' };
-const buttonStyle = { padding: '10px 20px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600' };
 
 export default ProfileSettings;

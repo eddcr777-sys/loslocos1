@@ -25,7 +25,14 @@ export const useFullProfile = (userId: string | undefined, currentUser: any) => 
         // Fetch followers, following, and posts counts
         const { count: followersCount } = await supabase.from('followers').select('*', { count: 'exact', head: true }).eq('following_id', targetId);
         const { count: followingCount } = await supabase.from('followers').select('*', { count: 'exact', head: true }).eq('follower_id', targetId);
-        const { count: postsCount } = await supabase.from('posts').select('*', { count: 'exact', head: true }).eq('user_id', targetId);
+
+        // Count only original posts (not quotes, not deleted)
+        const { count: postsCount } = await supabase
+          .from('posts')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', targetId)
+          .is('deleted_at', null)
+          .is('original_post_id', null); // Exclude quotes
 
         setStats({
           followers: followersCount || 0,

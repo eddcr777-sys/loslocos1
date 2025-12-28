@@ -1,4 +1,5 @@
 import React from 'react';
+import './Button.css';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
@@ -11,76 +12,19 @@ const Button: React.FC<ButtonProps> = ({
   variant = 'primary', 
   size = 'medium', 
   fullWidth = false,
-  style, 
+  className = '',
   ...props 
 }) => {
-  
-  let baseStyle: React.CSSProperties = {
-    border: 'none',
-    borderRadius: '24px',
-    cursor: 'pointer',
-    fontWeight: 600,
-    transition: 'all 0.2s ease',
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '8px',
-    width: fullWidth ? '100%' : 'auto',
-  };
-
-  // Variants
-  const variants: Record<string, React.CSSProperties> = {
-    primary: {
-      backgroundColor: 'var(--accent-color)',
-      color: '#ffffff',
-      border: '1px solid transparent',
-    },
-    secondary: {
-      backgroundColor: '#f1f5f9', // slate-100
-      color: 'var(--text-primary)',
-      border: '1px solid transparent',
-    },
-    outline: {
-        backgroundColor: 'transparent',
-        border: '1px solid var(--border-color)',
-        color: 'var(--text-primary)'
-    },
-    ghost: {
-        backgroundColor: 'transparent',
-        color: 'var(--text-secondary)'
-    },
-    danger: {
-        backgroundColor: '#fee2e2',
-        color: '#ef4444',
-        border: '1px solid #fecaca'
-    }
-  };
-
-  // Sizes
-  const sizes: Record<string, React.CSSProperties> = {
-    small: {
-      padding: '6px 16px',
-      fontSize: '0.9rem',
-    },
-    medium: {
-      padding: '10px 20px',
-      fontSize: '1rem',
-    },
-    large: {
-      padding: '12px 24px',
-      fontSize: '1.1rem',
-    },
-  };
-
-  const finalStyle = {
-    ...baseStyle,
-    ...variants[variant],
-    ...sizes[size],
-    ...style,
-  };
+  const classes = [
+    'btn-root',
+    `btn-${variant}`,
+    `btn-${size}`,
+    fullWidth ? 'btn-full' : '',
+    className
+  ].filter(Boolean).join(' ');
 
   return (
-    <button style={finalStyle} {...props}>
+    <button className={classes} {...props}>
       {children}
     </button>
   );

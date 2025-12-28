@@ -19,7 +19,8 @@ export const FeedProvider: FC<{children: ReactNode}> = ({ children }) => {
 
   const refreshFeed = useCallback(async () => {
     setLoading(true);
-    const { data } = await api.getPosts();
+    // Use smart feed with advanced algorithm
+    const { data } = await api.getSmartFeed();
     if (data) {
       setPosts(data as any);
     }

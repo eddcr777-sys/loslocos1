@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import Logo from '../../components/ui/logo';
+import logo from '../../assets/images/Untitled__1_-removebg-preview.png';
 import Button from '../../components/ui/Button';
 import './LoginPage.css';
 import './WelcomePage.css'; // Reutilizando el fondo
@@ -39,7 +39,12 @@ const LoginPage = () => {
       <div className="login-container">
         <div className="login-header">
           <Link to="/">
-            <Logo size="medium" />
+            <div className="logo-container">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <img src={logo} alt="Logo" style={{ width: '200px', height: '200px', objectFit: 'cover' }} />
+      
+        </div>
+            </div>
           </Link>
           <h1 className="login-title">Inicia Sesión</h1>
           <p className="login-subtitle">Nos alegra verte de nuevo.</p>

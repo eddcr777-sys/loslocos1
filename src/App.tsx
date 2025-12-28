@@ -8,7 +8,6 @@ import './styles/App.css';
 
 // Lazy loading pages for performance
 const HomePage = lazy(() => import('./pages/HomePage/HomePage'));
-const AboutPage = lazy(() => import('./pages/AboutPage/AboutPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage/ProfilePage'));
 const SearchPage = lazy(() => import('./pages/SearchPage/SearchPage'));
 const NotificationsPage = lazy(() => import('./pages/NotificationsPage/NotificationsPage'));
@@ -95,7 +94,6 @@ const AppRoutes = () => (
       <Route path="/" element={<RedirectIfAuthenticated><WelcomePage /></RedirectIfAuthenticated>} />
       <Route path="/login" element={<RedirectIfAuthenticated><LoginPage /></RedirectIfAuthenticated>} />
       <Route path="/register" element={<RedirectIfAuthenticated><RegisterPage /></RedirectIfAuthenticated>} />
-      <Route path="/about" element={<AboutPage />} />
 
       {/* Rutas protegidas */}
       <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>

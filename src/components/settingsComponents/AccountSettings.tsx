@@ -1,12 +1,41 @@
 import React, { useState } from 'react';
 import { supabase } from '../../utils/supabaseClient';
-import { Lock, Mail, Trash2 } from 'lucide-react';
+import { Lock, Mail, Trash2, Shield, Eye } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import SettingsCard from './ui/SettingsCard';
+import SettingsInput from './ui/SettingsInput';
+import SettingsToggle from './ui/SettingsToggle';
+import Button from '../ui/Button';
 
 const AccountSettings = () => {
   const { user, logout } = useAuth();
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [privacyLoading, setPrivacyLoading] = useState(true);
+  
+  const [privacy, setPrivacy] = useState({
+    publicProfile: true,
+    showEmail: false,
+    showFaculty: true,
+  });
+  
+  // Load settings on mount
+  React.useEffect(() => {
+    if (user?.id) {
+        import('../../services/api').then(({ api }) => {
+            api.getSettings(user.id).then(({ data }) => {
+                if (data) {
+                    setPrivacy({
+                        publicProfile: data.public_profile ?? true,
+                        showEmail: data.show_email ?? false,
+                        showFaculty: data.show_faculty ?? true
+                    });
+                }
+                setPrivacyLoading(false);
+            });
+        });
+    }
+  }, [user]);
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,74 +54,125 @@ const AccountSettings = () => {
 
   const handleDeleteAccount = async () => {
     const confirmed = window.confirm(
-      "¿Estás seguro de que quieres eliminar tu cuenta? Esta acción no se puede deshacer y perderás todos tus datos."
+      "¿Estás seguro de que quieres eliminar tu cuenta?\n\nEsta acción eliminará permanentemente tu perfil, publicaciones, comentarios y configuraciones.\n\nEsta acción NO se puede deshacer."
     );
 
     if (confirmed) {
       try {
-        // Llama a la función RPC de base de datos para eliminar el usuario
-        const { error } = await supabase.rpc('delete_user_account');
+        const { api } = await import('../../services/api');
+        const { error } = await api.deleteUserAccount();
         if (error) throw error;
-        
         await logout();
+        window.location.href = '/';
       } catch (error: any) {
         alert('Error al eliminar la cuenta: ' + error.message);
       }
     }
   };
 
+  const togglePrivacy = async (key: keyof typeof privacy) => {
+    const newValue = !privacy[key];
+    setPrivacy(prev => ({ ...prev, [key]: newValue }));
+
+    const dbKeyMap: Record<string, string> = {
+        publicProfile: 'public_profile',
+        showEmail: 'show_email',
+        showFaculty: 'show_faculty'
+    };
+
+    if (user?.id) {
+        const { api } = await import('../../services/api');
+        await api.updateSettings(user.id, { [dbKeyMap[key]]: newValue });
+    }
+  };
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-      <h2 style={{ fontSize: '1.5rem', fontWeight: '600' }}>Cuenta y Seguridad</h2>
-
-      <div style={{ padding: '1.5rem', background: '#f8fafc', borderRadius: '12px' }}>
-        <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Mail size={20} /> Correo Electrónico
-        </h3>
-        <p style={{ color: '#64748b' }}>Tu correo actual es: <strong>{user?.email}</strong></p>
+    <div className="settings-section animate-fade-in">
+      <div className="settings-section-header">
+        <h2>Cuenta y Seguridad</h2>
+        <p>Administra tu información de acceso, privacidad y seguridad de la cuenta.</p>
       </div>
 
-      <form onSubmit={handlePasswordChange} style={{ padding: '1.5rem', border: '1px solid #e2e8f0', borderRadius: '12px' }}>
-        <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Lock size={20} /> Cambiar Contraseña
-        </h3>
-        <div style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Nueva Contraseña</label>
-          <input 
-            type="password" 
-            value={password} 
-            onChange={(e) => setPassword(e.target.value)} 
-            placeholder="Mínimo 6 caracteres"
-            style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1' }}
-          />
+      <SettingsCard 
+        title="Correo Electrónico" 
+        description="El correo asociado a tu cuenta UniFeed."
+        icon={<Mail size={24} />}
+      >
+        <div style={{ 
+          padding: '1.25rem', 
+          background: 'var(--bg-color)', 
+          borderRadius: '16px', 
+          border: '1px solid var(--border-color)', 
+          color: 'var(--text-primary)',
+          fontSize: '1rem'
+        }}>
+          Tu correo actual es: <strong style={{ color: 'var(--accent-color)' }}>{user?.email}</strong>
         </div>
-        <button type="submit" disabled={loading || !password} style={{ padding: '10px 20px', background: '#0f172a', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
-          {loading ? 'Actualizando...' : 'Actualizar Contraseña'}
-        </button>
-      </form>
+      </SettingsCard>
 
-      <div style={{ padding: '1.5rem', border: '1px solid #fee2e2', borderRadius: '12px', backgroundColor: '#fef2f2' }}>
-        <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#dc2626' }}>
-          <Trash2 size={20} /> Zona de Peligro
-        </h3>
-        <p style={{ color: '#7f1d1d', marginBottom: '1rem', fontSize: '0.9rem' }}>
-          Una vez que elimines tu cuenta, no hay vuelta atrás. Por favor, tenlo en cuenta.
-        </p>
-        <button 
+      <SettingsCard 
+        title="Cambiar Contraseña" 
+        description="Te recomendamos usar una contraseña única que no uses en otros servicios."
+        icon={<Lock size={24} />}
+      >
+        <form onSubmit={handlePasswordChange}>
+          <SettingsInput 
+            label="Nueva Contraseña"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Introduce al menos 6 caracteres"
+          />
+          <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
+            <Button type="submit" disabled={loading || !password}>
+                {loading ? 'Actualizando...' : 'Actualizar Contraseña'}
+            </Button>
+          </div>
+        </form>
+      </SettingsCard>
+
+
+      <SettingsCard 
+        title="Seguridad Adicional" 
+        description="Opciones avanzadas para proteger tu identidad."
+        icon={<Shield size={24} />}
+      >
+        <div className="settings-toggle-row" style={{ cursor: 'default' }}>
+          <div className="settings-toggle-info">
+            <h4>Verificación en dos pasos</h4>
+            <p>Añade una capa extra de seguridad solicitando un código al iniciar sesión.</p>
+          </div>
+          <Button variant="outline" size="small">Configurar</Button>
+        </div>
+      </SettingsCard>
+
+      <SettingsCard 
+        title="Zona de Peligro" 
+        description="Estas acciones son permanentes y no pueden revertirse."
+        icon={<Trash2 size={24} />}
+        variant="danger"
+      >
+        <div style={{ 
+            padding: '1.5rem', 
+            background: 'var(--error-soft)', 
+            borderRadius: '16px', 
+            border: '1px solid rgba(239, 68, 68, 0.2)',
+            marginBottom: '1.5rem'
+        }}>
+            <p style={{ color: 'var(--error)', margin: 0, fontSize: '0.95rem', fontWeight: 600, lineHeight: 1.5 }}>
+                Al eliminar tu cuenta, se perderán todos tus posts, seguidores, notificaciones y fotos. 
+                Esta acción no se puede deshacer.
+            </p>
+        </div>
+        <Button 
+          variant="danger"
           onClick={handleDeleteAccount}
-          style={{ 
-            padding: '10px 20px', 
-            background: '#dc2626', 
-            color: 'white', 
-            border: 'none', 
-            borderRadius: '8px', 
-            cursor: 'pointer',
-            fontWeight: '600'
-          }}
+          fullWidth
+          size="large"
         >
-          Eliminar Cuenta
-        </button>
-      </div>
+          Eliminar Mi Cuenta UniFeed
+        </Button>
+      </SettingsCard>
     </div>
   );
 };

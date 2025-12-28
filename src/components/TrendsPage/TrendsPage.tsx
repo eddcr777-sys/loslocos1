@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { TrendingUp, Star, Bell, X, Hash } from 'lucide-react';
+import { TrendingUp, Star, Bell, X, Hash, User } from 'lucide-react';
 import { supabase } from '../../utils/supabaseClient';
 import { Post as PostType } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -195,12 +195,16 @@ return (
       <div className="featured-grid">
         {/* Tarjeta de Usuario Destacado */}
         {featuredUser && (
+          <Link to={`/profile/${featuredUser.id}`} className="featured-card-link" style={{ textDecoration: 'none' }}>
           <FeaturedCard type="user" data={featuredUser} />
+          </Link>
         )}
 
         {/* Tarjeta de Publicación Destacada */}
         {featuredPost && (
-          <FeaturedCard type="post" data={featuredPost} />
+          <Link to={`/post/${featuredPost.id}`} className="featured-card-link" style={{ textDecoration: 'none' }}>
+            <FeaturedCard type="post" data={featuredPost} />
+          </Link>
         )}
 
         {/* Tarjeta de Tema Destacado */}
@@ -286,28 +290,32 @@ return (
       </h2>
       <div className="trends-announcements" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
         {featuredUser && !dismissedAnnouncements.user && (
+          <Link to={`/profile/${featuredUser.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
           <div className="announcement-card user-announcement" style={{ border: '1px solid var(--border-color)', backgroundColor: 'var(--surface-color)', color: 'var(--text-primary)', padding: '1.25rem', borderRadius: 'var(--radius-lg)', display: 'flex', gap: '1rem', position: 'relative', boxShadow: 'var(--shadow-sm)' }}>
             <div className="announcement-icon" style={{ fontSize: '1.5rem' }}>🏆</div>
             <div className="announcement-content">
               <strong style={{ display: 'block', marginBottom: '0.25rem' }}>¡Usuario Más Activo!</strong>
               <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{featuredUser.name} ha liderado la actividad {getTimeframeLabel()}.</p>
             </div>
-            <button className="announcement-dismiss" onClick={() => handleDismiss('user')} style={{ position: 'absolute', top: '10px', right: '10px', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+            <button className="announcement-dismiss" onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDismiss('user'); }} style={{ position: 'absolute', top: '10px', right: '10px', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
               <X size={18} />
             </button>
           </div>
+          </Link>
         )}
         {featuredPost && !dismissedAnnouncements.post && (
-          <div className="announcement-card post-announcement" style={{ border: '1px solid var(--border-color)', backgroundColor: 'var(--surface-color)', color: 'var(--text-primary)', padding: '1.25rem', borderRadius: 'var(--radius-lg)', display: 'flex', gap: '1rem', position: 'relative', boxShadow: 'var(--shadow-sm)' }}>
-            <div className="announcement-icon" style={{ fontSize: '1.5rem' }}>🔥</div>
-            <div className="announcement-content">
-              <strong style={{ display: 'block', marginBottom: '0.25rem' }}>¡Publicación Viral!</strong>
-              <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-secondary)' }}>El post de {(featuredPost as any).profiles?.full_name || 'un usuario'} es el más popular {getTimeframeLabel()}.</p>
+          <Link to={`/post/${featuredPost.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+            <div className="announcement-card post-announcement" style={{ border: '1px solid var(--border-color)', backgroundColor: 'var(--surface-color)', color: 'var(--text-primary)', padding: '1.25rem', borderRadius: 'var(--radius-lg)', display: 'flex', gap: '1rem', position: 'relative', boxShadow: 'var(--shadow-sm)' }}>
+              <div className="announcement-icon" style={{ fontSize: '1.5rem' }}>🔥</div>
+              <div className="announcement-content">
+                <strong style={{ display: 'block', marginBottom: '0.25rem' }}>¡Publicación Viral!</strong>
+                <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-secondary)' }}>El post de {(featuredPost as any).profiles?.full_name || 'un usuario'} es el más popular {getTimeframeLabel()}.</p>
+              </div>
+              <button className="announcement-dismiss" onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDismiss('post'); }} style={{ position: 'absolute', top: '10px', right: '10px', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+                <X size={18} />
+              </button>
             </div>
-            <button className="announcement-dismiss" onClick={() => handleDismiss('post')} style={{ position: 'absolute', top: '10px', right: '10px', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
-              <X size={18} />
-            </button>
-          </div>
+          </Link>
         )}
         {trendingTopics.length > 0 && !dismissedAnnouncements.topic && (
           <div className="announcement-card topic-announcement" style={{ border: '1px solid var(--border-color)', backgroundColor: 'var(--surface-color)', color: 'var(--text-primary)', padding: '1.25rem', borderRadius: 'var(--radius-lg)', display: 'flex', gap: '1rem', position: 'relative', boxShadow: 'var(--shadow-sm)' }}>

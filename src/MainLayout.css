@@ -14,7 +14,7 @@
 /* Tablet layout (2 columns) */
 @media (min-width: 769px) {
   .main-content {
-    padding: 24px 24px 24px 274px;
+    padding: 0px 24px 24px 274px;
     /* 250px for Aside + 24px gap */
   }
 }
@@ -22,7 +22,13 @@
 /* Desktop layout (3 columns) */
 @media (min-width: 1025px) {
   .main-content {
-    padding-right: 324px;
+    padding-right: 300px;
     /* Add space for 300px TrendsAside + 24px gap */
+  }
+
+  .main-content.no-right-sidebar {
+    padding-right: 24px;
+    max-width: 100%;
+    /* Restore full width usage, let children control their max-width */
   }
 }

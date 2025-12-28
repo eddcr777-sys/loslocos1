@@ -1,34 +1,33 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
-    History as HistoryIcon,
-    Shield, Users, Activity, MessageSquare, Trash2, 
-    BarChart3, AlertTriangle, RefreshCw, Zap, Server, 
-    Bell, Search, UserCheck, ShieldOff, Filter, Download, Megaphone
+    Users, 
+    MessageSquare, 
+    Zap, 
+    Shield, 
+    Activity, 
+    Trash2, 
+    RefreshCw, 
+    Bell, 
+    Search,
+    AlertTriangle,
+    CheckCircle,
+    LayoutDashboard,
+    Eye
 } from 'lucide-react';
-import Card from '../../components/ui/Card';
-import Button from '../../components/ui/Button';
-import AdminPage from '../../components/auth/AdminPage';
-import { api, Post } from '../../services/api';
+import { api } from '../../services/api';
 import './CEODashboard.css';
-
-const DEFAULT_AVATAR = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+import AdminHeader from '../../components/admin/layout/AdminHeader';
+import DashboardTabs from '../../components/admin/layout/DashboardTabs';
+import StatCard from '../../components/admin/widgets/StatCard';
+import Button from '../../components/ui/Button';
 
 const CEODashboard = () => {
-    const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'moderation' | 'system'>('overview');
-    const [stats, setStats] = useState<{ usersCount: number; postsCount: number; commentsCount: number }>({ usersCount: 0, postsCount: 0, commentsCount: 0 });
-    const [recentPosts, setRecentPosts] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [serverStatus, setServerStatus] = useState('online');
-    const [maintenance, setMaintenance] = useState(false);
-    const [selectedPosts, setSelectedPosts] = useState<string[]>([]);
-    
-    // Real Data States
+    const [activeTab, setActiveTab] = useState('overview');
+    const [stats, setStats] = useState({ users: 0, posts: 0, comments: 0 });
     const [logs, setLogs] = useState<any[]>([]);
-    const [analytics, setAnalytics] = useState<any>(null);
-    
-    // Mock data for charts (These will likely be replaced by analytics data later)
-    const userGrowthData = [40, 45, 60, 75, 85, 100, 110, 120, 140, 155, 180, 200];
-    const activityData = [20, 35, 30, 45, 60, 55, 70, 65, 80, 75, 90, 85];
+    const [posts, setPosts] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [maintenance, setMaintenance] = useState(false);
 
     useEffect(() => {
         loadDashboardData();
@@ -37,379 +36,255 @@ const CEODashboard = () => {
     const loadDashboardData = async () => {
         setLoading(true);
         try {
-            // 1. System Stats
-            const sysStats = await api.getSystemStats();
-            setStats({
-                usersCount: sysStats.usersCount || 0,
-                postsCount: sysStats.postsCount || 0,
-                commentsCount: sysStats.commentsCount || 0
-            });
+            const [sysStats, adminLogs, recentPosts] = await Promise.all([
+                api.getSystemStats(),
+                api.getAdminLogs(20),
+                api.getPosts()
+            ]);
 
-            // 2. Recent Posts for Moderation
-            const { data: posts } = await api.getPosts();
-            if (posts) setRecentPosts(posts.slice(0, 12));
-
-            // 3. Real Admin Logs
-            const { data: adminLogs } = await api.getAdminLogs(10);
-            if (adminLogs) setLogs(adminLogs);
-
-            // 4. Analytics (RPC)
-            const { data: analyticsData } = await api.getDashboardAnalytics();
-            if (analyticsData) setAnalytics(analyticsData);
-
+            if (sysStats) setStats({ users: sysStats.usersCount, posts: sysStats.postsCount, comments: sysStats.commentsCount });
+            if (adminLogs.data) setLogs(adminLogs.data);
+            if (recentPosts.data) setPosts(recentPosts.data);
         } catch (error) {
-            console.error('Dash load error:', error);
+            console.error('Error loading dashboard data:', error);
         } finally {
             setLoading(false);
         }
     };
 
-    const confirmDelete = async (ids: string[]) => {
-        const msg = ids.length === 1 
-            ? '¿Eliminar este post definitivamente?' 
-            : `¿Eliminar ${ids.length} posts seleccionados?`;
-            
-        if (!window.confirm(msg)) return;
-
-        // Optimistic update
-        setRecentPosts(prev => prev.filter(p => !ids.includes(p.id)));
-        setStats(prev => ({ ...prev, postsCount: (prev.postsCount || 0) - ids.length }));
-        setSelectedPosts([]);
-
-        // Execute deletions
-        const promises = ids.map(id => api.deletePost(id));
-        const results = await Promise.all(promises);
-        
-        const errors = results.filter(r => r.error);
-        if (errors.length > 0) {
-            alert('Algunos posts no se pudieron eliminar.');
-            loadDashboardData();
-        }
-    };
-
-    const handleDeletePost = (id: string) => confirmDelete([id]);
-
-    const handleBulkAction = async (action: string) => {
-        if (selectedPosts.length === 0) return;
-        if (action === 'delete') {
-            await confirmDelete(selectedPosts);
-        }
-    };
-
-    const toggleSelection = (id: string) => {
-        setSelectedPosts(prev => 
-            prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
-        );
-    };
-
     const handleQuickAction = async (action: string) => {
-        if (!window.confirm(`¿Confirmar acción: ${action}?`)) return;
-        
-        // Log action to DB
-        await api.logAdminAction(action.toUpperCase(), 'Executed via Quick Actions Panel');
-        
         switch (action) {
             case 'broadcast':
-                alert('📢 Sistema de alerta iniciado. (Simulado)');
+                const msg = prompt('Mensaje para la Alerta Global:');
+                if (msg) {
+                    await api.broadcastNotification('Alerta Master', msg);
+                    alert('Notificación enviada a todos los miembros.');
+                }
                 break;
             case 'purge_cache':
-                alert('🧹 Caché del servidor purgada.');
+                window.location.reload();
                 break;
             case 'lockdown':
-                alert('🔒 Modo mantenimiento activado.');
+                setMaintenance(!maintenance);
+                break;
+            default:
                 break;
         }
-        
-        // Reload logs to show new action
-        const { data } = await api.getAdminLogs(10);
-        if (data) setLogs(data);
     };
 
+    const handleDeletePost = async (id: string) => {
+        if (!window.confirm('¿Borrar este contenido permanentemente?')) return;
+        const { error } = await api.deletePost(id);
+        if (error) alert('Error: ' + error.message);
+        else loadDashboardData();
+    };
+
+    const dashboardTabs = [
+        { id: 'overview', label: 'Resumen', icon: LayoutDashboard },
+        { id: 'activity', label: 'Actividad', icon: Activity },
+        { id: 'moderation', label: 'Moderación', icon: Shield },
+        { id: 'system', label: 'Sistema', icon: Zap }
+    ];
+
     return (
-        <div className="master-admin-root animate-fade-in">
-            <header className="admin-top-bar">
+        <div className="master-admin-root">
+            <div className="admin-top-bar">
                 <div className="system-indicators">
                     <div className="indicator">
-                        <div className={`dot ${serverStatus === 'online' ? 'online' : 'offline'}`}></div>
-                        <span>SISTEMA: {serverStatus.toUpperCase()}</span>
+                        <div className="dot online"></div>
+                        <span>API: OK</span>
                     </div>
                     <div className="indicator">
-                        <Activity size={16} className="icon-pulse" />
-                        <span>TPS: 24.5</span>
+                        <Activity size={14} className="icon-pulse" />
+                        <span>TPS: OK</span>
                     </div>
                 </div>
-                
                 <div className="admin-quick-actions">
                     <button 
                         className={`maint-btn ${maintenance ? 'active' : ''}`}
-                        onClick={() => setMaintenance(!maintenance)}
+                        onClick={() => handleQuickAction('lockdown')}
                     >
-                        <ShieldOff size={16} /> {maintenance ? 'Mantenimiento ON' : 'Modo Operativo'}      
+                        <Shield size={16} />
+                        {maintenance ? 'Mantenimiento: ON' : 'Poner en Mantenimiento'}
                     </button>
-                    <button onClick={loadDashboardData} className="refresh-circular">
+                    <button className="refresh-circular" onClick={loadDashboardData}>
                         <RefreshCw size={18} className={loading ? 'spin' : ''} />
                     </button>
                 </div>
-            </header>
+            </div>
 
-            <header className="master-header">
-                <div className="master-header-content">
-                    <div className="master-title">
-                        <div className="master-logo-bg">
-                            <Shield size={32} />
-                        </div>
-                        <div>
-                            <h1>Control Center Master</h1>
-                            <p>Gestión de infraestructura, usuarios y moderación global.</p>
-                        </div>
-                    </div>
+            <AdminHeader 
+                title="Panel Maestro CEO"
+                subtitle="Gestión global de la infraestructura y comunidad"
+                icon={<Shield size={32} />}
+            >
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <Button variant="outline" size="small" onClick={() => handleQuickAction('broadcast')}>
+                        <Bell size={16} /> Alerta Global
+                    </Button>
+                    <Button variant="primary" size="small" onClick={loadDashboardData}>
+                        <RefreshCw size={16} /> Actualizar
+                    </Button>
                 </div>
+            </AdminHeader>
 
-                <nav className="master-nav">
-                    <button className={activeTab === 'overview' ? 'm-nav-item active' : 'm-nav-item'} onClick={() => setActiveTab('overview')}>
-                        <BarChart3 size={20} /> <span>Análisis</span>
-                    </button>
-                    <button className={activeTab === 'users' ? 'm-nav-item active' : 'm-nav-item'} onClick={() => setActiveTab('users')}>
-                        <Users size={20} /> <span>Usuarios</span>
-                    </button>
-                    <button className={activeTab === 'moderation' ? 'm-nav-item active' : 'm-nav-item'} onClick={() => setActiveTab('moderation')}>
-                        <AlertTriangle size={20} /> <span>Moderación</span>
-                    </button>
-                    <button className={activeTab === 'system' ? 'm-nav-item active' : 'm-nav-item'} onClick={() => setActiveTab('system')}>
-                        <Server size={20} /> <span>Sistema</span>
-                    </button>
-                </nav>
-            </header>
+            <div className="master-content">
+                <DashboardTabs 
+                    tabs={dashboardTabs} 
+                    activeTab={activeTab} 
+                    onTabChange={setActiveTab} 
+                />
 
-            <main className="master-content">
-                {activeTab === 'overview' && (
-                    <div className="overview-view">
-                        <div className="stats-row-expanded">
-                            <Card className="m-stat-card users-g">
-                                <div className="m-stat-header">
-                                    <Users size={20} />
-                                    <span>Usuarios Totales</span>
-                                </div>
-                                <div className="m-stat-body">
-                                    <h2>{stats.usersCount.toLocaleString()}</h2>
-                                    <div className="trend-up">+12% este mes</div>
-                                </div>
-                                {/* Simple SVG Line Chart */}
-                                <div className="m-stat-chart">
-                                    <svg viewBox="0 0 100 25" className="sparkline">
-                                        <polyline 
-                                            points={userGrowthData.map((v, i) => `${i * 9},${25 - (v/200)*25}`).join(' ')} 
-                                            fill="none" 
-                                            stroke="currentColor" 
-                                            strokeWidth="2"
-                                        />
-                                    </svg>
-                                </div>
-                            </Card>
-
-                            <Card className="m-stat-card posts-g">
-                                <div className="m-stat-header">
-                                    <MessageSquare size={20} />
-                                    <span>Contenido Generado</span>
-                                </div>
-                                <div className="m-stat-body">
-                                    <h2>{stats.postsCount.toLocaleString()}</h2>
-                                    <div className="trend-up">+5.4% semanal</div>
-                                </div>
-                                <div className="m-stat-chart">
-                                    <svg viewBox="0 0 100 25" className="sparkline">
-                                        <polyline 
-                                            points={activityData.map((v, i) => `${i * 9},${25 - (v/100)*25}`).join(' ')} 
-                                            fill="none" 
-                                            stroke="currentColor" 
-                                            strokeWidth="2"
-                                        />
-                                    </svg>
-                                </div>
-                            </Card>
-
-                            <Card className="m-stat-card traffic-g">
-                                <div className="m-stat-header">
-                                    <Activity size={20} />
-                                    <span>Trafico de Datos</span>
-                                </div>
-                                <div className="m-stat-body">
-                                    <h2>{stats.commentsCount.toLocaleString()}</h2>
-                                    <div className="trend-neutral">Estable</div>
-                                </div>
-                                <div className="m-stat-track"><div className="fill" style={{ width: '85%' }}></div></div>
-                            </Card>
-                        </div>
-
-                        <div className="quick-actions-panel">
-                            <h3>⚡ Acciones Rápidas</h3>
-                            <div className="qa-grid">
-                                <button className="qa-card" onClick={() => handleQuickAction('broadcast')}>
-                                    <div className="qa-icon"><Megaphone size={24} /></div>
-                                    <span>Alerta Global</span>
-                                </button>
-                                <button className="qa-card danger" onClick={() => handleQuickAction('purge_cache')}>
-                                    <div className="qa-icon"><Trash2 size={24} /></div>
-                                    <span>Purgar Caché</span>
-                                </button>
-                                <button className="qa-card info" onClick={() => window.location.reload()}>
-                                    <div className="qa-icon"><RefreshCw size={24} /></div>
-                                    <span>Reiniciar Dash</span>
-                                </button>
+                <div className="view-container">
+                    {activeTab === 'overview' && (
+                        <div className="overview-view animate-fade-in">
+                            <div className="stats-row-expanded">
+                                <StatCard 
+                                    title="Usuarios Totales"
+                                    value={stats.users.toLocaleString()}
+                                    subtext="Registrados en la plataforma"
+                                    icon={<Users size={20} />}
+                                    className="users-g"
+                                />
+                                <StatCard 
+                                    title="Posteos"
+                                    value={stats.posts.toLocaleString()}
+                                    subtext="Contenido publicado"
+                                    icon={<MessageSquare size={20} />}
+                                    className="posts-g"
+                                />
+                                <StatCard 
+                                    title="Interacciones"
+                                    value={stats.comments.toLocaleString()}
+                                    subtext="Comentarios totales"
+                                    icon={<Activity size={20} />}
+                                    className="eng-g"
+                                />
                             </div>
-                        </div>
 
-                        <div className="activity-section">
+                            <section className="quick-actions-panel">
+                                <h3>Acciones Inmediatas</h3>
+                                <div className="qa-grid">
+                                    <div className="qa-card danger" onClick={() => handleQuickAction('lockdown')}>
+                                        <div className="qa-icon"><Shield /></div>
+                                        <span>Modo Emergencia</span>
+                                    </div>
+                                    <div className="qa-card info" onClick={() => handleQuickAction('broadcast')}>
+                                        <div className="qa-icon"><Bell /></div>
+                                        <span>Alerta Miembros</span>
+                                    </div>
+                                    <div className="qa-card" onClick={() => handleQuickAction('purge_cache')}>
+                                        <div className="qa-icon"><RefreshCw /></div>
+                                        <span>Reiniciar Caché</span>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                    )}
+
+                    {activeTab === 'activity' && (
+                        <div className="activity-section animate-fade-in">
                             <div className="section-header-row">
-                                <h3><HistoryIcon size={18} /> Logs de Actividad Real</h3>
+                                <h3><Activity size={20} /> Registros de Auditoría</h3>
                                 <div className="filter-pills">
-                                    <button className="pill active">Todos</button>
-                                    <button className="pill">Seguridad</button>
-                                    <button className="pill">Usuarios</button>
+                                    <button className="pill active">Todos los Eventos</button>
                                 </div>
                             </div>
-                            
-                            <Card className="activity-log-card">
-                                <div className="log-list">
-                                    {logs.length === 0 ? (
-                                        <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-                                            No hay registros de actividad recientes.
-                                        </div>
-                                    ) : (
-                                        logs.map((log) => (
-                                            <div key={log.id} className="log-row">
-                                                <div className="log-user">
-                                                    <div className="dot online"></div>
-                                                    <div className="log-info">
-                                                        <strong>Admin Action</strong>
-                                                        <span>ID: ...{log.admin_id.slice(-4)}</span>
-                                                    </div>
-                                                </div>
-                                                <div className="log-content">
-                                                    <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{log.action}</span>: {log.details}
-                                                </div>
-                                                <div className="log-meta">
-                                                    <span className="log-time">{new Date(log.created_at).toLocaleTimeString()}</span>
-                                                </div>
+                            <div className="activity-log-card">
+                                {logs.length > 0 ? logs.map((log) => (
+                                    <div key={log.id} className="log-row">
+                                        <div className="log-user">
+                                            <div className="log-info">
+                                                <strong>ID Admin: {log.admin_id.substring(0, 8)}</strong>
+                                                <span>Acción: {log.action}</span>
                                             </div>
-                                        ))
-                                    )}
-                                </div>
-                            </Card>
-                        </div>
-                    </div>
-                )}
-
-                {activeTab === 'users' && (
-                    <div className="users-view-enhanced">
-                        <div className="users-control-header">
-                            <h2>Directorio Administrativo de Usuarios</h2>
-                            <div className="btn-actions">
-                                <Button variant="outline" size="small"><Download size={14} /> Exportar CSV</Button>
-                                <Button size="small"><UserCheck size={14} /> Invitación Staff</Button>
-                            </div>
-                        </div>
-                        <AdminPage />
-                    </div>
-                )}
-
-                {activeTab === 'moderation' && (
-                    <div className="moderation-view-enhanced">
-                        <div className="mod-header-box">
-                            <div>
-                                <h2>Moderación de Contenido</h2>
-                                <p>Revisa reportes y actividad visual de la plataforma.</p>
-                            </div>
-                            <div className="mod-actions-right">
-                                {selectedPosts.length > 0 && (
-                                    <Button variant="danger" size="small" onClick={() => handleBulkAction('delete')}>
-                                        <Trash2 size={14} /> Eliminar Seleccionados ({selectedPosts.length})
-                                    </Button>
+                                        </div>
+                                        <div className="log-content">{log.details}</div>
+                                        <div className="log-time">{new Date(log.created_at).toLocaleString('es-ES')}</div>
+                                    </div>
+                                )) : (
+                                    <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                                        No hay registros disponibles en este momento.
+                                    </div>
                                 )}
-                                <div className="mod-filters">
-                                    <button className="mod-f-item active">Visuales</button>
-                                    <button className="mod-f-item">Texto Largo</button>
-                                    <button className="mod-f-item">Reportados</button>
-                                </div>
                             </div>
                         </div>
+                    )}
 
-                        <div className="mod-masonry">
-                            {recentPosts.filter(p => p.image_url || p.content.length > 40).map(post => (
-                                <Card key={post.id} className={`mod-premium-card ${selectedPosts.includes(post.id) ? 'selected' : ''}`}>
-                                    <div className="mod-selection-overlay" onClick={() => toggleSelection(post.id)}>
-                                        <div className={`checkbox ${selectedPosts.includes(post.id) ? 'checked' : ''}`}></div>
-                                    </div>
-                                    <div className="mod-user-top">
-                                        <img src={post.profiles.avatar_url || DEFAULT_AVATAR} alt="" />
-                                        <span>{post.profiles.full_name}</span>
-                                    </div>
-                                    <div className="mod-body">
-                                        <p>{post.content}</p>
-                                        {post.image_url && (
-                                            <div className="mod-img-container">
-                                                <img src={post.image_url} alt="" />
-                                                <div className="img-overlay"><Search size={20} /></div>
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="mod-footer">
-                                        <div className="mod-stats-inline">
-                                            <span>❤️ {post.likes?.count || 0}</span>
-                                            <span>💬 {post.comments?.count || 0}</span>
+                    {activeTab === 'moderation' && (
+                        <div className="moderation-view animate-fade-in">
+                            <div className="section-header-row">
+                                <h3>Cola de Moderación</h3>
+                                <div className="filter-pills">
+                                    <button className="pill active">Recientes</button>
+                                </div>
+                            </div>
+
+                            <div className="mod-masonry">
+                                {posts.map((post) => (
+                                    <div key={post.id} className="mod-premium-card">
+                                        <div className="mod-user-top">
+                                            <img src={post.profiles?.avatar_url || DEFAULT_AVATAR} alt="A" />
+                                            <span>{post.profiles?.full_name || 'Usuario'}</span>
                                         </div>
-                                        <Button variant="danger" size="small" fullWidth onClick={() => handleDeletePost(post.id)}>
-                                            <ShieldOff size={14} /> Eliminar
-                                        </Button>
+                                        <div className="mod-body">
+                                            <p>{post.content}</p>
+                                            {post.media_url && (
+                                                <div className="mod-img-container">
+                                                    <img src={post.media_url} alt="Post Media" />
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="mod-footer">
+                                            <div className="mod-stats-inline">
+                                                <span>❤️ {post.likes?.count || 0}</span>
+                                                <span>💬 {post.comments?.count || 0}</span>
+                                            </div>
+                                            <Button variant="danger" size="small" fullWidth onClick={() => handleDeletePost(post.id)}>
+                                                <Trash2 size={14} /> Eliminar Permanente
+                                            </Button>
+                                        </div>
                                     </div>
-                                </Card>
-                            ))}
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )}
 
-                {activeTab === 'system' && (
-                    <div className="system-view animate-fade-in">
-                        <div className="system-grid">
-                            <Card className="system-card info">
-                                <h3><Server size={20} /> Estado de Infraestructura</h3>
-                                <div className="sys-metrics">
+                    {activeTab === 'system' && (
+                        <div className="system-view animate-fade-in">
+                            <h3>Infraestructura y Configuración</h3>
+                            <div className="system-grid">
+                                <div className="system-card">
+                                    <h3><Zap size={20} /> Servicios Cloud</h3>
                                     <div className="sys-m">
-                                        <span>CPU Usage</span>
-                                        <div className="m-bar"><div className="fill" style={{ width: '42%', background: '#10b981' }}></div></div>
+                                        <span>Base de Datos (Supabase)</span>
+                                        <div className="m-bar"><div className="fill" style={{ width: '100%', background: 'var(--success)' }}></div></div>
                                     </div>
                                     <div className="sys-m">
-                                        <span>RAM Usage</span>
-                                        <div className="m-bar"><div className="fill" style={{ width: '68%', background: '#f59e0b' }}></div></div>
+                                        <span>Almacenamiento (Bucket)</span>
+                                        <div className="m-bar"><div className="fill" style={{ width: '60%', background: 'var(--accent-color)' }}></div></div>
                                     </div>
                                 </div>
-                            </Card>
-
-                            <Card className="system-card settings">
-                                <h3><Zap size={20} /> Configuraciones Rápidas</h3>
-                                <div className="sys-toggles">
+                                <div className="system-card">
+                                    <h3>Ajustes Maestros</h3>
                                     <div className="toggle-item">
                                         <span>Nuevos Registros</span>
-                                        <label className="switch">
-                                            <input type="checkbox" defaultChecked />
-                                            <span className="slider"></span>
-                                        </label>
+                                        <CheckCircle color="var(--success)" size={20} />
                                     </div>
                                     <div className="toggle-item">
-                                        <span>Métricas Públicas</span>
-                                        <label className="switch">
-                                            <input type="checkbox" />
-                                            <span className="slider"></span>
-                                        </label>
+                                        <span>Mantenimiento General</span>
+                                        <AlertTriangle color={maintenance ? 'var(--error)' : 'var(--text-muted)'} size={20} />
                                     </div>
                                 </div>
-                            </Card>
+                            </div>
                         </div>
-                    </div>
-                )}
-            </main>
+                    )}
+                </div>
+            </div>
         </div>
     );
 };
+
+const DEFAULT_AVATAR = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
 
 export default CEODashboard;

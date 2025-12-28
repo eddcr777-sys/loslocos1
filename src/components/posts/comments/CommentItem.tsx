@@ -2,6 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import VerificationBadge from '../../ui/VerificationBadge';
 import { Comment } from '../../../services/api';
+import { useMentions } from '../../../hooks/useMentions';
+import MentionSuggestions from '../MentionSuggestions';
 
 interface CommentItemProps {
   comment: Comment;
@@ -32,6 +34,27 @@ const CommentItem: React.FC<CommentItemProps> = ({
   renderComments,
   comments
 }) => {
+  const {
+    showMentions,
+    suggestions,
+    loadingMentions,
+    mentionQuery,
+    handleInput,
+    applyMention
+  } = useMentions();
+
+  const handleReplyChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    setReplyContent(value);
+    handleInputResize(e);
+    handleInput(value, e.target.selectionStart || 0);
+  };
+
+  const handleSelectMention = (username: string) => {
+    const newText = applyMention(replyContent, username, mentionQuery);
+    setReplyContent(newText);
+  };
+
   const parentComment = comment.parent_id ? comments.find(c => c.id === comment.parent_id) : null;
   const hasReplies = comments.some(c => c.parent_id === comment.id);
 
@@ -74,13 +97,19 @@ const CommentItem: React.FC<CommentItemProps> = ({
 
       {replyTo === comment.id && (
           <div style={styles.replyFormContainer}>
+             {showMentions && (
+               <div style={{ position: 'relative', marginBottom: '8px' }}>
+                 <MentionSuggestions 
+                   suggestions={suggestions} 
+                   onSelect={handleSelectMention} 
+                   isLoading={loadingMentions} 
+                 />
+               </div>
+             )}
              <form onSubmit={(e) => handleReplySubmit(e, comment.id)} style={styles.replyForm}>
                 <textarea
                     value={replyContent}
-                    onChange={(e) => {
-                      setReplyContent(e.target.value);
-                      handleInputResize(e);
-                    }}
+                    onChange={handleReplyChange}
                     onKeyDown={(e) => handleKeyDown(e, true, comment.id)}
                     placeholder="Escribe una respuesta..."
                     style={styles.replyInput}

@@ -2,7 +2,7 @@ import React from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import Logo from './components/ui/logo';
 import Menu from './Menu';
-import { Home, TrendingUp, Bell, User, Search, Shield } from 'lucide-react';
+import { Home, TrendingUp, Bell, User, Search, Shield, Calendar } from 'lucide-react';
 import './Aside.css';
 import { useAuth } from './context/AuthContext';
 
@@ -16,7 +16,17 @@ const Aside = () => {
     <aside className="app-aside">
       <div>
         <div className="aside-logo">
-    <h1>UniFeed</h1>
+          <h1>
+            <span style={{
+              background: 'linear-gradient(to right, var(--text-primary), var(--accent-color))',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              color: 'transparent'
+            }}>
+              UniFeed
+            </span>
+          </h1>
         </div>
         <nav className="aside-nav">
           <NavLink to="/home" className={getNavLinkClass}>
@@ -26,6 +36,10 @@ const Aside = () => {
           <NavLink to="/search" className={getNavLinkClass}>
             <Search size={20} />
             <span>Explorer</span>
+          </NavLink>
+          <NavLink to="/events" className={getNavLinkClass}>
+            <Calendar size={20} />
+            <span>Eventos</span>
           </NavLink>
           <NavLink to="/trends" className={getNavLinkClass}>
             <TrendingUp size={20} />

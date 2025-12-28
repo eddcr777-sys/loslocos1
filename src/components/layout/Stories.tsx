@@ -82,7 +82,10 @@ const Stories: React.FC = () => {
         >
           <div 
             className={`story-avatar-wrapper ${currentUserGroup ? 'unviewed' : 'viewed'}`}
-            style={currentUserGroup ? { background: getFacultyColor(profile?.faculty), boxShadow: `0 0 10px ${getFacultyColor(profile?.faculty)}44` } : {}}
+            style={currentUserGroup ? { 
+              background: 'var(--accent-color)', 
+              boxShadow: `0 0 10px var(--accent-color)66` 
+            } : {}}
           >
              <Avatar src={profile?.avatar_url || DEFAULT_AVATAR} size="large" className="story-avatar" />
              <div className="minimal-add-badge" onClick={(e) => { e.stopPropagation(); setShowCreator(true); }}>

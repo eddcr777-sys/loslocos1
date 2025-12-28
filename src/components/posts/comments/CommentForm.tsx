@@ -1,4 +1,6 @@
 import React, { forwardRef } from 'react';
+import { useMentions } from '../../../hooks/useMentions';
+import MentionSuggestions from '../MentionSuggestions';
 
 interface CommentFormProps {
   newComment: string;
@@ -13,21 +15,52 @@ const CommentForm = forwardRef<HTMLTextAreaElement, CommentFormProps>(({
   handleSubmit,
   handleKeyDown
 }, ref) => {
+  const {
+    showMentions,
+    suggestions,
+    loadingMentions,
+    mentionQuery,
+    handleInput,
+    applyMention
+  } = useMentions();
+
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    setNewComment(value);
+    handleInput(value, e.target.selectionStart || 0);
+  };
+
+  const handleSelectMention = (username: string) => {
+    const newText = applyMention(newComment, username, mentionQuery);
+    setNewComment(newText);
+  };
+
   return (
-    <form onSubmit={handleSubmit} style={styles.form}>
-      <textarea
-        ref={ref}
-        placeholder="Escribe un comentario..."
-        value={newComment}
-        onChange={(e) => setNewComment(e.target.value)}
-        onKeyDown={(e) => handleKeyDown(e, false)}
-        style={styles.input}
-        rows={1}
-      />
-      <button type="submit" style={styles.button} disabled={!newComment.trim()}>
-        Publicar
-      </button>
-    </form>
+    <div style={{ position: 'relative', width: '100%' }}>
+      {showMentions && (
+        <div style={{ position: 'absolute', bottom: '100%', left: 0, width: '100%', zIndex: 1001 }}>
+          <MentionSuggestions 
+            suggestions={suggestions} 
+            onSelect={handleSelectMention} 
+            isLoading={loadingMentions} 
+          />
+        </div>
+      )}
+      <form onSubmit={handleSubmit} style={styles.form}>
+        <textarea
+          ref={ref}
+          placeholder="Escribe un comentario..."
+          value={newComment}
+          onChange={handleTextChange}
+          onKeyDown={(e) => handleKeyDown(e, false)}
+          style={styles.input}
+          rows={1}
+        />
+        <button type="submit" style={styles.button} disabled={!newComment.trim()}>
+          Publicar
+        </button>
+      </form>
+    </div>
   );
 });
 

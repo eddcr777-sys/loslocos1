@@ -1,105 +1,113 @@
-import React from 'react';
-import Card from '../ui/Card';
-import { Moon, Sun, CheckCircle2 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Sun, Moon, Monitor, Palette, Sparkles } from 'lucide-react';
+import SettingsCard from './ui/SettingsCard';
+import SettingsToggle from './ui/SettingsToggle';
+import '../../components/settingsComponents/SettingsPage.css';
+import { useAuth } from '../../context/AuthContext';
 
 const AppearanceSettings = () => {
-    const isDark = document.body.classList.contains('dark');
+  const { user } = useAuth(); // Need to import useAuth
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+  const [highContrast, setHighContrast] = useState(false);
 
-    const toggleTheme = (dark: boolean) => {
-        if (dark) {
-            document.body.classList.add('dark');
-            localStorage.setItem('theme', 'dark');
-        } else {
-            document.body.classList.remove('dark');
-            localStorage.setItem('theme', 'light');
-        }
-    };
-
-    return (
-        <div style={{ animation: 'fadeIn 0.3s ease-out' }}>
-            <div style={{ marginBottom: '2rem' }}>
-                <h2 style={{ margin: '0 0 0.5rem 0', color: 'var(--text-primary)', fontSize: '1.5rem', fontWeight: 700 }}>Apariencia</h2>
-                <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.95rem' }}>Personaliza cómo se ve ConociendoGente para ti.</p>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem' }}>
-                <Card 
-                    onClick={() => toggleTheme(false)}
-                    style={{ 
-                        padding: '1.5rem', 
-                        cursor: 'pointer',
-                        border: !isDark ? '2px solid var(--accent-color)' : '1px solid var(--border-color)',
-                        background: 'white',
-                        transition: 'all 0.2s ease',
-                        position: 'relative',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '1rem'
-                    }}
-                >
-                    {!isDark && <CheckCircle2 size={20} color="var(--accent-color)" style={{ position: 'absolute', top: '12px', right: '12px' }} />}
-                    <div style={{ 
-                        height: '100px', 
-                        background: '#f8fafc', 
-                        borderRadius: 'var(--radius-md)',
-                        padding: '12px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '8px'
-                    }}>
-                        <div style={{ width: '40%', height: '8px', background: '#e2e8f0', borderRadius: '4px' }}></div>
-                        <div style={{ width: '80%', height: '8px', background: '#e2e8f0', borderRadius: '4px' }}></div>
-                        <div style={{ width: '60%', height: '8px', background: '#e2e8f0', borderRadius: '4px' }}></div>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <Sun size={20} color={!isDark ? 'var(--accent-color)' : 'var(--text-secondary)'} />
-                        <span style={{ fontWeight: 600, color: !isDark ? 'var(--text-primary)' : 'var(--text-secondary)' }}>Modo Claro</span>
-                    </div>
-                </Card>
-
-                <Card 
-                    onClick={() => toggleTheme(true)}
-                    style={{ 
-                        padding: '1.5rem', 
-                        cursor: 'pointer',
-                        border: isDark ? '2px solid var(--accent-color)' : '1px solid var(--border-color)',
-                        background: '#161e2e',
-                        transition: 'all 0.2s ease',
-                        position: 'relative',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '1rem'
-                    }}
-                >
-                    {isDark && <CheckCircle2 size={20} color="var(--accent-color)" style={{ position: 'absolute', top: '12px', right: '12px' }} />}
-                    <div style={{ 
-                        height: '100px', 
-                        background: '#0b0f1a', 
-                        borderRadius: 'var(--radius-md)',
-                        padding: '12px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '8px'
-                    }}>
-                        <div style={{ width: '40%', height: '8px', background: '#2d3748', borderRadius: '4px' }}></div>
-                        <div style={{ width: '80%', height: '8px', background: '#2d3748', borderRadius: '4px' }}></div>
-                        <div style={{ width: '60%', height: '8px', background: '#2d3748', borderRadius: '4px' }}></div>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <Moon size={20} color={isDark ? 'var(--accent-color)' : '#94a3b8'} />
-                        <span style={{ fontWeight: 600, color: isDark ? '#f8fafc' : '#94a3b8' }}>Modo Oscuro</span>
-                    </div>
-                </Card>
-            </div>
-
-            <style>{`
-                @keyframes fadeIn {
-                    from { opacity: 0; transform: translateY(10px); }
-                    to { opacity: 1; transform: translateY(0); }
+  // Sync with DB on load
+  useEffect(() => {
+    if (user?.id) {
+        import('../../services/api').then(({ api }) => {
+            api.getSettings(user.id).then(({ data }) => {
+                if (data) {
+                    if (data.theme) setTheme(data.theme);
+                    if (data.high_contrast !== undefined) setHighContrast(data.high_contrast);
                 }
-            `}</style>
+            });
+        });
+    }
+  }, [user]);
+
+  useEffect(() => {
+    // Apply theme
+    document.body.classList.remove('light', 'dark');
+    if (theme === 'system') {
+        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.body.classList.add(isDark ? 'dark' : 'light');
+    } else {
+        document.body.classList.add(theme);
+    }
+    localStorage.setItem('theme', theme);
+
+    // Apply High Contrast
+    if (highContrast) document.body.classList.add('high-contrast');
+    else document.body.classList.remove('high-contrast');
+
+    // Save to DB
+    if (user?.id) {
+        // Debounce or just save
+        import('../../services/api').then(({ api }) => {
+            api.updateSettings(user.id, { theme, high_contrast: highContrast });
+        });
+    }
+
+  }, [theme, highContrast, user]);
+
+  return (
+    <div className="settings-section animate-fade-in">
+      <div className="settings-section-header">
+        <h2>Apariencia</h2>
+        <p>Personaliza el estilo visual de tu aplicación para que se adapte a tu gusto.</p>
+      </div>
+
+      <SettingsCard 
+        title="Tema de la Aplicación" 
+        description="Selecciona el modo visual que prefieras o deja que el sistema lo decida."
+        icon={<Palette size={24} />}
+      >
+        <div className="theme-grid">
+          <button 
+            onClick={() => setTheme('light')}
+            className={`theme-option-btn ${theme === 'light' ? 'active' : ''}`}
+          >
+            <div className="theme-icon-box">
+                <Sun size={24} />
+            </div>
+            <span className="theme-name">Claro</span>
+          </button>
+
+          <button 
+            onClick={() => setTheme('dark')}
+            className={`theme-option-btn ${theme === 'dark' ? 'active' : ''}`}
+          >
+            <div className="theme-icon-box">
+                <Moon size={24} />
+            </div>
+            <span className="theme-name">Oscuro</span>
+          </button>
+
+          <button 
+            onClick={() => setTheme('system')}
+            className={`theme-option-btn ${theme === 'system' ? 'active' : ''}`}
+          >
+            <div className="theme-icon-box">
+                <Monitor size={24} />
+            </div>
+            <span className="theme-name">Sistema</span>
+          </button>
         </div>
-    );
+      </SettingsCard>
+
+      <SettingsCard 
+        title="Accesibilidad y Efectos" 
+        description="Ajustes adicionales para mejorar tu experiencia."
+        icon={<Sparkles size={24} />}
+      >
+        <SettingsToggle 
+          title="Alto Contraste"
+          description="Aumenta la distinción entre colores para facilitar la lectura."
+          checked={highContrast}
+          onChange={() => setHighContrast(!highContrast)}
+        />
+      </SettingsCard>
+    </div>
+  );
 };
 
 export default AppearanceSettings;

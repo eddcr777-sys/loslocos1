@@ -25,7 +25,7 @@
 }
 
 .filter-item:hover {
-    background-color: #f8fafc;
+    background-color: var(--surface-hover);
     color: var(--text-primary);
 }
 
@@ -39,7 +39,7 @@
     bottom: 0;
     height: 4px;
     width: 40px;
-    background-color: #3b82f6;
+    background-color: var(--accent-color);
     border-radius: 4px 4px 0 0;
 }
 
@@ -54,11 +54,11 @@
 }
 
 .avisos-tab.active .avisos-content {
-    color: #3b82f6;
+    color: var(--accent-color);
 }
 
 .avisos-tab.active .active-indicator {
-    background-color: #3b82f6;
+    background-color: var(--accent-color);
 }
 
 @media (max-width: 768px) {
