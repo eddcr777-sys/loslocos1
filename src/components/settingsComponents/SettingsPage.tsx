@@ -1,11 +1,12 @@
 import React from 'react';
 import { Routes, Route, Navigate, NavLink } from 'react-router-dom';
-import { User, Lock, Bell, Moon, ChevronRight, Shield } from 'lucide-react';
+import { User, Lock, Bell, Moon, ChevronRight, Shield, FileText } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import ProfileSettings from './ProfileSettings';
 import AccountSettings from './AccountSettings';
 import NotificationSettings from './NotificationSettings';
 import AppearanceSettings from './AppearanceSettings';
+import LegalSettings from './LegalSettings';
 import './SettingsPage.css';
 
 const SettingsPage = () => {
@@ -48,6 +49,15 @@ const SettingsPage = () => {
           >
             <Moon size={20} />
             <span>Apariencia</span>
+            <ChevronRight size={16} className="arrow" />
+          </NavLink>
+
+          <NavLink 
+            to="/settings/legal" 
+            className={({ isActive }) => `settings-nav-item ${isActive ? 'active' : ''}`}
+          >
+            <FileText size={20} />
+            <span>Legal e Información</span>
             <ChevronRight size={16} className="arrow" />
           </NavLink>
 
@@ -95,6 +105,7 @@ const SettingsPage = () => {
           <Route path="account" element={<AccountSettings />} />
           <Route path="notifications" element={<NotificationSettings />} />
           <Route path="appearance" element={<AppearanceSettings />} />
+          <Route path="legal" element={<LegalSettings />} />
         </Routes>
       </main>
     </div>

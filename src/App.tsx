@@ -22,6 +22,9 @@ const VerificationHub = lazy(() => import('./pages/Admin/VerificationHub'));
 const CEODashboard = lazy(() => import('./pages/Admin/CEODashboard'));
 const InstitutionalDashboard = lazy(() => import('./pages/Admin/InstitutionalDashboard'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage/NotFoundPage'));
+const PrivacyPolicy = lazy(() => import('./pages/legal/PrivacyPolicy'));
+const TermsOfService = lazy(() => import('./pages/legal/TermsOfService'));
+const CommunityGuidelines = lazy(() => import('./pages/legal/CommunityGuidelines'));
 
 // Loading component
 const PageLoader = () => (
@@ -94,6 +97,11 @@ const AppRoutes = () => (
       <Route path="/" element={<RedirectIfAuthenticated><WelcomePage /></RedirectIfAuthenticated>} />
       <Route path="/login" element={<RedirectIfAuthenticated><LoginPage /></RedirectIfAuthenticated>} />
       <Route path="/register" element={<RedirectIfAuthenticated><RegisterPage /></RedirectIfAuthenticated>} />
+
+      {/* Rutas Legales */}
+      <Route path="/legal/privacy" element={<PrivacyPolicy />} />
+      <Route path="/legal/terms" element={<TermsOfService />} />
+      <Route path="/legal/guidelines" element={<CommunityGuidelines />} />
 
       {/* Rutas protegidas */}
       <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>

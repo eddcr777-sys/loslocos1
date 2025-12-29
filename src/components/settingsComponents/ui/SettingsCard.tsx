@@ -6,11 +6,24 @@ interface SettingsCardProps {
     icon?: React.ReactNode;
     children: React.ReactNode;
     variant?: 'default' | 'danger';
+    className?: string;
+    onClick?: () => void;
 }
 
-const SettingsCard: React.FC<SettingsCardProps> = ({ title, description, icon, children, variant = 'default' }) => {
+const SettingsCard: React.FC<SettingsCardProps> = ({ 
+    title, 
+    description, 
+    icon, 
+    children, 
+    variant = 'default',
+    className = '',
+    onClick
+}) => {
     return (
-        <div className={`settings-card ${variant}`}>
+        <div 
+            className={`settings-card ${variant} ${className} ${onClick ? 'clickable' : ''}`}
+            onClick={onClick}
+        >
             <div className="settings-card-header">
                 {icon && <div className="settings-card-icon">{icon}</div>}
                 <div className="settings-card-info">
