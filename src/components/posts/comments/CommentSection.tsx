@@ -73,7 +73,8 @@ const CommentSection: React.FC<CommentSectionProps> = ({
     e.preventDefault();
     if (!newComment.trim()) return;
 
-    const { data, error } = await api.addComment(postId, newComment);
+    if (!user) return;
+    const { data, error } = await api.addComment(postId, newComment, user.id);
     
     if (error) {
       console.error('Error adding comment:', error);
@@ -101,7 +102,8 @@ const CommentSection: React.FC<CommentSectionProps> = ({
     e.preventDefault();
     if (!replyContent.trim()) return;
 
-    const { data, error } = await api.addComment(postId, replyContent, parentId);
+    if (!user) return;
+    const { data, error } = await api.addComment(postId, replyContent, user.id, parentId);
     
     if (error) {
       console.error('Error adding reply:', error);

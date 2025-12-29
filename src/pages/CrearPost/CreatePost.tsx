@@ -67,9 +67,10 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated, quotedPost, onCa
       imageUrl = data;
     }
 
-    // Call api with quoted post ID
+    if (!profile) return;
     const { error } = await api.createPost(
         content, 
+        profile.id,
         imageUrl, 
         false, 
         quotedPost ? quotedPost.id : null

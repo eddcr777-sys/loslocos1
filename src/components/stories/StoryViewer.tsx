@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { X, ChevronLeft, ChevronRight, Trash2, Plus } from 'lucide-react';
 import Avatar from '../ui/Avatar';
 import { useAuth } from '../../context/AuthContext';
@@ -25,6 +25,14 @@ const StoryViewer: React.FC<StoryViewerProps> = ({ stories: initialStories, init
   const currentStory = localStories[currentIndex];
   const isOwner = user?.id === currentStory?.user_id;
 
+  const handleNext = useCallback(() => {
+    if (currentIndex < localStories.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+    } else {
+      onClose();
+    }
+  }, [currentIndex, localStories.length, onClose]);
+
   // Sincronizar si las props cambian externamente (opcional, pero útil)
   useEffect(() => {
     if (initialStories.length !== localStories.length) {
@@ -34,7 +42,7 @@ const StoryViewer: React.FC<StoryViewerProps> = ({ stories: initialStories, init
             setCurrentIndex(Math.max(0, initialStories.length - 1));
         }
     }
-  }, [initialStories]);
+  }, [initialStories, currentIndex, localStories.length]);
 
   useEffect(() => {
     setProgress(0);
@@ -49,15 +57,8 @@ const StoryViewer: React.FC<StoryViewerProps> = ({ stories: initialStories, init
     }, 100);
 
     return () => clearInterval(interval);
-  }, [currentIndex, localStories.length]); // Añadir localStories.length como dep
+  }, [currentIndex, localStories.length, handleNext]); // Añadir localStories.length como dep
 
-  const handleNext = () => {
-    if (currentIndex < localStories.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    } else {
-      onClose();
-    }
-  };
 
   const handlePrev = () => {
     if (currentIndex > 0) {
@@ -70,7 +71,8 @@ const StoryViewer: React.FC<StoryViewerProps> = ({ stories: initialStories, init
     if (!window.confirm('¿Eliminar esta historia?')) return;
 
     try {
-      const { error } = await api.deleteStory(currentStory.id);
+      if (!user) return;
+      const { error } = await api.deleteStory(currentStory.id, user.id);
       if (error) {
         alert('Error al eliminar historia');
         return;

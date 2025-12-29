@@ -58,7 +58,8 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
         imageUrl = data;
       }
 
-      const { error } = await api.createPost(content.trim(), imageUrl);
+      if (!profile) return;
+      const { error } = await api.createPost(content.trim(), profile.id, imageUrl);
 
       if (error) throw error;
 

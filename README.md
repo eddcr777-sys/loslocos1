@@ -29,3 +29,14 @@ Una plataforma de red social moderna y completa construida con **React**, **Type
 *   **Estilos**: CSS Modules, Lucide React (Iconografía).
 *   **Backend (BaaS)**: Supabase (PostgreSQL, Auth, Storage, Edge Functions).
 *   **Gestión de Estado**: React Context API y Hooks personalizados.
+
+## ⚙️ Configuración del Entorno
+
+Para que la aplicación funcione correctamente, debes crear un archivo `.env` en la raíz del proyecto con las siguientes variables:
+
+```env
+REACT_APP_SUPABASE_URL=tu_url_de_supabase
+REACT_APP_SUPABASE_ANON_KEY=tu_clave_anonima_de_supabase
+```
+
+Asegúrate de configurar las políticas de **Row Level Security (RLS)** en tu base de datos Supabase para proteger los datos de forma adecuada.

@@ -240,14 +240,11 @@ export const api = {
         return { data, error };
     },
 
-    createPost: async (content: string, imageUrl: string | null = null, isOfficial: boolean = false, originalPostId: string | null = null) => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return { error: { message: 'No authenticated user' } };
-
+    createPost: async (content: string, userId: string, imageUrl: string | null = null, isOfficial: boolean = false, originalPostId: string | null = null) => {
         const { data, error } = await supabase
             .from('posts')
             .insert({
-                user_id: user.id,
+                user_id: userId,
                 content,
                 image_url: imageUrl,
                 is_official: isOfficial,
@@ -335,15 +332,12 @@ export const api = {
         return { data, error };
     },
 
-    addComment: async (postId: string, content: string, parentId: string | null = null) => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return { error: { message: 'No authenticated user' } };
-
+    addComment: async (postId: string, content: string, userId: string, parentId: string | null = null) => {
         const { data, error } = await supabase
             .from('comments')
             .insert({
                 post_id: postId,
-                user_id: user.id,
+                user_id: userId,
                 parent_id: parentId,
                 content
             })
@@ -387,34 +381,13 @@ export const api = {
     // --- NOTIFICATIONS ---
     broadcastNotification: async (title: string, content: string, entityId?: string) => {
         try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) return { error: { message: 'No authenticated user' } };
+            const { error } = await supabase.rpc('broadcast_official_announcement', {
+                title_param: title,
+                content_param: content,
+                entity_id_param: entityId
+            });
 
-            const { data: profiles, error: pError } = await supabase
-                .from('profiles')
-                .select('id');
-
-            if (pError) throw pError;
-
-            if (profiles) {
-                const notifications = profiles
-                    .filter(p => p.id !== user.id)
-                    .map(p => ({
-                        user_id: p.id,
-                        actor_id: user.id,
-                        type: 'official',
-                        entity_id: entityId,
-                        title: title,
-                        content: content.substring(0, 150),
-                        read: false
-                    }));
-
-                const { error: nError } = await supabase
-                    .from('notifications')
-                    .insert(notifications);
-
-                if (nError) throw nError;
-            }
+            if (error) throw error;
             return { success: true };
         } catch (error) {
             console.error('Broadcast error:', error);
@@ -569,14 +542,11 @@ export const api = {
         return { data, error };
     },
 
-    createStory: async (imageUrl: string | null, content?: string, background?: string) => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return { error: { message: 'No authenticated user' } };
-
+    createStory: async (userId: string, imageUrl: string | null, content?: string, background?: string) => {
         const { data, error } = await supabase
             .from('stories')
             .insert({
-                user_id: user.id,
+                user_id: userId,
                 image_url: imageUrl,
                 content: content,
                 background: background
@@ -586,24 +556,12 @@ export const api = {
         return { data, error };
     },
 
-    deleteStory: async (storyId: string) => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return { error: { message: 'No authenticated user' } };
-
-        // Log removed
-
+    deleteStory: async (storyId: string, userId: string) => {
         const { error } = await supabase
             .from('stories')
             .delete()
             .eq('id', storyId)
-            .eq('user_id', user.id);
-
-        if (error) {
-            console.error('Supabase delete error:', error);
-        } else {
-            // Log removed
-        }
-
+            .eq('user_id', userId);
         return { error };
     },
 
@@ -638,15 +596,12 @@ export const api = {
     },
 
     // --- ADMIN TOOLS (REAL DATA) ---
-    logAdminAction: async (action: string, details: string, targetId?: string) => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-
+    logAdminAction: async (userId: string, action: string, details: string, targetId?: string) => {
         await supabase.from('admin_logs').insert({
             action,
             details,
             target_id: targetId,
-            admin_id: user.id
+            admin_id: userId
         });
     },
 
@@ -666,12 +621,9 @@ export const api = {
     },
 
     // --- SCHEDULING (REAL DATA) ---
-    schedulePost: async (content: string, date: string, isOfficial: boolean = false) => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return { error: { message: 'No auth user' } };
-
+    schedulePost: async (userId: string, content: string, date: string, isOfficial: boolean = false) => {
         const { data, error } = await supabase.from('scheduled_posts').insert({
-            user_id: user.id,
+            user_id: userId,
             content,
             scheduled_for: date,
             is_official: isOfficial,
@@ -681,14 +633,11 @@ export const api = {
         return { data, error };
     },
 
-    getScheduledPosts: async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return { data: [], error: null };
-
+    getScheduledPosts: async (userId: string) => {
         const { data, error } = await supabase
             .from('scheduled_posts')
             .select('*')
-            .eq('user_id', user.id)
+            .eq('user_id', userId)
             .order('scheduled_for', { ascending: true });
         return { data, error };
     },

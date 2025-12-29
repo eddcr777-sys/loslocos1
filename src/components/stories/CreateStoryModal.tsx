@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { X, Upload, Send, Type, Image as ImageIcon } from 'lucide-react';
+import { X, Send, Type, Image as ImageIcon } from 'lucide-react';
 import { api } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import './CreateStoryModal.css';
 
 interface CreateStoryModalProps {
@@ -20,6 +21,7 @@ const backgroundPresets = [
 ];
 
 const CreateStoryModal: React.FC<CreateStoryModalProps> = ({ onClose, onStoryCreated }) => {
+  const { user } = useAuth();
   const [mode, setMode] = useState<'photo' | 'text'>('photo');
   const [image, setImage] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -57,7 +59,9 @@ const CreateStoryModal: React.FC<CreateStoryModalProps> = ({ onClose, onStoryCre
       imageUrl = data;
     }
 
+    if (!user) return;
     const { error: createError } = await api.createStory(
+      user.id,
       imageUrl, 
       content, 
       mode === 'text' ? background : undefined

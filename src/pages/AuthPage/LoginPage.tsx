@@ -66,7 +66,7 @@ const LoginPage = () => {
         </form>
 
         <p className="register-link">
-          ¿No tienes cuenta? <Link to="/register">Regístrate aquí</Link>
+          ¿No tienes cuenta? <Link to="/register">Regístrate aquí facilito</Link>
         </p>
       </div>
     </div>

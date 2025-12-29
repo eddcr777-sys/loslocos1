@@ -69,7 +69,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       
       setLoading(false);
-      setLoading(false);
     });
 
     return () => subscription.unsubscribe();

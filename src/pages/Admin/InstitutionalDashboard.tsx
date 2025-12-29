@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
     PlusCircle, 
     History, 
@@ -32,17 +32,13 @@ const InstitutionalDashboard = () => {
     const [postContent, setPostContent] = useState('');
     const [scheduledDate, setScheduledDate] = useState('');
     const [priority, setPriority] = useState('normal');
-
-    useEffect(() => {
-        loadData();
-    }, []);
-
-    const loadData = async () => {
+    const loadData = useCallback(async () => {
         setLoading(true);
         try {
+            if (!profile) return;
             const [posts, scheduled, profiles] = await Promise.all([
                 api.getOfficialPosts(),
-                api.getScheduledPosts(),
+                api.getScheduledPosts(profile.id),
                 api.getAllProfiles()
             ]);
 
@@ -62,17 +58,22 @@ const InstitutionalDashboard = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [profile]);
+
+    useEffect(() => {
+        loadData();
+    }, [loadData]);
 
     const handleCreatePost = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!postContent) return;
 
+        if (!profile) return;
         let res;
         if (scheduledDate) {
-            res = await api.schedulePost(postContent, scheduledDate, true);
+            res = await api.schedulePost(profile.id, postContent, scheduledDate, true);
         } else {
-            res = await api.createPost(postContent, null, true);
+            res = await api.createPost(postContent, profile.id, null, true);
         }
 
         if (res.error) {
@@ -120,7 +121,7 @@ const InstitutionalDashboard = () => {
                 </div>
             </AdminHeader>
 
-            <div className="inst-dashboard-body">
+            <div className="master-content">
                 <div className="metric-cards-compact" style={{ marginBottom: '2rem' }}>
                     <StatCard 
                         title="Avisos Oficiales"

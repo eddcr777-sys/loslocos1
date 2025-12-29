@@ -1,5 +1,6 @@
 import React, { createContext, useState, ReactNode, FC, useContext, useEffect, useCallback } from 'react';
 import { api, Post } from '../services/api';
+import { useAuth } from './AuthContext';
 
 interface FeedContextType {
   posts: Post[];
@@ -13,6 +14,7 @@ interface FeedContextType {
 const FeedContext = createContext<FeedContextType | undefined>(undefined);
 
 export const FeedProvider: FC<{children: ReactNode}> = ({ children }) => {
+  const { user } = useAuth();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('para-ti');
@@ -35,7 +37,8 @@ export const FeedProvider: FC<{children: ReactNode}> = ({ children }) => {
       imageUrl = data;
     }
 
-    const { data, error } = await api.createPost(content, imageUrl, isOfficial);
+    if (!user) return { error: { message: 'No authenticated user' } };
+    const { data, error } = await api.createPost(content, user.id, imageUrl, isOfficial);
     if (!error) {
       await refreshFeed();
     }
