@@ -8,8 +8,12 @@ export interface Profile {
     avatar_url: string;
     bio: string;
     user_type?: 'common' | 'popular' | 'admin' | 'ceo' | 'institutional';
+    university?: string;
     last_profile_update?: string;
+    legal_accepted_at?: string;
+    birth_date?: string;
 }
+
 
 export interface Post {
     id: string;
@@ -139,6 +143,14 @@ export const api = {
             .select()
             .maybeSingle();
         return { data, error };
+    },
+    isUsernameUnique: async (username: string) => {
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('username', username.toLowerCase().trim())
+            .maybeSingle();
+        return { isUnique: !data, error };
     },
 
     getAllProfiles: async () => {
@@ -518,6 +530,45 @@ export const api = {
             error: error1 || error2
         };
     },
+
+    getFollowers: async (userId: string) => {
+        const { data, error } = await supabase
+            .from('followers')
+            .select('follower_id')
+            .eq('following_id', userId);
+
+        if (error || !data) return { data: [], error };
+
+        const ids = data.map(f => f.follower_id);
+        if (ids.length === 0) return { data: [], error: null };
+
+        const { data: profiles, error: pError } = await supabase
+            .from('profiles')
+            .select('*')
+            .in('id', ids);
+
+        return { data: profiles, error: pError };
+    },
+
+    getFollowing: async (userId: string) => {
+        const { data, error } = await supabase
+            .from('followers')
+            .select('following_id')
+            .eq('follower_id', userId);
+
+        if (error || !data) return { data: [], error };
+
+        const ids = data.map(f => f.following_id);
+        if (ids.length === 0) return { data: [], error: null };
+
+        const { data: profiles, error: pError } = await supabase
+            .from('profiles')
+            .select('*')
+            .in('id', ids);
+
+        return { data: profiles, error: pError };
+    },
+
 
     getProfileById: async (userId: string) => {
         const { data, error } = await supabase

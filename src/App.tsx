@@ -25,6 +25,9 @@ const NotFoundPage = lazy(() => import('./pages/NotFoundPage/NotFoundPage'));
 const PrivacyPolicy = lazy(() => import('./pages/legal/PrivacyPolicy'));
 const TermsOfService = lazy(() => import('./pages/legal/TermsOfService'));
 const CommunityGuidelines = lazy(() => import('./pages/legal/CommunityGuidelines'));
+const FollowersPage = lazy(() => import('./pages/ProfileLists/FollowersPage'));
+const FollowingPage = lazy(() => import('./pages/ProfileLists/FollowingPage'));
+
 
 // Loading component
 const PageLoader = () => (
@@ -108,6 +111,9 @@ const AppRoutes = () => (
         <Route path="/home" element={<HomePage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/profile/:userId" element={<ProfilePage />} />
+        <Route path="/profile/:userId/followers" element={<FollowersPage />} />
+        <Route path="/profile/:userId/following" element={<FollowingPage />} />
+
         {/* Settings tiene sub-rutas, así que usamos asterisco */}
         <Route path="/settings/*" element={<SettingsPage />} />
         <Route path="/search" element={<SearchPage />} />

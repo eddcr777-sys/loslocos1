@@ -1,75 +1,61 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import Button from '../../components/ui/Button';
-import './WelcomePage.css';
+import { useNavigate, Link } from 'react-router-dom';
 import logo from '../../assets/images/Untitled__1_-removebg-preview.png';
+import { ArrowRight, UserPlus, LogIn } from 'lucide-react';
+import './LoginPage.css';
 
 const WelcomePage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="welcome-page">
-      {/* Fondo animado */}
-      <div className="welcome-background">
-        <div className="blob blob-1"></div>
-        <div className="blob blob-2"></div>
-      </div>
-
-      <div
-        className="welcome-content"
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '2rem',
-          padding: '2rem',
-          maxWidth: '550px',
-          width: '100%',
-          textAlign: 'center',
-          position: 'relative',
-          zIndex: 1,
-        }}
-      >
-        <div className="welcome-header">
-          <div className="logo-container">
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <img src={logo} alt="Logo" style={{ width: '200px', height: '200px', objectFit: 'contain' }} />
-      
-        </div>
+    <div className="login-page">
+      <main className="auth-main">
+        {/* Elite Sidebar Branding (Extra Wide) */}
+        <section className="brand-sidebar" style={{ flex: 1.4 }}>
+          <div className="brand-id">
+            <img src={logo} alt="UniFeed" />
+            <span>UniFeed.</span>
           </div>
-          <h1 className="welcome-title">
-            Bienvenido a <span className="text-gradient">UniFeed</span>
-          </h1>
-          <p className="welcome-subtitle">
-            La red social exclusiva para conectar, compartir y descubrir todo lo que sucede en tu comunidad universitaria.
-          </p>
-        </div>
-
-        <div className="welcome-actions">
-          <Button 
-            onClick={() => navigate('/login')}
-            style={{ width: '100%', justifyContent: 'center', height: '48px', fontSize: '1rem', backgroundColor: '#008CBB' }}
-          >
-            Iniciar Sesión
-          </Button>
-          
-          <div className="divider">
-            <span>o</span>
+          <div className="brand-tagline">
+            <h1 style={{ fontSize: '7rem' }}>UniFeed.</h1>
+            <p style={{ fontSize: '1.8rem', opacity: 0.9 }}>
+                La red académica más influyente donde el talento se encuentra con las oportunidades.
+            </p>
           </div>
+        </section>
 
-          <Button
-            variant="ghost"
-            onClick={() => navigate('/register')}
-            style={{ width: '100%', justifyContent: 'center', height: '48px', fontSize: '1rem' }}
-          >
-            Crear cuenta nueva
-          </Button>
-        </div>
+        {/* Action Right Area */}
+        <section className="form-section">
+          <div className="auth-card">
+            <header className="auth-header" style={{ marginBottom: '4rem' }}>
+              <h2>Empieza ahora</h2>
+              <p>Conecta con líderes de tu facultad y comparte el conocimiento que importa.</p>
+            </header>
 
-        <footer className="welcome-footer">
-          <p>© 2025 UniFeed. Conectando el campus.</p>
-        </footer>
-      </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <button 
+                onClick={() => navigate('/login')}
+                className="btn-continue"
+                style={{ height: '70px', fontSize: '1.2rem' }}
+              >
+                Acceder a mi cuenta <LogIn size={26} />
+              </button>
+              
+              <button
+                onClick={() => navigate('/register')}
+                className="btn-reverse"
+                style={{ height: '70px', fontSize: '1.2rem', color: 'var(--text-primary)', border: '2px solid var(--text-primary)', fontWeight: 800 }}
+              >
+                Crear cuenta profesional <UserPlus size={26} />
+              </button>
+            </div>
+
+            <footer style={{ marginTop: 'auto', paddingTop: '6rem', color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 700, textAlign: 'center' }}>
+               © 2025 UNIFEED — NETWORK FOR ACADEMIA
+            </footer>
+          </div>
+        </section>
+      </main>
     </div>
   );
 };

@@ -22,15 +22,28 @@ export const useFullProfile = (userId: string | undefined, currentUser: any) => 
       try {
         setIsFollowLoading(true);
 
+        // Resolve real ID if username was provided
+        let actualId = targetId;
+
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('id')
+          .or(`id.eq.${targetId},username.eq.${targetId}`)
+          .maybeSingle();
+
+        if (profileData) {
+          actualId = profileData.id;
+        }
+
         // Fetch followers, following, and posts counts
-        const { count: followersCount } = await supabase.from('followers').select('*', { count: 'exact', head: true }).eq('following_id', targetId);
-        const { count: followingCount } = await supabase.from('followers').select('*', { count: 'exact', head: true }).eq('follower_id', targetId);
+        const { count: followersCount } = await supabase.from('followers').select('*', { count: 'exact', head: true }).eq('following_id', actualId);
+        const { count: followingCount } = await supabase.from('followers').select('*', { count: 'exact', head: true }).eq('follower_id', actualId);
 
         // Count only original posts (not quotes, not deleted)
         const { count: postsCount } = await supabase
           .from('posts')
           .select('*', { count: 'exact', head: true })
-          .eq('user_id', targetId)
+          .eq('user_id', actualId)
           .is('deleted_at', null)
           .is('original_post_id', null); // Exclude quotes
 
@@ -41,13 +54,13 @@ export const useFullProfile = (userId: string | undefined, currentUser: any) => 
         });
 
         // Check if current user is following
-        if (currentUser && userId && currentUser.id !== userId) {
+        if (currentUser && actualId && currentUser.id !== actualId) {
           const { data, error } = await supabase
             .from('followers')
             .select('*')
             .eq('follower_id', currentUser.id)
-            .eq('following_id', userId)
-            .maybeSingle(); // Usamos maybeSingle para evitar errores si no hay resultados
+            .eq('following_id', actualId)
+            .maybeSingle();
 
           setIsFollowing(!error && !!data);
         }
@@ -57,6 +70,7 @@ export const useFullProfile = (userId: string | undefined, currentUser: any) => 
         setIsFollowLoading(false);
       }
     };
+
 
     fetchStatsAndFollowing();
   }, [userId, currentUser]);

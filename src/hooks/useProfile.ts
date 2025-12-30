@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { api, Post } from '../services/api';
+import { supabase } from '../utils/supabaseClient';
+
 import { useAuth } from '../context/AuthContext';
 
 export const useProfile = (userId?: string) => {
@@ -31,9 +33,14 @@ export const useProfile = (userId?: string) => {
         if (isOwnProfile) {
             targetProfile = currentUserProfile;
         } else if (userId) {
-            const { data } = await api.getProfileById(userId);
+            const { data } = await supabase
+                .from('profiles')
+                .select('*')
+                .or(`id.eq.${userId},username.eq.${userId}`)
+                .maybeSingle();
             targetProfile = data;
         }
+
 
         if (targetProfile) {
             setViewProfile(targetProfile);

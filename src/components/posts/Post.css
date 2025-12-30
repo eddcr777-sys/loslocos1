@@ -72,6 +72,35 @@
   padding-top: 0.5rem;
 }
 
+.post-wrapper {
+  transition: all 0.3s ease;
+  border-radius: var(--radius-xl);
+}
+
+.highlight-pulse {
+  animation: highlightPulse 4s ease-out forwards;
+}
+
+@keyframes highlightPulse {
+  0% {
+    background-color: var(--accent-soft);
+    box-shadow: 0 0 15px var(--accent-color);
+    transform: scale(1.01);
+  }
+
+  20% {
+    background-color: var(--accent-soft);
+    box-shadow: 0 0 15px var(--accent-color);
+    transform: scale(1.01);
+  }
+
+  100% {
+    background-color: transparent;
+    box-shadow: none;
+    transform: scale(1);
+  }
+}
+
 /* Mobile optimizations: Remove borders for a cleaner look */
 @media (max-width: 768px) {
   .post-card {

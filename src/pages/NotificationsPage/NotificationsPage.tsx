@@ -112,23 +112,45 @@ const NotificationsPage = () => {
               style={{ 
                 marginBottom: 0, 
                 padding: '1.25rem', 
-                cursor: (['like', 'comment', 'reply', 'official', 'repost', 'quote', 'mention'].includes(notif.type)) ? 'pointer' : 'default',
+                cursor: 'pointer',
                 transition: 'all 0.2s ease',
                 backgroundColor: !notif.read ? 'var(--accent-soft)' : 'var(--surface-color)',
                 borderColor: !notif.read ? 'var(--accent-color)' : 'var(--border-color)',
                 borderWidth: '1px',
                 borderStyle: 'solid'
               }}
+
               onClick={() => {
-                if (['like', 'comment', 'reply', 'official', 'repost', 'quote', 'mention'].includes(notif.type)) {
-                  if (!notif.read) handleMarkAsRead(notif.id);
-                  // For repost/quote, post_id (or entity_id) links to the relevant post
-                  const linkId = notif.post_id || notif.entity_id;
+                if (!notif.read) handleMarkAsRead(notif.id);
+
+                if (notif.type === 'follow') {
+                  navigate(`/profile/${notif.actor_id}`);
+                } else if (notif.type === 'official' && notif.entity_id) {
+                     navigate(`/post/${notif.entity_id}`);
+                } else {
+                  // Prioritize constructing a link with comment ID if it exists
+                  let linkId = notif.post_id;
+                  
+                  // If entity_id contains the full path (like "uuid?c=uuid"), use it
+                  if (notif.entity_id && notif.entity_id.includes('?c=')) {
+                    linkId = notif.entity_id;
+                  } 
+                  // If we have both post_id and entity_id (common for mentions in comments), combine them
+                  else if (notif.post_id && notif.entity_id && notif.type !== 'like') {
+                    linkId = `${notif.post_id}?c=${notif.entity_id}`;
+                  }
+                  // Fallback to whichever is available
+                  else {
+                    linkId = notif.post_id || notif.entity_id;
+                  }
+
                   if (linkId) {
                     navigate(`/post/${linkId}`);
                   }
                 }
               }}
+
+
               className="notification-card"
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>

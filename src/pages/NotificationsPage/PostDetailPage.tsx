@@ -18,6 +18,8 @@ const PostDetailPage = () => {
   // O incluso puede ser un ID de comentario directamente (para notificaciones viejas)
   const [actualPostId, setActualPostId] = useState<string | null>(null);
   const [targetCommentId, setTargetCommentId] = useState<string | null>(null);
+  const [shouldHighlightPost, setShouldHighlightPost] = useState(false);
+
 
   useEffect(() => {
     if (postId) {
@@ -28,13 +30,17 @@ const PostDetailPage = () => {
         setTargetCommentId(params.get('c'));
       } else {
         setActualPostId(postId);
-        // Verificar si hay ?c= en la URL real (por si react-router lo separó)
         const params = new URLSearchParams(window.location.search);
         if (params.has('c')) {
+
           setTargetCommentId(params.get('c'));
+        } else {
+          // Si no hay comentario pero venimos de notificación, resaltamos el post
+          setShouldHighlightPost(true);
         }
       }
     }
+
   }, [postId]);
 
   useEffect(() => {
@@ -151,7 +157,9 @@ const PostDetailPage = () => {
           onPostDeleted={() => navigate('/home')} 
           showCommentsByDefault={true}
           highlightCommentId={targetCommentId || undefined}
+          highlight={shouldHighlightPost}
         />
+
         <div style={{ height: '40px' }} /> {/* Espacio extra al final */}
       </div>
     </div>

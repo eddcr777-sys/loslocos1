@@ -25,7 +25,8 @@ interface PostProps {
   showCommentsByDefault?: boolean;
   highlightCommentId?: string;
   onRepost?: (post: PostType) => void; 
-  reposters?: { full_name: string }[]; // New prop for aggregation
+  reposters?: { full_name: string }[];
+  highlight?: boolean; 
 }
 
 const Post: React.FC<PostProps> = ({ 
@@ -34,6 +35,7 @@ const Post: React.FC<PostProps> = ({
   showCommentsByDefault = false,
   highlightCommentId,
   onRepost,
+  highlight,
   reposters
 }) => {
   const { user } = useAuth();
@@ -188,7 +190,7 @@ const Post: React.FC<PostProps> = ({
   };
 
   return (
-    <>
+    <div id={`post-${post.id}`} className={`post-wrapper ${highlight ? 'highlight-pulse' : ''}`}>
       <Card className="post-card">
         {/* Banner de Repost / Compartido (Diseño Compacto) */}
         {(post as any)._reposters && (post as any)._reposters.length > 0 ? (
@@ -386,7 +388,7 @@ const Post: React.FC<PostProps> = ({
            </button>
         </div>
       )}
-    </>
+    </div>
   );
 };
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+
 import { useFullProfile } from '../../hooks/useFullProfile';
 import PostsSection from './PostsSection';
 import Avatar from '../../components/ui/Avatar';
@@ -10,7 +11,9 @@ import { api } from '../../services/api';
 
 const ProfilePage = () => {
   const { userId } = useParams<{ userId: string }>();
+  const navigate = useNavigate();
   const { user } = useAuth();
+
   const {
     viewProfile,
     userPosts,
@@ -129,14 +132,23 @@ const ProfilePage = () => {
             <span style={{ fontWeight: '800', fontSize: '1.1rem' }}>{stats.posts}</span>
             <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem', textTransform: 'uppercase' }}>Posts</span>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div 
+            onClick={() => navigate(`/profile/${viewProfile.id}/followers`)}
+            style={{ display: 'flex', flexDirection: 'column', cursor: 'pointer' }}
+            title="Ver seguidores"
+          >
             <span style={{ fontWeight: '800', fontSize: '1.1rem' }}>{stats.followers}</span>
             <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem', textTransform: 'uppercase' }}>Seguidores</span>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div 
+            onClick={() => navigate(`/profile/${viewProfile.id}/following`)}
+            style={{ display: 'flex', flexDirection: 'column', cursor: 'pointer' }}
+            title="Ver siguiendo"
+          >
             <span style={{ fontWeight: '800', fontSize: '1.1rem' }}>{stats.following}</span>
             <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem', textTransform: 'uppercase' }}>Siguiendo</span>
           </div>
+
         </div>
 
         {user && user.id !== viewProfile.id && (

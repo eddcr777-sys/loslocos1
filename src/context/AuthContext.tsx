@@ -9,8 +9,13 @@ export interface LoginCredentials {
 }
 
 export interface RegisterCredentials extends LoginCredentials {
-  name: string;
+  fullName: string;
+  username: string;
+  faculty: string;
+  university: string;
+  birthDate: string;
 }
+
 
 interface AuthContextType {
   session: Session | null;
@@ -89,7 +94,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 .eq('user_id', user.id)
                 .eq('read', false);
             
-            // Log removed
             if (error) console.error('DEBUG: AuthContext - Fetch error:', error);
             setUnreadNotifications(count || 0);
         } catch (err) {
@@ -110,12 +114,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 filter: `user_id=eq.${user.id}`
             },
             (payload) => {
-                // Log removed
                 setUnreadNotifications(prev => prev + 1);
             }
         )
         .subscribe((status) => {
-            // Log removed
         });
 
     return () => {
@@ -141,14 +143,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUnreadNotifications(0);
   }, []);
 
-  const register = useCallback(async ({ email, password, name }: RegisterCredentials) => {
+  const register = useCallback(async ({ email, password, fullName, username, faculty, university, birthDate }: RegisterCredentials) => {
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
-            full_name: name, // Esto trigger handle_new_user SQL
+            full_name: fullName,
+            username: username,
+            faculty: faculty,
+            university: university,
+            birth_date: birthDate
           },
         },
       });
@@ -158,6 +164,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { data: null, error };
     }
   }, []);
+
 
   const login = useCallback(async ({ email, password }: LoginCredentials) => {
     try {
