@@ -1,15 +1,35 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link, NavLink } from 'react-router-dom';
-import { Menu as MenuIcon, X, Home, TrendingUp, Bell, User, Search, Shield, Calendar } from 'lucide-react';
+import { Link, NavLink, useLocation, useNavigate, matchPath } from 'react-router-dom';
+import { Menu as MenuIcon, X, Home, TrendingUp, Bell, User, Search, Shield, Calendar, ArrowLeft } from 'lucide-react';
 import Menu from './Menu';
 import './MobileHeader.css';
+
 import Logo from './components/ui/logo';
 import { useAuth } from './context/AuthContext';
+import SubPageHeader from './components/layout/SubPageHeader';
 
 const MobileHeader = () => {
-  const { unreadNotifications, isAdmin, isInstitutional } = useAuth();
+  const { unreadNotifications, isAdmin, isInstitutional, user } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
   const menuRef = useRef<HTMLDivElement>(null);
+
+  // Detect if we are on a detail/sub page
+  const isProfileDetail = matchPath('/profile/:userId', location.pathname);
+  const isPostDetail = matchPath('/post/:postId', location.pathname);
+  const isFollowList = matchPath('/profile/:userId/followers', location.pathname) || matchPath('/profile/:userId/following', location.pathname);
+  const isSettings = location.pathname.startsWith('/settings');
+  
+  // A "Visitor Profile" is when we are on a profile with a userId in the path
+  // We treat any profile with an ID as a "detail" view to show the back button
+  const isSubPage = !!(isProfileDetail || isPostDetail || isFollowList || isSettings);
+
+  let pageTitle = '';
+  if (isProfileDetail) pageTitle = 'Perfil';
+  else if (isPostDetail) pageTitle = 'Publicación';
+  else if (isFollowList) pageTitle = location.pathname.includes('followers') ? 'Seguidores' : 'Siguiendo';
+  else if (isSettings) pageTitle = 'Ajustes';
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -23,42 +43,47 @@ const MobileHeader = () => {
     };
   }, []);
 
+  if (isSubPage) {
+     return <SubPageHeader title={pageTitle} />;
+  }
+
   return (
     <header className="mobile-header">
       <div className="mobile-header-content">
-        <Logo size="small" variant="icon" to="/home" className="header-logo" />
+            <Logo size="small" variant="icon" to="/home" className="header-logo" />
 
-        <nav className="mobile-header-nav">
-          <NavLink to="/home" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
-            <Home size={24} />
-          </NavLink>
-          <NavLink to="/search" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
-            <Search size={24} />
-          </NavLink>
-          <NavLink to="/events" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
-            <Calendar size={24} />
-          </NavLink>
-          <NavLink to="/trends" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
-            <TrendingUp size={24} />
-          </NavLink>
-          <NavLink to="/notifications" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
-            <div className="nav-item-container">
-              <Bell size={24} />
-              {unreadNotifications > 0 && (
-                <span className="notification-badge">{unreadNotifications}</span>
+            <nav className="mobile-header-nav">
+              <NavLink to="/home" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
+                <Home size={24} />
+              </NavLink>
+              <NavLink to="/search" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
+                <Search size={24} />
+              </NavLink>
+              <NavLink to="/events" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
+                <Calendar size={24} />
+              </NavLink>
+              <NavLink to="/trends" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
+                <TrendingUp size={24} />
+              </NavLink>
+              <NavLink to="/notifications" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
+                <div className="nav-item-container">
+                  <Bell size={24} />
+                  {unreadNotifications > 0 && (
+                    <span className="notification-badge">{unreadNotifications}</span>
+                  )}
+                </div>
+              </NavLink>
+              <NavLink to="/profile" end className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
+                <User size={24} />
+              </NavLink>
+              
+              {(!isAdmin && !isInstitutional) && (
+                <NavLink to="/verify-admin" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
+                  <Shield size={24} />
+                </NavLink>
               )}
-            </div>
-          </NavLink>
-          <NavLink to="/profile" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
-            <User size={24} />
-          </NavLink>
-          
-          {(!isAdmin && !isInstitutional) && (
-            <NavLink to="/verify-admin" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
-              <Shield size={24} />
-            </NavLink>
-          )}
-        </nav>
+            </nav>
+
 
         <div className="menu-section" ref={menuRef}>
           <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="menu-button">

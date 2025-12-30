@@ -34,8 +34,7 @@ const LoginPage = () => {
       <main className="auth-main">
         <section className="brand-sidebar">
           <Link to="/" className="brand-id">
-            <img src={logo} alt="UniFeed" />
-            <span>UniFeed.</span>
+            <span>UniFeed</span>
           </Link>
           <div className="brand-tagline">
             <h1>Bienvenido <br/>de Nuevo.</h1>

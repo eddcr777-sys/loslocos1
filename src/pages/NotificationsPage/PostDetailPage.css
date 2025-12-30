@@ -5,19 +5,7 @@
   box-sizing: border-box;
 }
 
-.back-button {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-  color: #64748b;
-  font-weight: 500;
-  transition: color 0.2s;
-}
 
-.back-button:hover {
-  color: #0f172a;
-}
 
 .loading-container,
 .error-container {
@@ -32,4 +20,16 @@
 .error-message {
   color: #ef4444;
   margin-bottom: 1rem;
+}
+
+/* Ensure global modals like ShareModal are visible above everything */
+.post-detail-container :global(.share-modal-overlay),
+.feed-container :global(.share-modal-overlay) {
+  z-index: 10000 !important;
+}
+
+/* Ensure Post Detail page doesn't clip fixed elements */
+.home-container {
+  transform: none !important;
+  /* Sometimes transforms create new stacking contexts blocking fixed children */
 }

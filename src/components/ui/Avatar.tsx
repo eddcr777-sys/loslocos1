@@ -1,4 +1,4 @@
-import React from 'react';
+import { DEFAULT_AVATAR_URL } from '../../utils/constants';
 
 interface AvatarProps {
   src?: string | null;
@@ -27,7 +27,7 @@ const Avatar: React.FC<AvatarProps> = ({ src, alt = 'Usuario', size = 'medium', 
 
   return (
     <img 
-      src={src || 'https://via.placeholder.com/150?text=Usuario'} 
+      src={src || DEFAULT_AVATAR_URL} 
       alt={alt} 
       style={finalStyle} 
       className={className}

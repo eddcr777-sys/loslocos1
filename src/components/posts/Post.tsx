@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { api, Post as PostType } from '../../services/api';
 import CommentSection from './comments/CommentSection';
 import { useAuth } from '../../context/AuthContext';
@@ -15,9 +15,10 @@ import ShareModal from './ShareModal';
 import EmbeddedPost from './EmbeddedPost';
 import RepostersHeader from './RepostersHeader';
 import Avatar from '../ui/Avatar';
+import RepostersListModal from './RepostersListModal';
 
 
-const DEFAULT_AVATAR = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+import { DEFAULT_AVATAR_URL } from '../../utils/constants';
 
 interface PostProps {
   post: PostType;
@@ -42,7 +43,7 @@ const Post: React.FC<PostProps> = ({
   const [userProfile, setUserProfile] = useState<any>(null);
   
   // Get user profile with faculty
-  React.useEffect(() => {
+  useEffect(() => {
     if (user) {
       api.getProfile(user.id).then(({ data }) => {
         if (data) setUserProfile(data);
@@ -50,6 +51,17 @@ const Post: React.FC<PostProps> = ({
     }
   }, [user]);
   
+  // LOGIC:
+  // Is Repost: Either has original_post AND content is empty/null, OR is_repost_from_shares flag
+  // Is Quote: Has original_post AND content is NOT empty
+  const isRepost = (post as any).is_repost_from_shares || (post as any).is_repost_wrapper || (post as any).is_repost || (!!post.original_post && !post.content);
+  const isQuote = (post as any).is_quote || (!!post.original_post && !!post.content && !(post as any).is_repost_from_shares && !(post as any).is_repost_wrapper);
+
+  // DETERMINE INTERACTION TARGET
+  // If it's a pure Repost, we interact with the ORIGINAL post (Like/Comment/Share count refers to original)
+  // If it's a Quote or Normal, we interact with THIS post.
+  const effectivePost = isRepost && post.original_post ? post.original_post : post;
+
   const {
     likes,
     commentsCount,
@@ -58,11 +70,18 @@ const Post: React.FC<PostProps> = ({
     setShowComments,
     handleLike,
     handleCommentsUpdate
-  } = usePost(post, user, showCommentsByDefault || !!highlightCommentId);
+  } = usePost(effectivePost, user, showCommentsByDefault || !!highlightCommentId);
+
+  // Shares count logic
+  const sharesCount = useMemo(() => {
+     if (!effectivePost.shares) return 0;
+     return Array.isArray(effectivePost.shares) ? (effectivePost.shares[0]?.count || 0) : (effectivePost.shares.count || 0);
+  }, [effectivePost.shares]);
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isRepostersModalOpen, setIsRepostersModalOpen] = useState(false);
   const [userHasReposted, setUserHasReposted] = useState(false);
 
   // Check if current user has reposted this post
@@ -82,18 +101,14 @@ const Post: React.FC<PostProps> = ({
     checkRepost();
   }, [user, post.id]);
 
-  // LOGIC:
-  // Is Repost: Either has original_post AND content is empty/null, OR is_repost_from_shares flag
-  // Is Quote: Has original_post AND content is NOT empty
-  const isRepost = (post as any).is_repost_from_shares || (post as any).is_repost_wrapper || (post as any).is_repost || (!!post.original_post && !post.content);
-  const isQuote = (post as any).is_quote || (!!post.original_post && !!post.content && !(post as any).is_repost_from_shares && !(post as any).is_repost_wrapper);
+
 
   // Header Logic for Reposters
   let repostHeader = null;
   
-  // Check if current user is in the reposters list
-  const repostersData = (post as any)._reposters;
-  const currentUserInReposters = repostersData?.some((r: any) => r.user_id === user?.id);
+  // Use the prop passed from HomePage
+  const repostersData = reposters || [];
+  const currentUserInReposters = repostersData.some((r: any) => r.user_id === user?.id);
   
   if (currentUserInReposters) {
     // Current user reposted this
@@ -154,18 +169,18 @@ const Post: React.FC<PostProps> = ({
   };
   
   const handleCopyLink = () => {
-    const url = `${window.location.origin}/post/${post.id}`;
+    const url = `${window.location.origin}/post/${effectivePost.id}`;
     navigator.clipboard.writeText(url);
     setIsShareModalOpen(false);
     alert('Enlace copiado al portapapeles');
-    api.sharePost(post.id); 
+    api.sharePost(effectivePost.id); 
   };
 
   const handleRepostAction = async () => {
     setIsShareModalOpen(false);
     
     // Tik Tok / IG Style: Toggle logic
-    const { data: isAdded, error } = await api.toggleRepost(post.id);
+    const { data: isAdded, error } = await api.toggleRepost(effectivePost.id);
     
     if (error) {
         alert("Error al procesar repost: " + error.message);
@@ -183,7 +198,7 @@ const Post: React.FC<PostProps> = ({
   const handleQuoteAction = () => {
     setIsShareModalOpen(false);
     if (onRepost) {
-        onRepost(post); 
+        onRepost(effectivePost); 
     } else {
         alert("Función de citar disponible pronto en el feed principal.");
     }
@@ -193,13 +208,14 @@ const Post: React.FC<PostProps> = ({
     <div id={`post-${post.id}`} className={`post-wrapper ${highlight ? 'highlight-pulse' : ''}`}>
       <Card className="post-card">
         {/* Banner de Repost / Compartido (Diseño Compacto) */}
-        {(post as any)._reposters && (post as any)._reposters.length > 0 ? (
+        {repostersData && repostersData.length > 0 ? (
           <RepostersHeader 
-            repostersData={(post as any)._reposters}
+            repostersData={repostersData}
             currentUserFaculty={userProfile?.faculty}
             currentUserId={user?.id}
             isTrending={(post as any)._is_trending}
             trendingPeriod={(post as any)._trending_period}
+            onClick={() => setIsRepostersModalOpen(true)}
           />
         ) : repostHeader ? (
              <div style={{ 
@@ -237,7 +253,7 @@ const Post: React.FC<PostProps> = ({
              
             <PostHeader 
               userId={isRepost ? (post.original_post?.profiles?.id || post.user_id) : post.user_id}
-              avatarUrl={isRepost ? (post.original_post?.profiles?.avatar_url || DEFAULT_AVATAR) : (post.profiles?.avatar_url || DEFAULT_AVATAR)}
+              avatarUrl={isRepost ? (post.original_post?.profiles?.avatar_url || DEFAULT_AVATAR_URL) : (post.profiles?.avatar_url || DEFAULT_AVATAR_URL)}
               fullName={isRepost ? (post.original_post?.profiles?.full_name || "Usuario") : (post.profiles?.full_name || "Usuario")}
               userType={isRepost ? post.original_post?.profiles?.user_type : post.profiles?.user_type}
               createdAt={isRepost ? (post.original_post?.created_at || post.created_at) : post.created_at}
@@ -307,7 +323,10 @@ const Post: React.FC<PostProps> = ({
           </div>
           <div className="action-item" onClick={handleShare} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)', fontSize: '0.95rem', cursor: 'pointer', padding: '0.75rem', borderRadius: 'var(--radius-md)', flex: 1, justifyContent: 'center', transition: 'all 0.2s ease' }}>
             <Share2 size={22} />
-            <span style={{ fontWeight: '600' }}>Compartir</span>
+            <span style={{ fontWeight: '600' }}>
+                {sharesCount > 0 && formatCount(sharesCount)}
+                {!sharesCount && "Compartir"}
+            </span>
           </div>
         </div>
 
@@ -331,42 +350,34 @@ const Post: React.FC<PostProps> = ({
     </Card>
 
     {isShareModalOpen && (
-        <div style={{
-            position: 'fixed', bottom: 0, left: 0, width: '100vw', height: '100vh',
-            background: 'rgba(0,0,0,0.5)', zIndex: 10000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center'
-        }} onClick={() => setIsShareModalOpen(false)}>
-            <div style={{
-                background: 'var(--bg-color)', width: '100%', maxWidth: '500px',
-                borderTopLeftRadius: '24px', borderTopRightRadius: '24px',
-                padding: '2rem', animation: 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-                boxShadow: 'var(--shadow-xl)'
-            }} onClick={e => e.stopPropagation()}>
-                <div style={{ width: '40px', height: '4px', background: 'var(--border-color)', borderRadius: '2px', margin: '-1rem auto 1.5rem', opacity: 0.5 }}></div>
-                <h3 style={{ margin: '0 0 1.5rem', textAlign: 'center', fontSize: '1.1rem' }}>Compartir</h3>
+        <div className="share-modal-overlay" onClick={() => setIsShareModalOpen(false)}>
+            <div className="share-modal-content" onClick={e => e.stopPropagation()}>
+                <div className="share-modal-handle"></div>
+                <h3 className="share-modal-title">Compartir</h3>
                 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', textAlign: 'center' }}>
+                <div className="share-modal-actions">
                      {/* COPY LINK */}
-                     <div onClick={handleCopyLink} style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
-                        <div style={{ width: '56px', height: '56px', background: 'var(--surface-color)', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border-color)', fontSize: '1.2rem', color: 'var(--text-primary)' }}>
+                     <div onClick={handleCopyLink} className="share-action-item">
+                        <div className="share-action-icon-wrapper">
                             <Copy size={24} />
                         </div>
-                        <span style={{ fontSize: '0.85rem', fontWeight: 500 }}>Copiar Link</span>
+                        <span className="share-action-label">Copiar Link</span>
                     </div>
 
                     {/* REPOST */}
-                     <div onClick={handleRepostAction} style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
-                        <div style={{ width: '56px', height: '56px', background: 'var(--surface-color)', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border-color)', fontSize: '1.2rem', color: 'var(--success)' }}>
+                     <div onClick={handleRepostAction} className="share-action-item">
+                        <div className="share-action-icon-wrapper success">
                             <Repeat size={24} />
                         </div>
-                         <span style={{ fontSize: '0.85rem', fontWeight: 500 }}>Republicar</span>
+                         <span className="share-action-label">Republicar</span>
                     </div>
 
                     {/* QUOTE */}
-                     <div onClick={handleQuoteAction} style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
-                        <div style={{ width: '56px', height: '56px', background: 'var(--surface-color)', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border-color)', fontSize: '1.2rem', color: 'var(--accent-color)' }}>
+                     <div onClick={handleQuoteAction} className="share-action-item">
+                        <div className="share-action-icon-wrapper accent">
                             <MessageCircle size={24} />
                         </div>
-                         <span style={{ fontSize: '0.85rem', fontWeight: 500 }}>Citar</span>
+                         <span className="share-action-label">Citar</span>
                     </div>
                 </div>
             </div>
@@ -375,19 +386,25 @@ const Post: React.FC<PostProps> = ({
 
     {isLightboxOpen && (
          <div 
-          style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0, 0, 0, 0.95)', zIndex: 99999, display: 'flex', justifyContent: 'center', alignItems: 'center', cursor: 'zoom-out', padding: '1rem' }}
+          className="lightbox-overlay"
           onClick={() => setIsLightboxOpen(false)}
         >
           <img 
             src={isRepost ? post.original_post!.image_url! : post.image_url!} 
             alt="Vista completa" 
-            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', borderRadius: '4px', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }} 
+            className="lightbox-image"
            />
            <button style={{ position: 'absolute', top: '2rem', right: '2rem', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%', width: '40px', height: '40px', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                <X size={24} />
            </button>
         </div>
       )}
+      {/* Reposters Modal */}
+      <RepostersListModal 
+        isOpen={isRepostersModalOpen}
+        onClose={() => setIsRepostersModalOpen(false)}
+        reposters={repostersData}
+      />
     </div>
   );
 };

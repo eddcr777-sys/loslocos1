@@ -133,11 +133,10 @@ const RegisterPage = () => {
             <main className="auth-main">
                 <section className="brand-sidebar">
                     <Link to="/" className="brand-id">
-                        <img src={logo} alt="UniFeed" />
-                        <span>UniFeed.</span>
+                        <span>UniFeed</span>
                     </Link>
                     <div className="brand-tagline">
-                        <h1>Únete a <br/>la Élite.</h1>
+                        <h1>Únete a <br/>a la comunidad.</h1>
                         <p>Plataforma profesional para la nueva generación de académicos.</p>
                     </div>
                 </section>

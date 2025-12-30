@@ -10,7 +10,7 @@ import './CreatePost.css';
 import { useMentions } from '../../hooks/useMentions';
 import MentionSuggestions from '../../components/posts/MentionSuggestions';
 
-const DEFAULT_AVATAR = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+import { DEFAULT_AVATAR_URL } from '../../utils/constants';
 
 interface CreatePostProps {
   onPostCreated: () => void;
@@ -92,7 +92,7 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated, quotedPost, onCa
           <div className="create-post-container" onClick={() => setIsExpanded(true)}>
             <div className="create-post-card">
                 <Avatar 
-                  src={profile?.avatar_url || DEFAULT_AVATAR} 
+                  src={profile?.avatar_url || DEFAULT_AVATAR_URL} 
                   size="small" 
                   className="create-post-avatar"
                 />
@@ -120,7 +120,7 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated, quotedPost, onCa
         <form onSubmit={handleSubmit}>
           <div className="create-post-body">
             <Avatar 
-              src={profile?.avatar_url || DEFAULT_AVATAR} 
+              src={profile?.avatar_url || DEFAULT_AVATAR_URL} 
               size="medium" 
             />
             <div style={{ flex: 1, position: 'relative' }}>

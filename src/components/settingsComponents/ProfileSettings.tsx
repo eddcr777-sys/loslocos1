@@ -7,7 +7,7 @@ import SettingsCard from './ui/SettingsCard';
 import SettingsInput from './ui/SettingsInput';
 import Button from '../ui/Button';
 
-const DEFAULT_AVATAR = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+import { DEFAULT_AVATAR_URL } from '../../utils/constants';
 
 const ProfileSettings = () => {
   const { user } = useAuth();
@@ -123,7 +123,7 @@ const ProfileSettings = () => {
           <div className="avatar-section">
             <div className="avatar-preview-container">
               <div className="avatar-preview-wrapper">
-                <img src={avatarPreview || formData.avatar_url || DEFAULT_AVATAR} alt="Avatar" />
+                <img src={avatarPreview || formData.avatar_url || DEFAULT_AVATAR_URL} alt="Avatar" />
               </div>
               <label htmlFor="avatar-upload" className="avatar-upload-badge">
                 <Camera size={20} />

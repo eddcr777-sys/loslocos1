@@ -36,12 +36,17 @@ function HomePage() {
           
           if (repostsMap.has(originalId)) {
                // Existing group found, add reposter
-               repostsMap.get(originalId)?.reposters.push(post.profiles);
+               // Ensure profiles is an object, though api.ts should now guarantee it.
+               const profile = Array.isArray(post.profiles) ? post.profiles[0] : post.profiles;
+               if (profile) {
+                   repostsMap.get(originalId)?.reposters.push(profile);
+               }
           } else {
               // New Repost Group
+              const profile = Array.isArray(post.profiles) ? post.profiles[0] : post.profiles;
               const entry = {
-                  main: post, // Use the repost wrapper as the main card initially
-                  reposters: [post.profiles] // This reposter
+                  main: post, 
+                  reposters: profile ? [profile] : []
               };
               repostsMap.set(originalId, entry);
               processedPosts.push(entry);

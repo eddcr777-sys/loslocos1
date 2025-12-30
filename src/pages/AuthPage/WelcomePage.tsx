@@ -1,6 +1,5 @@
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import logo from '../../assets/images/Untitled__1_-removebg-preview.png';
 import { ArrowRight, UserPlus, LogIn } from 'lucide-react';
 import './LoginPage.css';
 
@@ -13,11 +12,10 @@ const WelcomePage = () => {
         {/* Elite Sidebar Branding (Extra Wide) */}
         <section className="brand-sidebar" style={{ flex: 1.4 }}>
           <div className="brand-id">
-            <img src={logo} alt="UniFeed" />
-            <span>UniFeed.</span>
+            <span>UniFeed</span>
           </div>
           <div className="brand-tagline">
-            <h1 style={{ fontSize: '7rem' }}>UniFeed.</h1>
+            <h1 style={{ fontSize: '5rem' }}>UniFeed</h1>
             <p style={{ fontSize: '1.8rem', opacity: 0.9 }}>
                 La red académica más influyente donde el talento se encuentra con las oportunidades.
             </p>

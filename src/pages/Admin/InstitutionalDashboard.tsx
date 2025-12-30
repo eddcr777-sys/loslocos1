@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { DEFAULT_AVATAR_URL } from '../../utils/constants';
 import { 
     PlusCircle, 
     History, 
@@ -288,7 +289,7 @@ const InstitutionalDashboard = () => {
                                             <tr key={u.id}>
                                                 <td>
                                                     <div className="user-cell">
-                                                        <img src={u.avatar_url || DEFAULT_AVATAR} alt="" />
+                                                        <img src={u.avatar_url || DEFAULT_AVATAR_URL} alt="" />
                                                         <div className="user-details-mini">
                                                             <strong>{u.full_name || 'Miembro'}</strong>
                                                             <span>@{u.username || 'sin_usuario'}</span>
@@ -310,6 +311,6 @@ const InstitutionalDashboard = () => {
     );
 };
 
-const DEFAULT_AVATAR = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+
 
 export default InstitutionalDashboard;

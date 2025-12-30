@@ -5,12 +5,15 @@ import Post from '../../components/posts/Post';
 import Button from '../../components/ui/Button';
 import { ArrowLeft } from 'lucide-react';
 import './PostDetailPage.css';
+import SubPageHeader from '../../components/layout/SubPageHeader';
+import useMediaQuery from '../../useMediaQuery';
 
 const PostDetailPage = () => {
   const { postId } = useParams<{ postId: string }>();
   const navigate = useNavigate();
   const [post, setPost] = useState<PostType | null>(null);
   const [loading, setLoading] = useState(true);
+  const isMobile = useMediaQuery('(max-width: 1024px)');
   const [error, setError] = useState<string | null>(null);
 
   // Extraer el postId y opcionalmente el commentId de la URL
@@ -114,42 +117,15 @@ const PostDetailPage = () => {
   }
 
   return (
-    <div className="home-container" style={{ paddingTop: '0' }}>
-      {/* Header fijo para el detalle del post */}
-      <div style={{ 
-        position: 'sticky', 
-        top: 0, 
-        backgroundColor: 'rgba(255, 255, 255, 0.9)', 
-        backdropFilter: 'blur(8px)',
-        zIndex: 100,
-        padding: '0.75rem 1rem',
-        borderBottom: '1px solid #e2e8f0',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '1rem',
-        marginBottom: '1rem'
-      }}>
-        <button 
-          onClick={handleBack} 
-          style={{ 
-            background: 'none', 
-            border: 'none', 
-            cursor: 'pointer', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            padding: '8px',
-            borderRadius: '50%',
-            transition: 'background-color 0.2s',
-            color: '#1e293b'
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f1f5f9'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-        >
-          <ArrowLeft size={22} />
-        </button>
-        <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 700, color: '#1e293b' }}>Publicación</h2>
-      </div>
+    <div className="home-container" style={{ 
+      paddingTop: isMobile ? '1rem' : '0' 
+    }}>
+      {!isMobile && (
+         <div style={{ marginBottom: '1.5rem' }}>
+            <SubPageHeader title="Publicación" showBackButton={true} />
+         </div>
+      )}
+      {/* Mobile spacing handled by Layout (70px) + paddingTop (1rem) = ~86px total from top */}
 
       <div className="feed-container" style={{ padding: '0 10px' }}>
         <Post 

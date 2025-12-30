@@ -8,11 +8,14 @@ import VerificationBadge from '../../components/ui/VerificationBadge';
 import { Calendar, Briefcase, AtSign, UserPlus, UserCheck } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
+import SubPageHeader from '../../components/layout/SubPageHeader';
+import useMediaQuery from '../../useMediaQuery';
 
 const ProfilePage = () => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const isMobile = useMediaQuery('(max-width: 1024px)');
 
   const {
     viewProfile,
@@ -82,6 +85,11 @@ const ProfilePage = () => {
 
   return (
     <div style={styles.container}>
+      {!isMobile && (
+         <div style={{ marginBottom: '1.5rem' }}>
+             <SubPageHeader title="Perfil" showBackButton={true} />
+         </div>
+      )}
       <div style={{ 
         backgroundColor: 'var(--surface-color)', 
         borderRadius: 'var(--radius-xl)', 
@@ -203,12 +211,10 @@ const ProfilePage = () => {
       
       <main>
         <div style={styles.contentSections}>
-        <div style={styles.contentSections}>
           <PostsSection 
             posts={displayPosts} 
             loading={activeTab === 'posts' ? loadingPosts : loadingShared} 
           />
-        </div>
         </div>
       </main>
     </div>

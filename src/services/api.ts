@@ -24,6 +24,8 @@ export interface Post {
     profiles: Profile; // Joined data
     likes: any; // Joined data (puede ser array u objeto)
     comments?: any; // Joined data (conteo)
+    shares?: any; // Joined data (conteo)
+    quotes?: any; // Joined data (conteo)
     user_has_liked?: boolean;
     is_official?: boolean;
     original_post?: Post; // Recursive definition for quoted post
@@ -175,6 +177,8 @@ export const api = {
                     profiles (id, full_name, avatar_url, user_type, faculty),
                     likes (count),
                     comments (count),
+                    shares (count),
+                    quotes:posts!original_post_id(count),
                     original_post:original_post_id (
                         id, content, image_url, created_at,
                         profiles (id, full_name, avatar_url, user_type)
@@ -191,6 +195,9 @@ export const api = {
             profiles: p.author_data,
             likes: { count: p.likes_count },
             comments: { count: p.comments_count },
+            shares: {
+                count: (p.shares?.[0]?.count || 0) + (p.quotes?.[0]?.count || 0)
+            },
             original_post: p.original_post_data,
             is_repost_from_shares: p.is_repost
         }));
@@ -205,12 +212,24 @@ export const api = {
         *,
         profiles (id, full_name, avatar_url, user_type),
         likes (count),
-        comments (count)
+        comments (count),
+        shares (count),
+        quotes:posts!original_post_id(count)
       `)
             .eq('id', postId)
             .maybeSingle();
 
-        return { data, error };
+        if (error) return { data, error };
+        if (!data) return { data: null, error: null };
+
+        const mappedPost = {
+            ...data,
+            shares: {
+                count: (data.shares?.[0]?.count || 0) + (data.quotes?.[0]?.count || 0)
+            }
+        };
+
+        return { data: mappedPost, error: null };
     },
 
     getPostByCommentId: async (commentId: string) => {
@@ -237,6 +256,8 @@ export const api = {
         profiles (id, full_name, avatar_url, user_type),
         likes (count),
         comments (count),
+        shares (count),
+        quotes:posts!original_post_id(count),
         original_post:original_post_id (
             id,
             content,
@@ -249,7 +270,17 @@ export const api = {
             .eq('user_id', userId)
             .is('deleted_at', null)
             .order('created_at', { ascending: false });
-        return { data, error };
+
+        if (error) return { data, error };
+
+        const mappedPosts = data.map((p: any) => ({
+            ...p,
+            shares: {
+                count: (p.shares?.[0]?.count || 0) + (p.quotes?.[0]?.count || 0)
+            }
+        }));
+
+        return { data: mappedPosts, error: null };
     },
 
     createPost: async (content: string, userId: string, imageUrl: string | null = null, isOfficial: boolean = false, originalPostId: string | null = null) => {
@@ -749,30 +780,136 @@ export const api = {
 
     // --- SMART FEED (Algoritmo Avanzado) ---
     getSmartFeed: async () => {
-        const { data, error } = await supabase.rpc('get_smart_feed');
+        // Try getting the session for the current user
+        const { data: { session } } = await supabase.auth.getSession();
+        const userId = session?.user?.id;
 
-        if (error) {
-            console.warn("Smart feed RPC failed. Falling back to complete feed...", error);
-            // Fallback to complete feed
+        // If not logged in, fallback to generic complete feed
+        if (!userId) {
             return api.getPosts();
         }
 
-        // Map RPC result to Post structure with additional metadata
-        const mappedPosts = data.map((p: any) => ({
-            ...p,
-            profiles: p.author_data,
-            likes: { count: p.likes_count },
-            comments: { count: p.comments_count },
-            original_post: p.original_post_data,
-            is_repost_from_shares: p.is_repost,
-            // Additional smart feed metadata
-            _relevance_score: p.relevance_score,
-            _is_trending: p.is_trending,
-            _trending_period: p.trending_period,
-            _reposters: p.reposters_data
-        }));
+        // Logic to get "Following Feed" (Chronological) which includes Reposts
+        try {
+            // 1. Get IDs of people I follow
+            const { data: followingData, error: followError } = await supabase
+                .from('followers')
+                .select('following_id')
+                .eq('follower_id', userId);
 
-        return { data: mappedPosts, error: null };
+            if (followError) throw followError;
+
+            const followingIds = followingData.map(f => f.following_id);
+            followingIds.push(userId); // Add self to see my own posts/reposts
+
+            // 2. Fetch posts from these users 
+            const postsPromise = supabase
+                .from('posts')
+                .select(`
+                    *,
+                    profiles (id, full_name, avatar_url, user_type, faculty),
+                    likes (count),
+                    comments (count),
+                    shares (count),
+                    quotes:posts!original_post_id(count),
+                    original_post:original_post_id (
+                        id, content, image_url, created_at,
+                        profiles (id, full_name, avatar_url, user_type)
+                    )
+                `)
+                .in('user_id', followingIds)
+                .is('deleted_at', null)
+                .order('created_at', { ascending: false })
+                .limit(50);
+
+            // 3. Fetch SHARES (reposts) from these users
+            // Assuming 'shares' table exists and links post_id -> posts, user_id -> profiles
+            const sharesPromise = supabase
+                .from('shares')
+                .select(`
+                    id,
+                    created_at,
+                    user_id,
+                    profiles:user_id (id, full_name, avatar_url, user_type, faculty),
+                    post:post_id (
+                        id, content, image_url, created_at, user_id,
+                        profiles (id, full_name, avatar_url, user_type, faculty),
+                        likes (count),
+                        comments (count),
+                        shares (count),
+                        quotes:posts!original_post_id(count)
+                    )
+                `)
+                .in('user_id', followingIds)
+                .order('created_at', { ascending: false })
+                .limit(50);
+
+            const [postsResult, sharesResult] = await Promise.all([postsPromise, sharesPromise]);
+
+            if (postsResult.error) throw postsResult.error;
+            // If shares table doesn't exist or error, we might just ignore shares, but let's log it.
+            if (sharesResult.error) {
+                console.warn("Could not fetch shares for feed:", sharesResult.error);
+            }
+
+            // 4. Map Posts
+            const mappedPosts = (postsResult.data || []).map((p: any) => ({
+                ...p,
+                profiles: p.profiles,
+                likes: { count: p.likes ? p.likes[0]?.count ?? 0 : 0 },
+                comments: { count: p.comments ? p.comments[0]?.count ?? 0 : 0 },
+                shares: {
+                    count: (p.shares?.[0]?.count || 0) + (p.quotes?.[0]?.count || 0)
+                },
+                original_post: p.original_post,
+                is_repost_from_shares: !!p.original_post_id && !p.content, // Old style reposts if any
+                type: 'post'
+            }));
+
+            // 5. Map Shares to Post structure (as Reposts)
+            const mappedShares = (sharesResult.data || []).map((s: any) => {
+                if (!s.post) return null; // Skip if original post deleted
+
+                // We construct a "Post" object that acts as a container for the Repost
+                return {
+                    id: 'share_' + s.id, // Unique ID for key
+                    user_id: s.user_id,
+                    content: '', // Reposts typically have empty content in the wrapper
+                    image_url: null,
+                    created_at: s.created_at,
+                    profiles: s.profiles, // The person who SHARED it (The Reposter)
+
+                    // Stats for the wrapper (usually 0, but maybe we want to track likes on the repost itself? For now 0)
+                    likes: { count: 0 },
+                    comments: { count: 0 },
+                    shares: { count: 0 },
+
+                    // The Original Post Data
+                    original_post: {
+                        ...s.post,
+                        profiles: s.post.profiles,
+                        likes: { count: s.post.likes ? s.post.likes[0]?.count ?? 0 : 0 },
+                        comments: { count: s.post.comments ? s.post.comments[0]?.count ?? 0 : 0 },
+                        shares: { count: (s.post.shares?.[0]?.count || 0) + (s.post.quotes?.[0]?.count || 0) }
+                    },
+                    original_post_id: s.post.id,
+
+                    is_repost_from_shares: true, // Marker for UI
+                    type: 'repost'
+                };
+            }).filter(Boolean);
+
+            // 6. Merge and Sort
+            const combinedFeed = [...mappedPosts, ...mappedShares].sort((a, b) =>
+                new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+            );
+
+            return { data: combinedFeed, error: null };
+
+        } catch (err: any) {
+            console.error("Error fetching following feed, falling back to complete feed:", err);
+            return api.getPosts();
+        }
     },
 
     getTrendingPosts: async (period: 'day' | 'week' | 'month' | 'year' = 'day') => {

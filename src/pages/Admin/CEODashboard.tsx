@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { DEFAULT_AVATAR_URL } from '../../utils/constants';
 import { 
     Users, 
     MessageSquare, 
@@ -224,7 +225,7 @@ const CEODashboard = () => {
                                 {posts.map((post) => (
                                     <div key={post.id} className="mod-premium-card">
                                         <div className="mod-user-top">
-                                            <img src={post.profiles?.avatar_url || DEFAULT_AVATAR} alt="A" />
+                                            <img src={post.profiles?.avatar_url || DEFAULT_AVATAR_URL} alt="A" />
                                             <span>{post.profiles?.full_name || 'Usuario'}</span>
                                         </div>
                                         <div className="mod-body">
@@ -285,6 +286,6 @@ const CEODashboard = () => {
     );
 };
 
-const DEFAULT_AVATAR = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+
 
 export default CEODashboard;

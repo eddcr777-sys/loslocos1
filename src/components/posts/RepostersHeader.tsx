@@ -1,6 +1,7 @@
 import React from 'react';
 import { Repeat, TrendingUp } from 'lucide-react';
 import Avatar from '../ui/Avatar';
+import './RepostersHeader.css';
 
 interface RepostersHeaderProps {
     repostersData: any[];
@@ -8,6 +9,7 @@ interface RepostersHeaderProps {
     currentUserId?: string;
     isTrending?: boolean;
     trendingPeriod?: 'day' | 'week' | 'month' | 'year';
+    onClick?: () => void;
 }
 
 const RepostersHeader: React.FC<RepostersHeaderProps> = ({ 
@@ -15,54 +17,13 @@ const RepostersHeader: React.FC<RepostersHeaderProps> = ({
     currentUserFaculty,
     currentUserId,
     isTrending,
-    trendingPeriod 
+    trendingPeriod,
+    onClick 
 }) => {
     if (!repostersData || repostersData.length === 0) return null;
 
-    // Verificar si el usuario actual está en la lista de reposters
-    const isMe = currentUserId ? repostersData.some(r => r.user_id === currentUserId) : false;
-
-    // Filtrar reposters de la misma facultad
-    const fromMyFaculty = currentUserFaculty 
-        ? repostersData.filter(r => r.faculty === currentUserFaculty)
-        : [];
-
-    // Determinar el mensaje
-    let message = '';
-    let displayReposters = repostersData;
-
-    if (isMe && repostersData.length === 1) {
-        message = 'Lo compartiste';
-    } else if (fromMyFaculty.length > 0) {
-        displayReposters = fromMyFaculty;
-        if (fromMyFaculty.length === 1) {
-            message = isMe && fromMyFaculty[0].user_id === currentUserId 
-                ? 'Lo compartiste' 
-                : `${fromMyFaculty[0].full_name} de tu facultad compartió esto`;
-        } else if (fromMyFaculty.length === 2) {
-            const other = fromMyFaculty.find(r => r.user_id !== currentUserId);
-            message = isMe 
-                ? `Tú y ${other?.full_name} de tu facultad compartieron esto`
-                : `${fromMyFaculty[0].full_name} y ${fromMyFaculty[1].full_name} de tu facultad compartieron esto`;
-        } else {
-            message = isMe
-                ? `Tú y ${fromMyFaculty.length - 1} personas más de tu facultad compartieron esto`
-                : `${fromMyFaculty[0].full_name} y ${fromMyFaculty.length - 1} personas más de tu facultad compartieron esto`;
-        }
-    } else {
-        if (repostersData.length === 1) {
-            message = isMe ? 'Lo compartiste' : `${repostersData[0].full_name} compartió esto`;
-        } else if (repostersData.length === 2) {
-            const other = repostersData.find(r => r.user_id !== currentUserId);
-            message = isMe 
-                ? `Tú y ${other?.full_name} compartieron esto`
-                : `${repostersData[0].full_name} y ${repostersData[1].full_name} compartieron esto`;
-        } else {
-            message = isMe
-                ? `Tú y ${repostersData.length - 1} personas más compartieron esto`
-                : `${repostersData[0].full_name} y ${repostersData.length - 1} personas más compartieron esto`;
-        }
-    }
+    // Use raw data as it comes sorted (Newest first)
+    const displayReposters = repostersData;
 
     const trendingLabels = {
         day: 'del día',
@@ -72,79 +33,38 @@ const RepostersHeader: React.FC<RepostersHeaderProps> = ({
     };
 
     return (
-        <div style={{
-            padding: '0.4rem 0.75rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '0.625rem',
-            borderBottom: '1px solid var(--border-color)',
-            backgroundColor: 'var(--surface-color)'
-        }}>
-            {/* Left side: Reposters info */}
-            <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.75rem',
-                flex: 1,
-                minWidth: 0
-            }}>
-                {/* Icon */}
-                <div style={{
-                    width: '24px',
-                    height: '24px',
-                    borderRadius: 'var(--radius-full)',
-                    background: 'var(--success-soft)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0
-                }}>
+        <div className="reposters-header-container" onClick={onClick}>
+            <div className="reposters-content">
+                <div className="repost-icon-wrapper">
                     <Repeat size={12} color="var(--success)" strokeWidth={3} />
                 </div>
 
-                {/* Avatars stack (max 3) */}
-                <div style={{
-                    display: 'flex',
-                    marginLeft: '-0.375rem',
-                    flexShrink: 0
-                }}>
+                <div className="avatars-stack">
                     {displayReposters.slice(0, 3).map((reposter, index) => (
                         <div
-                            key={reposter.user_id}
-                            style={{
-                                marginLeft: index > 0 ? '-0.375rem' : '0',
-                                position: 'relative',
-                                zIndex: 3 - index
-                            }}
+                            key={reposter.user_id || index}
+                            className="avatar-stack-item"
                         >
                             <Avatar 
                                 src={reposter.avatar_url}
                                 size="small"
                                 style={{
-                                    width: '20px',
-                                    height: '20px',
-                                    border: '1.5px solid var(--surface-color)'
+                                    width: '24px',
+                                    height: '24px',
+                                    border: '2px solid var(--surface-color)'
                                 }}
                             />
                         </div>
                     ))}
                 </div>
 
-                {/* Message */}
-                <span style={{
-                    fontSize: '0.8rem',
-                    fontWeight: '700',
-                    color: 'var(--text-secondary)',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap'
-                }}>
-                    {message}
+                <span className="repost-label">
+                    {displayReposters.length === 1 
+                        ? `${displayReposters[0].full_name?.split(' ')[0] || displayReposters[0].user_id?.split(' ')[0]} compartió esto!` 
+                        : 'compartieron esto!'}
                 </span>
             </div>
 
-            {/* Right side: Trending badge */}
             {isTrending && trendingPeriod && (
                 <div style={{
                     display: 'flex',
@@ -160,7 +80,8 @@ const RepostersHeader: React.FC<RepostersHeaderProps> = ({
                     letterSpacing: '0.05em',
                     boxShadow: '0 2px 8px rgba(255, 107, 107, 0.3)',
                     flexShrink: 0,
-                    whiteSpace: 'nowrap'
+                    whiteSpace: 'nowrap',
+                    marginLeft: 'auto'
                 }}>
                     <TrendingUp size={12} />
                     <span>Trending {trendingLabels[trendingPeriod]}</span>
