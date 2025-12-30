@@ -4,6 +4,16 @@
     margin: 0 auto;
 }
 
+@media (max-width: 768px) {
+    .events-container {
+        padding: 1rem 0;
+    }
+
+    .events-header {
+        padding: 0 1rem;
+    }
+}
+
 .events-header {
     margin-bottom: 2.5rem;
     display: flex;
@@ -273,5 +283,17 @@
 
     to {
         transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 768px) {
+    .event-card {
+        border-left: none;
+        border-right: none;
+        border-radius: 0;
+    }
+
+    .events-grid {
+        gap: 1rem;
     }
 }

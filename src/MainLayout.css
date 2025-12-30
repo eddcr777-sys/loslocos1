@@ -7,8 +7,8 @@
 .main-content {
   width: 100%;
   box-sizing: border-box;
-  padding: 70px 1rem 24px 1rem;
-  /* Default for mobile */
+  padding: 70px 0 24px 0;
+  /* Default for mobile - Removed horizontal padding */
 }
 
 /* Tablet layout (2 columns) */

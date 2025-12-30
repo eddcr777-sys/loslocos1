@@ -164,6 +164,17 @@
 @media (max-width: 768px) {
     .create-post-container {
         margin-bottom: 2.5rem;
+        padding: 0 1rem;
+        /* Key: Keep padding for the collapsed pill */
+    }
+
+    .create-post-expanded {
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+        box-shadow: none;
+        /* If it's a fixed modal on mobile, this would change, 
+           but based on current CSS it's an inline expansion */
     }
 
     .create-post-card {

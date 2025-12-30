@@ -26,8 +26,30 @@ const SearchPage = () => {
   }, [query]);
 
   return (
-    <div style={{ padding: '1rem', maxWidth: '600px', margin: '0 auto' }}>
+    <div className="search-page-container">
+      <style>{`
+        .search-page-container {
+          padding: 1rem;
+          max-width: 600px;
+          margin: 0 auto;
+        }
+        @media (max-width: 768px) {
+          .search-page-container {
+            padding: 1rem 0;
+          }
+          .search-page-container h1,
+          .search-page-container .search-input-wrapper {
+            padding: 0 1rem;
+          }
+          .user-search-card {
+            border-left: none !important;
+            border-right: none !important;
+            border-radius: 0 !important;
+          }
+        }
+      `}</style>
       <h1 style={{ color: 'var(--text-primary)', marginBottom: '1.5rem', fontWeight: '800' }}>Explorar</h1>
+      <div className="search-input-wrapper">
       <input
         type="text"
         placeholder="Buscar personas..."
@@ -48,6 +70,7 @@ const SearchPage = () => {
           transition: 'all 0.2s ease'
         }}
       />
+      </div>
 
       {loading && <p style={{ color: 'var(--text-secondary)' }}>Buscando...</p>}
 

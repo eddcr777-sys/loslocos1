@@ -101,14 +101,29 @@
   }
 }
 
-/* Mobile optimizations: Remove borders for a cleaner look */
+/* Mobile optimizations: Remove borders for a cleaner, immersive look */
 @media (max-width: 768px) {
   .post-card {
-    border: 1px solid var(--border-color);
+    border: none;
+    border-radius: 0;
+    margin-left: 0;
+    margin-right: 0;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .post-wrapper {
+    border-radius: 0;
   }
 
   .post-image {
-    border: none;
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+  }
+
+  .post-padded-content {
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
 }
 

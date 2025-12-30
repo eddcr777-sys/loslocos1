@@ -84,7 +84,11 @@ const ProfilePage = () => {
     : sharedPosts;  // Usar sharedPosts para la pestaña compartidos
 
   return (
-    <div style={styles.container}>
+    <div style={{
+      ...styles.container,
+      padding: isMobile ? '0 0 1rem 0' : '1rem',
+      maxWidth: isMobile ? '100%' : '800px'
+    }}>
       {!isMobile && (
          <div style={{ marginBottom: '1.5rem' }}>
              <SubPageHeader title="Perfil" showBackButton={true} />
@@ -92,9 +96,9 @@ const ProfilePage = () => {
       )}
       <div style={{ 
         backgroundColor: 'var(--surface-color)', 
-        borderRadius: 'var(--radius-xl)', 
-        padding: '2.5rem 2rem', 
-        boxShadow: 'var(--shadow-md)',
+        borderRadius: isMobile ? '0' : 'var(--radius-xl)', 
+        padding: isMobile ? '2rem 1rem' : '2.5rem 2rem', 
+        boxShadow: isMobile ? 'none' : 'var(--shadow-md)',
         marginBottom: '1.5rem',
         display: 'flex',
         flexDirection: 'column',
@@ -102,7 +106,8 @@ const ProfilePage = () => {
         textAlign: 'center',
         gap: '1.25rem',
         position: 'relative',
-        border: '1px solid var(--border-color)'
+        border: isMobile ? 'none' : '1px solid var(--border-color)',
+        borderBottom: isMobile ? '1px solid var(--border-color)' : '1px solid var(--border-color)'
       }}>
         <Avatar src={viewProfile.avatar_url} size="large" style={{ width: '128px', height: '128px', fontSize: '3.5rem', border: '4px solid var(--surface-color)', boxShadow: 'var(--shadow-lg)' }} />
         
