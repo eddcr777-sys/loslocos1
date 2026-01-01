@@ -6,10 +6,11 @@
 
 
 .feed-container {
-  max-width: 680px;
-  /* Ancho máximo para el feed en web, como Facebook/Instagram */
+  max-width: 1100px;
+  /* Max expansion to fill almost all space between sidebars */
   margin: 0 auto;
   /* Centra el feed en la pantalla */
+  transition: max-width 0.3s ease;
 }
 
 /* Media Query para pantallas más pequeñas (móviles) */
