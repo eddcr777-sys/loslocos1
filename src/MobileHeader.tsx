@@ -51,76 +51,58 @@ const MobileHeader = () => {
   return (
     <header className={`mobile-header ${isStandalone ? 'standalone' : ''}`}>
       <div className="mobile-header-content">
-            {isStandalone ? (
-              <div className="standalone-header-grid">
-                <div className="header-left">
-                  <NavLink to="/events" className={({ isActive }) => `header-nav-item standalone-item ${isActive ? 'active' : ''}`}>
-                    <Calendar size={24} />
-                  </NavLink>
-                </div>
-                
-                <div className="standalone-logo-container">
-                  <Logo size="medium" variant="text" text="UniFeed" to="/home" className="standalone-logo" />
-                </div>
-
-                <div className="header-right-group">
-                  <NavLink to="/trends" className={({ isActive }) => `header-nav-item standalone-item ${isActive ? 'active' : ''}`}>
-                    <TrendingUp size={24} />
-                  </NavLink>
-                  <div className="menu-section" ref={menuRef}>
-                    <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="menu-button">
-                      {isMenuOpen ? <X size={24} /> : <MenuIcon size={24} />}
-                    </button>
-                    {isMenuOpen && (
-                      <div className="menu-popover">
-                        <Menu onItemClick={() => setIsMenuOpen(false)} />
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <>
-                <Logo size="small" variant="icon" text="UniFeed" to="/home" className="header-logo" />
-                
-                <nav className="mobile-header-nav browser-mode">
-                  <NavLink to="/home" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
-                    <Home size={22} />
-                  </NavLink>
-                  <NavLink to="/search" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
-                    <Search size={22} />
-                  </NavLink>
-                  <NavLink to="/events" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
-                    <Calendar size={22} />
-                  </NavLink>
-                  <NavLink to="/trends" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
-                    <TrendingUp size={22} />
-                  </NavLink>
-                  <NavLink to="/notifications" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
-                    <div className="nav-item-container">
-                      <Bell size={22} />
-                      {unreadNotifications > 0 && (
-                        <span className="notification-badge">{unreadNotifications}</span>
-                      )}
-                    </div>
-                  </NavLink>
-                  <NavLink to="/profile" end className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
-                    <User size={22} />
-                  </NavLink>
-                </nav>
-
-                <div className="menu-section" ref={menuRef}>
-                  <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="menu-button">
-                    {isMenuOpen ? <X size={24} /> : <MenuIcon size={24} />}
-                  </button>
-                  {isMenuOpen && (
-                    <div className="menu-popover">
-                      <Menu onItemClick={() => setIsMenuOpen(false)} />
-                    </div>
+        <Logo size="small" variant="icon" text="UniFeed" to="/home" className="header-logo" />
+        
+        <nav className="mobile-header-nav">
+          {isStandalone ? (
+            <>
+              {/* Solo iconos no presentes en BottomNav para no duplicar */}
+              <NavLink to="/events" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
+                <Calendar size={22} />
+              </NavLink>
+              <NavLink to="/trends" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
+                <TrendingUp size={22} />
+              </NavLink>
+            </>
+          ) : (
+            <>
+              <NavLink to="/home" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
+                <Home size={22} />
+              </NavLink>
+              <NavLink to="/search" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
+                <Search size={22} />
+              </NavLink>
+              <NavLink to="/events" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
+                <Calendar size={22} />
+              </NavLink>
+              <NavLink to="/trends" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
+                <TrendingUp size={22} />
+              </NavLink>
+              <NavLink to="/notifications" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
+                <div className="nav-item-container">
+                  <Bell size={22} />
+                  {unreadNotifications > 0 && (
+                    <span className="notification-badge">{unreadNotifications}</span>
                   )}
                 </div>
-              </>
-            )}
+              </NavLink>
+              <NavLink to="/profile" end className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
+                <User size={22} />
+              </NavLink>
+            </>
+          )}
+        </nav>
+
+        <div className="menu-section" ref={menuRef}>
+          <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="menu-button">
+            {isMenuOpen ? <X size={24} /> : <MenuIcon size={24} />}
+          </button>
+          {isMenuOpen && (
+            <div className="menu-popover">
+              <Menu onItemClick={() => setIsMenuOpen(false)} />
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );

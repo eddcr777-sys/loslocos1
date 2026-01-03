@@ -75,8 +75,8 @@ const Stories: React.FC = () => {
   return (
     <div className="stories-section">
       <div className="stories-header">
-        <h3 className="stories-title">Historias</h3>
-        <span className="stories-subtitle">Conecta con tu comunidad</span>
+        <h3 className="stories-title" style={{ color: 'var(--accent-color)' }}>UniStories</h3>
+        <span className="stories-subtitle" style={{ color: 'var(--text-secondary)' }}>Conecta con el campus</span>
       </div>
       
       <div className="stories-container">

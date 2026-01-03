@@ -14,7 +14,7 @@
 /* Mobile/Tablet layout */
 @media (max-width: 1024px) {
   .main-content {
-    padding-top: calc(60px + env(safe-area-inset-top));
+    padding-top: calc(56px + env(safe-area-inset-top));
     padding-bottom: calc(24px + env(safe-area-inset-bottom));
     padding-left: 0;
     padding-right: 0;

@@ -23,28 +23,23 @@ const ThemeColorSync = () => {
 
       // 2. Refresh Meta Tags
       const refreshMeta = () => {
-        // theme-color (Android nav bar)
-        let themeMeta = document.getElementById('theme-color-meta') as HTMLMetaElement;
-        if (!themeMeta) {
-          themeMeta = document.createElement('meta');
-          themeMeta.id = 'theme-color-meta';
-          themeMeta.name = 'theme-color';
-          document.head.appendChild(themeMeta);
-        }
-        themeMeta.setAttribute('content', bgColor);
+        const computedStyle = getComputedStyle(document.body);
+        const bgColor = computedStyle.getPropertyValue('--bg-color').trim() || (isDark ? '#0b0f1a' : '#ffffff');
+        
+        // Exact update of existing meta tags
+        const themeMeta = document.getElementById('theme-color-meta');
+        if (themeMeta) themeMeta.setAttribute('content', bgColor);
+        
+        const appleMeta = document.getElementById('apple-status-meta');
+        if (appleMeta) appleMeta.setAttribute('content', isDark ? 'black-translucent' : 'default');
 
-        // apple-mobile-web-app-status-bar-style (iOS status bar)
-        let appleMeta = document.getElementById('apple-status-meta') as HTMLMetaElement;
-        if (!appleMeta) {
-          appleMeta = document.createElement('meta');
-          appleMeta.id = 'apple-status-meta';
-          appleMeta.name = 'apple-mobile-web-app-status-bar-style';
-          document.head.appendChild(appleMeta);
-        }
-        appleMeta.setAttribute('content', isDark ? 'black-translucent' : 'default');
+        // Also update standard theme-color if ID-based fails
+        const standardThemeMeta = document.querySelector('meta[name="theme-color"]');
+        if (standardThemeMeta) standardThemeMeta.setAttribute('content', bgColor);
 
-        // Force a tiny DOM cycle to ensure OS picks it up
-        document.head.appendChild(themeMeta); 
+        // Update body and html backgrounds again to be sure
+        document.documentElement.style.backgroundColor = bgColor;
+        document.body.style.backgroundColor = bgColor;
       };
 
       refreshMeta();
