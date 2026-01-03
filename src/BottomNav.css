@@ -4,15 +4,15 @@
   left: 0;
   right: 0;
   height: 65px;
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-top: 1px solid #e2e8f0;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-top: 1px solid var(--border-color);
   display: flex;
   justify-content: space-around;
   align-items: center;
-  z-index: 100;
-  padding-bottom: env(safe-area-inset-bottom); /* For iPhone X notch */
+  z-index: 1000;
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .bottom-nav-item {
@@ -22,13 +22,20 @@
   justify-content: center;
   gap: 4px;
   text-decoration: none;
-  color: #64748b; /* slate-500 */
-  font-size: 0.75rem; /* 12px */
+  color: var(--text-secondary);
+  font-size: 0.7rem;
   padding: 8px 12px;
-  border-radius: 8px;
-  transition: color 0.2s;
+  transition: all 0.2s ease;
 }
 
 .bottom-nav-item.active {
-  color: #4338ca; /* indigo-700 */
+  color: var(--accent-color);
+}
+
+.bottom-nav-item svg {
+  transition: transform 0.2s ease;
+}
+
+.bottom-nav-item.active svg {
+  transform: scale(1.1);
 }

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, NavLink, useLocation, useNavigate, matchPath } from 'react-router-dom';
-import { Menu as MenuIcon, X, Home, TrendingUp, Bell, User, Search, Shield, Calendar, ArrowLeft } from 'lucide-react';
+import { Menu as MenuIcon, X, Home, TrendingUp, Bell, User, Search, Calendar } from 'lucide-react';
 import Menu from './Menu';
 import './MobileHeader.css';
 
