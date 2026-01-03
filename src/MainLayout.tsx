@@ -9,7 +9,7 @@ import './MainLayout.css';
 
 const MainLayout = () => {
   const { isStandalone } = usePWAStatus();
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useMediaQuery('(max-width: 1024px)');
   const isDesktop = useMediaQuery('(min-width: 1100px)');
   const location = useLocation();
 

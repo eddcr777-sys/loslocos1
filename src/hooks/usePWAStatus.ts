@@ -11,7 +11,7 @@ export const usePWAStatus = () => {
                 (window.navigator as any).standalone === true;
 
             // Check if the current device is mobile based on screen width (consistent with MainLayout)
-            const mobile = window.innerWidth <= 768;
+            const mobile = window.innerWidth <= 1024;
 
             setIsStandalone(standalone);
             setIsMobile(mobile);

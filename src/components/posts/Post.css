@@ -102,7 +102,7 @@
 }
 
 /* Mobile optimizations: Remove borders for a cleaner, immersive look */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .post-card {
     border: none;
     border-radius: 0;

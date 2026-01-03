@@ -161,7 +161,7 @@
 
 
 /* Mobile Adjustments */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
     .create-post-container {
         margin-bottom: 2.5rem;
         padding: 0 1rem;

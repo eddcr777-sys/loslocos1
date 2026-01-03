@@ -140,21 +140,16 @@ button {
   cursor: pointer;
 }
 
-/* Better Scrollbar */
+/* Better Scrollbar - Hidden for a true app feel */
+html,
+body {
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+}
+
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--border-color);
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
+  display: none;
+  /* Chrome, Safari and Opera */
 }

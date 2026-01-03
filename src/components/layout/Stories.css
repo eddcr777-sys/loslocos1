@@ -43,6 +43,13 @@
     display: flex;
     gap: 1.25rem;
     padding: 1rem 0.25rem;
+    /* Hide scrollbar on all browsers */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.stories-scroll::-webkit-scrollbar {
+    display: none;
 }
 
 .story-item {
@@ -165,24 +172,21 @@
     font-style: italic;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
     .stories-section {
-        padding: 1.25rem 1rem;
-        margin-bottom: 1rem;
-        border-radius: var(--radius-xl);
-        border-left: none;
-        border-right: none;
-        background: var(--glass-bg);
-        backdrop-filter: var(--glass-blur);
-        -webkit-backdrop-filter: var(--glass-blur);
-        border-top: 1px solid var(--border-color);
-        border-bottom: 1px solid var(--border-color);
-        padding-top: 1rem;
+        padding: 0.5rem 0;
+        margin: 0rem 0 0.75rem 0;
+        /* Sin márgenes laterales, pegado al header superiormente */
+        border-radius: 0;
+        border: none;
+        background: transparent;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        box-shadow: none;
     }
 
     .stories-header {
-        margin-bottom: 0.75rem;
-
+        display: none;
     }
 
     .stories-title {
@@ -195,8 +199,7 @@
 
     .stories-scroll {
         gap: 1.25rem;
-        /* More space between stories */
-        padding: 0.25rem;
+        padding: 0 1rem;
     }
 
     .story-item {
@@ -205,30 +208,30 @@
     }
 
     .story-avatar {
-        width: 52px !important;
-        height: 52px !important;
+        width: 54px !important;
+        height: 54px !important;
         border-width: 2px !important;
     }
 
     .story-username {
-        font-size: 0.65rem;
+        font-size: 0.7rem;
         font-weight: 500;
         opacity: 0.9;
     }
 
     .minimal-add-badge {
-        width: 18px;
-        height: 18px;
+        width: 20px;
+        height: 20px;
         border-width: 1.5px;
     }
 
     .minimal-add-badge svg {
-        width: 10px !important;
-        height: 10px !important;
+        width: 12px !important;
+        height: 12px !important;
     }
 
     .story-avatar-skeleton {
-        width: 52px;
-        height: 52px;
+        width: 54px;
+        height: 54px;
     }
 }

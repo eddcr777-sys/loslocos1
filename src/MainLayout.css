@@ -11,13 +11,13 @@
   /* Default for all, we specify in media queries */
 }
 
-/* Mobile/Phone layout */
-@media (max-width: 768px) {
+/* Mobile/Tablet layout */
+@media (max-width: 1024px) {
   .main-content {
-    padding-top: calc(70px + env(safe-area-inset-top));
+    padding-top: calc(60px + env(safe-area-inset-top));
     padding-bottom: calc(24px + env(safe-area-inset-bottom));
-    padding-left: 12px;
-    padding-right: 12px;
+    padding-left: 0;
+    padding-right: 0;
     max-width: 100%;
   }
 
@@ -26,8 +26,8 @@
   }
 }
 
-/* Tablet / Small Desktop layout */
-@media (min-width: 769px) {
+/* Desktop layout (Aside + Feed) */
+@media (min-width: 1025px) {
   .main-content {
     padding-top: 24px;
     padding-bottom: 24px;
