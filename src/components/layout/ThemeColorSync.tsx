@@ -10,43 +10,55 @@ const ThemeColorSync = () => {
   useEffect(() => {
     // Función para actualizar el color basado en las variables CSS
     const updateThemeColor = () => {
-      const themeColorMetas = document.querySelectorAll('meta[name="theme-color"]');
-      const colorSchemeMeta = document.getElementById('color-scheme-meta');
-      const appleStatusMeta = document.getElementById('apple-status-meta');
+      // const themeColorMetas = document.querySelectorAll('meta[name="theme-color"]'); // No longer needed as we remove and recreate
+      // const colorSchemeMeta = document.getElementById('color-scheme-meta'); // Will be handled dynamically
+      // const appleStatusMeta = document.getElementById('apple-status-meta'); // Will be handled dynamically
       const html = document.documentElement;
       const body = document.body;
       const isDark = body.classList.contains('dark');
-
       const bgColor = isDark ? '#0b0f1a' : '#ffffff';
+      const colorScheme = isDark ? 'dark' : 'light';
       
-      // Sincronizar clase dark y estilos en html/body
-      if (isDark) {
-        html.classList.add('dark');
-        html.style.backgroundColor = bgColor;
-        html.style.colorScheme = 'dark';
-        body.style.backgroundColor = bgColor;
-        body.style.colorScheme = 'dark';
-      } else {
-        html.classList.remove('dark');
-        html.style.backgroundColor = bgColor;
-        html.style.colorScheme = 'light';
-        body.style.backgroundColor = bgColor;
-        body.style.colorScheme = 'light';
-      }
+      // 1. Sync Styles directly on both root elements
+      html.style.backgroundColor = bgColor;
+      html.style.colorScheme = colorScheme;
+      body.style.backgroundColor = bgColor;
+      body.style.colorScheme = colorScheme;
 
-      // Actualizar metas
-      themeColorMetas.forEach(meta => {
-        meta.setAttribute('content', bgColor);
-      });
+      // 2. Force Refresh Meta Tags (Android/iOS chrome often requires tag replacement)
+      
+      // Remove all existing theme-color tags
+      document.querySelectorAll('meta[name="theme-color"]').forEach(el => el.remove());
+      
+      // Create fresh ones
+      const themeMeta = document.createElement('meta');
+      themeMeta.name = 'theme-color';
+      themeMeta.content = bgColor;
+      document.head.appendChild(themeMeta);
 
-      if (colorSchemeMeta) {
-        colorSchemeMeta.setAttribute('content', isDark ? 'dark' : 'light');
+      // Support color-scheme meta
+      let colorSchemeMeta = document.getElementById('color-scheme-meta');
+      if (!colorSchemeMeta) {
+        colorSchemeMeta = document.createElement('meta');
+        colorSchemeMeta.id = 'color-scheme-meta';
+        colorSchemeMeta.setAttribute('name', 'color-scheme');
+        document.head.appendChild(colorSchemeMeta);
       }
+      colorSchemeMeta.setAttribute('content', colorScheme);
 
-      if (appleStatusMeta) {
-        appleStatusMeta.setAttribute('content', isDark ? 'black-translucent' : 'default');
-      }
+      // iOS Status bar specific logic
+      document.querySelectorAll('meta[name="apple-mobile-web-app-status-bar-style"]').forEach(el => el.remove());
+      const appleMeta = document.createElement('meta');
+      appleMeta.name = 'apple-mobile-web-app-status-bar-style';
+      // 'black-translucent' allows background-color to bleed into the status bar area
+      appleMeta.content = isDark ? 'black-translucent' : 'default';
+      document.head.appendChild(appleMeta);
     };
+
+    // Listen for system theme changes if set to system
+    const systemMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleSystemChange = () => updateThemeColor(); // Changed syncTheme to updateThemeColor
+    systemMediaQuery.addEventListener('change', handleSystemChange);
 
     // Al montar y en cada cambio del DOM (por si cambia la clase dark/light)
     updateThemeColor();

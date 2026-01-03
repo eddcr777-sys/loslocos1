@@ -15,6 +15,13 @@ export const usePWAStatus = () => {
 
             setIsStandalone(standalone);
             setIsMobile(mobile);
+
+            // Apply class to document element for global CSS targeting
+            if (standalone) {
+                document.documentElement.classList.add('standalone');
+            } else {
+                document.documentElement.classList.remove('standalone');
+            }
         };
 
         // Initial check

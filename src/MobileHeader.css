@@ -9,10 +9,22 @@
   border-bottom: 1px solid var(--glass-border);
   z-index: 100;
   height: 60px;
+  /* Added safe area support for iOS and modern Android */
+  padding-top: env(safe-area-inset-top);
+  height: calc(60px + env(safe-area-inset-top));
+}
+
+.mobile-header.standalone {
+  background: var(--surface-color);
+  /* More solid background for standalone */
+  box-shadow: var(--shadow-sm);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .mobile-header-content {
-  height: 100%;
+  position: relative;
+  height: 60px;
+  /* Keep content at 60px */
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -32,15 +44,29 @@
   gap: 0.5rem;
 }
 
-.mobile-header-nav.standalone-nav {
-  flex: 1;
-  justify-content: center;
-  gap: 1rem;
+.standalone-header-grid {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 
-.standalone-header-logo {
+.standalone-logo-container {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  /* Let clicks pass through if needed, though Logo is a link */
+}
+
+.standalone-logo-container a {
+  pointer-events: auto;
+  /* Re-enable clicks for the logo link */
+}
+
+.standalone-logo {
   margin: 0;
-  white-space: nowrap;
 }
 
 .header-nav-item {

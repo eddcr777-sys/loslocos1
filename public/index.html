@@ -8,20 +8,28 @@
   <script>
     (function () {
       const theme = localStorage.getItem('theme') || 'light';
-      const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-      if (isDark) {
-        document.documentElement.classList.add('dark');
-        document.documentElement.style.backgroundColor = '#0b0f1a';
-        document.documentElement.style.colorScheme = 'dark';
-      } else {
-        document.documentElement.classList.remove('dark');
-        document.documentElement.style.backgroundColor = '#ffffff';
-        document.documentElement.style.colorScheme = 'light';
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const isDark = theme === 'dark' || (theme === 'system' && prefersDark);
+
+      const bgColor = isDark ? '#0b0f1a' : '#ffffff';
+      const colorScheme = isDark ? 'dark' : 'light';
+
+      document.documentElement.classList.toggle('dark', isDark);
+      document.documentElement.style.backgroundColor = bgColor;
+      document.documentElement.style.colorScheme = colorScheme;
+
+      // Early meta tag update for system bars
+      document.head.insertAdjacentHTML('beforeend',
+        `<meta name="theme-color" content="${bgColor}">` +
+        `<meta name="apple-mobile-web-app-status-bar-style" content="${isDark ? 'black-translucent' : 'default'}">`
+      );
+
+      // Check for standalone mode immediately
+      if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+        document.documentElement.classList.add('standalone');
       }
     })();
   </script>
-  <meta id="theme-color-light" name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
-  <meta id="theme-color-dark" name="theme-color" content="#0b0f1a" media="(prefers-color-scheme: dark)" />
   <meta id="color-scheme-meta" name="color-scheme" content="light dark" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta id="apple-status-meta" name="apple-mobile-web-app-status-bar-style" content="default" />

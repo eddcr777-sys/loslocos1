@@ -49,11 +49,9 @@ const MobileHeader = () => {
   }
 
   return (
-    <header className="mobile-header">
+    <header className={`mobile-header ${isStandalone ? 'standalone' : ''}`}>
       <div className="mobile-header-content">
-            {isStandalone ? (
-              <div className="header-spacer" style={{ width: '40px' }} />
-            ) : (
+            {!isStandalone && (
               <Logo size="small" variant="icon" text="UniFeed" to="/home" className="header-logo" />
             )}
 
@@ -85,23 +83,25 @@ const MobileHeader = () => {
                   </NavLink>
                 </>
               ) : (
-                <>
+                <div className="standalone-header-grid">
                   <NavLink to="/events" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
-                    <Calendar size={24} />
+                    <Calendar size={26} />
                   </NavLink>
                   
-                  <Logo size="small" variant="text" text="UniFeed" to="/home" className="standalone-header-logo" />
+                  <div className="standalone-logo-container">
+                    <Logo size="medium" variant="text" text="UniFeed" to="/home" className="standalone-logo" />
+                  </div>
 
                   <NavLink to="/trends" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
-                    <TrendingUp size={24} />
+                    <TrendingUp size={26} />
                   </NavLink>
-                </>
+                </div>
               )}
             </nav>
 
 
         <div className="menu-section" ref={menuRef}>
-          <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="menu-button" style={{ width: '40px' }}>
+          <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="menu-button">
             {isMenuOpen ? <X size={24} /> : <MenuIcon size={24} />}
           </button>
           {isMenuOpen && (

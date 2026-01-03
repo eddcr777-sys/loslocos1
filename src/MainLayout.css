@@ -14,13 +14,14 @@
 /* Mobile layout */
 @media (max-width: 1024px) {
   .main-content {
-    padding-top: 70px;
-    padding-bottom: 24px;
+    /* 70px base + safe area top */
+    padding-top: calc(70px + env(safe-area-inset-top));
+    padding-bottom: calc(24px + env(safe-area-inset-bottom));
   }
 
   .main-content.standalone-mode {
-    padding-bottom: 90px;
-    /* Space for BottomNav (65px + 25px gap) */
+    /* Space for BottomNav (65px + 25px gap) + safe area bottom */
+    padding-bottom: calc(90px + env(safe-area-inset-bottom));
   }
 }
 
