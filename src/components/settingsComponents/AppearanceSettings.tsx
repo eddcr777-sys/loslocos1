@@ -27,11 +27,17 @@ const AppearanceSettings = () => {
   useEffect(() => {
     // Apply theme
     document.body.classList.remove('light', 'dark');
+    
+    // Sincronizar también con documentElement para la barra de navegación de móvil
+    document.documentElement.classList.remove('light', 'dark');
+    
     if (theme === 'system') {
         const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         document.body.classList.add(isDark ? 'dark' : 'light');
+        document.documentElement.classList.add(isDark ? 'dark' : 'light');
     } else {
         document.body.classList.add(theme);
+        document.documentElement.classList.add(theme);
     }
     localStorage.setItem('theme', theme);
 

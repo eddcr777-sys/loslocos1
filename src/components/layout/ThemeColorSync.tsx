@@ -10,17 +10,16 @@ const ThemeColorSync = () => {
   useEffect(() => {
     // Función para actualizar el color basado en las variables CSS
     const updateThemeColor = () => {
-      const themeColorMeta = document.querySelector('meta[name="theme-color"]');
-      const colorSchemeMeta = document.querySelector('meta[name="color-scheme"]');
-      const body = document.body;
+      const themeColorMetas = document.querySelectorAll('meta[name="theme-color"]');
+      const colorSchemeMeta = document.getElementById('color-scheme-meta');
+      const appleStatusMeta = document.getElementById('apple-status-meta');
       const html = document.documentElement;
+      const body = document.body;
       const isDark = body.classList.contains('dark');
 
-      // Colores hardcodeados para asegurar compatibilidad total en móviles
       const bgColor = isDark ? '#0b0f1a' : '#ffffff';
       
-      // Sincronizar clase dark y estilos en html/body para que el navegador sepa el tema global
-      // Esto ayuda a que la barra de navegación del sistema (Android) siga el tema
+      // Sincronizar clase dark y estilos en html/body
       if (isDark) {
         html.classList.add('dark');
         html.style.backgroundColor = bgColor;
@@ -35,16 +34,15 @@ const ThemeColorSync = () => {
         body.style.colorScheme = 'light';
       }
 
-      if (themeColorMeta) {
-        themeColorMeta.setAttribute('content', bgColor);
-      }
+      // Actualizar metas
+      themeColorMetas.forEach(meta => {
+        meta.setAttribute('content', bgColor);
+      });
 
       if (colorSchemeMeta) {
         colorSchemeMeta.setAttribute('content', isDark ? 'dark' : 'light');
       }
 
-      // Sync specific iOS status bar
-      const appleStatusMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
       if (appleStatusMeta) {
         appleStatusMeta.setAttribute('content', isDark ? 'black-translucent' : 'default');
       }

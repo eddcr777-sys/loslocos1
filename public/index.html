@@ -5,10 +5,26 @@
   <meta charset="utf-8" />
   <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#ffffff" />
-  <meta name="color-scheme" content="light dark">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <script>
+    (function () {
+      const theme = localStorage.getItem('theme') || 'light';
+      const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+        document.documentElement.style.backgroundColor = '#0b0f1a';
+        document.documentElement.style.colorScheme = 'dark';
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.style.backgroundColor = '#ffffff';
+        document.documentElement.style.colorScheme = 'light';
+      }
+    })();
+  </script>
+  <meta id="theme-color-light" name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+  <meta id="theme-color-dark" name="theme-color" content="#0b0f1a" media="(prefers-color-scheme: dark)" />
+  <meta id="color-scheme-meta" name="color-scheme" content="light dark" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta id="apple-status-meta" name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="description"
     content="Conecta con tu comunidad universitaria. Historias, posts, tendencias y más en UniFeed." />
