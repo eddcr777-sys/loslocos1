@@ -77,8 +77,13 @@ const MobileHeader = () => {
                 <User size={24} />
               </NavLink>
               
-              {(!isAdmin && !isInstitutional) && (
-                <NavLink to="/verify-admin" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
+              {isAdmin && (
+                <NavLink to="/admin" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
+                  <Shield size={24} />
+                </NavLink>
+              )}
+              {isInstitutional && (
+                <NavLink to="/institutional" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
                   <Shield size={24} />
                 </NavLink>
               )}

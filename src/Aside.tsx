@@ -59,10 +59,16 @@ const Aside = () => {
             <span>Perfil</span>
           </NavLink>
           
-          {(!isAdmin && !isInstitutional) && (
-            <NavLink to="/verify-admin" className={getNavLinkClass}>
+          {isAdmin && (
+            <NavLink to="/admin" className={getNavLinkClass}>
               <Shield size={20} />
-              <span>Verificación</span>
+              <span>Panel Admin</span>
+            </NavLink>
+          )}
+          {isInstitutional && (
+            <NavLink to="/institutional" className={getNavLinkClass}>
+              <Shield size={20} />
+              <span>Panel Institucional</span>
             </NavLink>
           )}
         </nav>

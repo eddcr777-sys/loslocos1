@@ -79,11 +79,7 @@ export const useProfile = (userId?: string) => {
             setIsFollowing(true);
             setFollowCounts(prev => ({ ...prev, followers: prev.followers + 1 }));
 
-            await api.createNotification({
-                user_id: viewProfile.id,
-                actor_id: user.id,
-                type: 'follow'
-            });
+            // Notification is now handled by DB trigger
         }
         setLoadingFollow(false);
     };

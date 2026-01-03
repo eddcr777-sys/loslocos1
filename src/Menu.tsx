@@ -34,12 +34,7 @@ const Menu = () => {
         </button>
       )}
 
-      {!isAdmin && !isInstitutional && (
-        <button onClick={() => navigate('/verify-admin')} className="user-menu-item">
-          <Shield size={20} />
-          <span>Verificación Oficial</span>
-        </button>
-      )}
+
 
       <button onClick={goToSettings} className="user-menu-item">
         <Settings size={20} />

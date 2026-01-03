@@ -18,7 +18,7 @@ const LoginPage = lazy(() => import('./pages/AuthPage/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/AuthPage/RegisterPage'));
 const SettingsPage = lazy(() => import('./components/settingsComponents/SettingsPage'));
 const WelcomePage = lazy(() => import('./pages/AuthPage/WelcomePage'));
-const VerificationHub = lazy(() => import('./pages/Admin/VerificationHub'));
+// VerificationHub removed
 const CEODashboard = lazy(() => import('./pages/Admin/CEODashboard'));
 const InstitutionalDashboard = lazy(() => import('./pages/Admin/InstitutionalDashboard'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage/NotFoundPage'));
@@ -121,7 +121,7 @@ const AppRoutes = () => (
         <Route path="/post/:postId" element={<PostDetailPage />} />
         <Route path="/trends" element={<TrendsPage />} />
         <Route path="/events" element={<EventsPage />} />
-        <Route path="/verify-admin" element={<VerificationHub />} />
+        {/* Verification route removed */}
       </Route>
 
       {/* Panel de Administración */}

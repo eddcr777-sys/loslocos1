@@ -85,16 +85,7 @@ const SettingsPage = () => {
             </NavLink>
           )}
 
-          {!isAdmin && !isInstitutional && (
-            <NavLink 
-              to="/verify-admin" 
-              className="settings-nav-item"
-            >
-              <Shield size={20} />
-              <span>Verificación Oficial</span>
-              <ChevronRight size={16} className="arrow" />
-            </NavLink>
-          )}
+          {/* Verificación oficial eliminada - asignación automática */}
         </nav>
       </aside>
 
