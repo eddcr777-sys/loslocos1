@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Send, Type, Image as ImageIcon } from 'lucide-react';
 import { api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -76,7 +77,7 @@ const CreateStoryModal: React.FC<CreateStoryModalProps> = ({ onClose, onStoryCre
     setLoading(false);
   };
 
-  return (
+  return createPortal(
     <div className="story-modal-overlay">
       <div className="story-modal-container">
         <div className="story-modal-header">
@@ -162,7 +163,8 @@ const CreateStoryModal: React.FC<CreateStoryModalProps> = ({ onClose, onStoryCre
           </button>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

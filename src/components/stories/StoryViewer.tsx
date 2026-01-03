@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { X, ChevronLeft, ChevronRight, Trash2, Plus } from 'lucide-react';
 import Avatar from '../ui/Avatar';
 import { useAuth } from '../../context/AuthContext';
@@ -102,7 +103,7 @@ const StoryViewer: React.FC<StoryViewerProps> = ({ stories: initialStories, init
 
   if (!currentStory) return null;
 
-  return (
+  return createPortal(
     <div className="story-viewer-overlay">
       <div className="story-viewer-content">
         {/* Progress Bars */}
@@ -189,7 +190,8 @@ const StoryViewer: React.FC<StoryViewerProps> = ({ stories: initialStories, init
           <ChevronRight size={32} />
         </button>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

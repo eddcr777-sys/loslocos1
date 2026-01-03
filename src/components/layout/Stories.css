@@ -1,6 +1,6 @@
 .stories-section {
     background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
+    border: 1px solid var(--border-color);
     border-radius: var(--radius-xl);
     padding: 1.25rem;
     margin-bottom: 1.5rem;
@@ -10,8 +10,8 @@
 .stories-header {
     display: flex;
     flex-direction: column;
-    margin-bottom: 1rem;
-    padding-left: 0.25rem;
+    padding-left: 1rem;
+    padding: 1rem;
 }
 
 .stories-title {
@@ -42,7 +42,7 @@
 .stories-scroll {
     display: flex;
     gap: 1.25rem;
-    padding: 0.25rem;
+    padding: 1rem 0.25rem;
 }
 
 .story-item {
@@ -175,17 +175,18 @@
         background: var(--glass-bg);
         backdrop-filter: var(--glass-blur);
         -webkit-backdrop-filter: var(--glass-blur);
-        border-top: 1px solid var(--glass-border);
-        border-bottom: 1px solid var(--glass-border);
+        border-top: 1px solid var(--border-color);
+        border-bottom: 1px solid var(--border-color);
         padding-top: 1rem;
     }
 
     .stories-header {
         margin-bottom: 0.75rem;
+
     }
 
     .stories-title {
-        font-size: 0.95rem;
+        font-size: 0.94rem;
     }
 
     .stories-subtitle {
@@ -195,6 +196,7 @@
     .stories-scroll {
         gap: 1.25rem;
         /* More space between stories */
+        padding: 0.25rem;
     }
 
     .story-item {
