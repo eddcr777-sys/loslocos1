@@ -25,7 +25,7 @@ const TrendsAside = () => {
         .from('posts')
         .select(`
           *,
-          profiles (full_name, username, avatar_url, faculty),
+          profiles:profiles!user_id (full_name, username, avatar_url, faculty),
           likes (count),
           comments (count)
         `)
@@ -65,20 +65,28 @@ const TrendsAside = () => {
       const officialPosts = postsData.filter(p => p.is_official === true);
       let topPost = null;
 
+      const getCount = (val: any) => {
+          if (!val) return 0;
+          if (typeof val === 'number') return val;
+          if (Array.isArray(val)) return val.length;
+          if (typeof val === 'object' && val.count !== undefined) return val.count;
+          return 0;
+      };
+
       if (officialPosts.length > 0) {
           topPost = officialPosts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0];
           setFeaturedPost({
               id: topPost.id,
               author: (topPost.profiles as any)?.full_name || 'Institucional',
               content: topPost.content,
-              likes: (topPost.likes as any)?.length || 0,
-              comments: (topPost.comments as any)?.[0]?.count || 0,
+              likes: getCount(topPost.likes),
+              comments: getCount(topPost.comments),
               reason: 'Aviso Universitario'
           });
       } else {
           const sortedByLikes = [...postsData].sort((a, b) => {
-              const likesA = a.likes ? a.likes.length : 0;
-              const likesB = b.likes ? b.likes.length : 0;
+              const likesA = getCount(a.likes);
+              const likesB = getCount(b.likes);
               return likesB - likesA;
           });
 
@@ -88,8 +96,8 @@ const TrendsAside = () => {
                   id: topPost.id,
                   author: (topPost.profiles as any)?.full_name || 'Usuario',
                   content: topPost.content,
-                  likes: (topPost.likes as any)?.length || 0,
-                  comments: (topPost.comments as any)?.[0]?.count || 0,
+                  likes: getCount(topPost.likes),
+                  comments: getCount(topPost.comments),
                   reason: 'Post destacado'
               });
           }

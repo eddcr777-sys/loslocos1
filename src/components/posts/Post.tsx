@@ -75,6 +75,13 @@ const Post: React.FC<PostProps> = ({
     reposted
   } = usePost(effectivePost, user, showCommentsByDefault || !!highlightCommentId);
 
+  // Sync showComments from props (needed if component reused or logic change)
+  useEffect(() => {
+    if (showCommentsByDefault || !!highlightCommentId) {
+        setShowComments(true);
+    }
+  }, [showCommentsByDefault, highlightCommentId, setShowComments]);
+
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);

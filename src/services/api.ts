@@ -174,18 +174,13 @@ export const api = {
                 .from('posts')
                 .select(`
                     *,
-                    profiles (id, full_name, avatar_url, user_type, faculty),
+                    author:profiles!user_id (id, full_name, avatar_url, user_type, faculty),
                     likes (count),
                     comments (count),
                     shares (count),
-                    quotes:posts!original_post_id (count),
                     original_post:posts!original_post_id (
                         *,
-                        profiles (id, full_name, avatar_url, user_type),
-                        likes (count),
-                        comments (count),
-                        shares (count),
-                        quotes:posts!original_post_id (count)
+                        author:profiles!user_id (id, full_name, avatar_url, user_type)
                     )
                 `)
                 .is('deleted_at', null)
@@ -258,14 +253,13 @@ export const api = {
             .from('posts')
             .select(`
                 *,
-                profiles (id, full_name, avatar_url, user_type, faculty),
+                author:profiles!user_id (id, full_name, avatar_url, user_type, faculty),
                 likes (count),
                 comments (count),
                 shares (count),
-                quotes:posts!original_post_id (count),
                 original_post:posts!original_post_id (
                     *,
-                    profiles (id, full_name, avatar_url, user_type)
+                    author:profiles!user_id (id, full_name, avatar_url, user_type)
                 )
             `)
             .eq('id', idToFetch)
@@ -305,29 +299,36 @@ export const api = {
     },
 
     // Helper para normalizar la estructura de los posts de diferentes fuentes (RPC vs Tablas)
-    mapPostData: (p: any): any => {
+    mapPostData: (rawData: any): any => {
+        if (!rawData) return null;
+
+        const p = Array.isArray(rawData) ? rawData[0] : rawData;
         if (!p) return null;
 
-        // Si viene del RPC get_profile_shares o de un mapeo de smart feed, es un wrapper virtual
+        // Ensure author is an object, not an array (common join issue)
+        const authorSource = p.author || p.author_data || p.profiles;
+        const author = Array.isArray(authorSource) ? authorSource[0] : authorSource;
+
+        // Repost Wrapper handling
         if ((p.share_id || p.is_repost_wrapper) && p.original_post_data) {
+            const mappedOriginal = api.mapPostData(p.original_post_data);
             return {
                 id: p.share_id ? 'share_' + p.share_id : (p.id || 'virtual_' + Math.random()),
                 user_id: p.reposter_data?.id || p.user_id,
                 content: '',
                 image_url: null,
                 created_at: p.shared_at || p.created_at,
-                profiles: p.reposter_data || p.profiles,
+                profiles: p.reposter_data || author || p.author_data,
                 likes: { count: 0 },
                 comments: { count: 0 },
                 shares: { count: 0 },
-                original_post: api.mapPostData(p.original_post_data),
-                original_post_id: p.original_post_data.id,
+                original_post: mappedOriginal,
+                original_post_id: mappedOriginal?.id || p.original_post_data?.id,
                 is_repost_from_shares: true,
                 is_repost: true
             };
         }
 
-        // Si ya es un post normal, mapeamos sus campos
         const resolveCount = (val: any) => {
             if (val === undefined || val === null) return 0;
             if (typeof val === 'number') return val;
@@ -344,15 +345,22 @@ export const api = {
         const commentsCount = p.comments_count ?? resolveCount(p.comments);
         const sharesCount = (p.shares_count ?? resolveCount(p.shares)) + resolveCount(p.quotes);
 
+        const originalData = p.original_post_data || p.original_post;
+        const mappedOriginal = originalData ? api.mapPostData(originalData) : null;
+
         return {
             ...p,
-            profiles: p.profiles || p.author_data,
+            id: p.id,
+            user_id: p.user_id,
+            content: p.content,
+            image_url: p.image_url,
+            created_at: p.created_at,
+            profiles: author || p.reposter_data || p.author_data || p.profiles,
             likes: { count: likesCount },
             comments: { count: commentsCount },
             shares: { count: sharesCount },
-            original_post: p.original_post_data ? api.mapPostData(p.original_post_data) :
-                (p.original_post ? api.mapPostData(p.original_post) : null),
-            is_repost_from_shares: p.is_repost || p.is_repost_from_shares || (!!p.original_post && !p.content)
+            original_post: mappedOriginal,
+            is_repost_from_shares: p.is_repost || p.is_repost_from_shares || (!!mappedOriginal && !p.content)
         };
     },
 
@@ -361,18 +369,13 @@ export const api = {
             .from('posts')
             .select(`
                 *,
-                profiles (id, full_name, avatar_url, user_type, faculty),
+                author:profiles!user_id (id, full_name, avatar_url, user_type, faculty),
                 likes (count),
                 comments (count),
                 shares (count),
-                quotes:posts!original_post_id (count),
                 original_post:posts!original_post_id (
                     *,
-                    profiles (id, full_name, avatar_url, user_type),
-                    likes (count),
-                    comments (count),
-                    shares (count),
-                    quotes:posts!original_post_id (count)
+                    author:profiles!user_id (id, full_name, avatar_url, user_type)
                 )
             `)
             .eq('user_id', userId)
@@ -954,25 +957,28 @@ export const api = {
             if (followError) throw followError;
 
             const followingIds = followingData.map(f => f.following_id);
-            followingIds.push(userId); // Add self to see my own posts/reposts
+
+            // If user doesn't follow anyone, show ALL posts (global feed)
+            if (followingIds.length === 0) {
+                console.log('User follows nobody, showing global feed');
+                return api.getPosts();
+            }
+
+            // Add self to see my own posts/reposts
+            followingIds.push(userId);
 
             // 2. Fetch posts from these users 
             const postsPromise = supabase
                 .from('posts')
                 .select(`
                     *,
-                    profiles (id, full_name, avatar_url, user_type, faculty),
+                    author:profiles!user_id (id, full_name, avatar_url, user_type, faculty),
                     likes (count),
                     comments (count),
                     shares (count),
-                    quotes:posts!original_post_id (count),
                     original_post:posts!original_post_id (
                         *,
-                        profiles (id, full_name, avatar_url, user_type),
-                        likes (count),
-                        comments (count),
-                        shares (count),
-                        quotes:posts!original_post_id (count)
+                        author:profiles!user_id (id, full_name, avatar_url, user_type)
                     )
                 `)
                 .in('user_id', followingIds)
@@ -981,33 +987,27 @@ export const api = {
                 .limit(50);
 
             // 3. Fetch SHARES (reposts) from these users
-            // Assuming 'shares' table exists and links post_id -> posts, user_id -> profiles
             const sharesPromise = supabase
                 .from('shares')
                 .select(`
                     id,
                     created_at,
                     user_id,
-                    profiles:user_id (id, full_name, avatar_url, user_type, faculty),
-                    post:post_id (
+                    profiles:profiles!user_id (id, full_name, avatar_url, user_type, faculty),
+                    post:posts!post_id (
                         *,
-                        profiles (id, full_name, avatar_url, user_type, faculty),
+                        author:profiles!user_id (id, full_name, avatar_url, user_type, faculty),
                         likes (count),
                         comments (count),
                         shares (count),
-                        quotes:posts!original_post_id (count),
                         original_post:posts!original_post_id (
                             *,
-                            profiles (id, full_name, avatar_url, user_type),
-                            likes (count),
-                            comments (count),
-                            shares (count),
-                            quotes:posts!original_post_id (count)
+                            author:profiles!user_id (id, full_name, avatar_url, user_type)
                         )
                     )
                 `)
                 .in('user_id', followingIds)
-                .is('posts.deleted_at', null) // Only non-deleted
+                .is('post.deleted_at', null) // Only non-deleted
                 .order('created_at', { ascending: false })
                 .limit(50);
 

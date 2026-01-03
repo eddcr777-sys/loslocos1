@@ -141,20 +141,8 @@ const NotificationsPage = () => {
                   }
                   // Handle Reposts - Prefix with share_ so api.getPost knows where to look
                   else if (notif.type === 'repost') {
-                      // entity_id is usually empty or same as post_id for shares in our new trigger
-                      // But the share ID is what we want.
-                      // In our trigger we set entity_id = NEW.post_id (original post).
-                      // Wait, we need the SHARE ID to be able to load the "share_XXX" virtual post.
-                      // If the trigger saves 'post_id' as the original_post ID, and 'entity_id' as original_post ID...
-                      // WE HAVE A PROBLEM. We need the share ID.
-                      // The previous trigger likely saved share ID as entity_id?
-                      // Let's assume entity_id is the share ID or we can't deep-link to the share wrapper.
-                      // IF NOT, we just link to the original post (notif.post_id).
-                      
-                      // Let's assume standard behavior: Link to the interactions.
+                      // ... logic ...
                       linkId = notif.entity_id; 
-                      // If entity_id is a UUID without share_, api.getPost will fail if it's a share ID.
-                      // Let's try adding share_ prefix if it looks like a direct share link is intended.
                       if (linkId && !linkId.startsWith('share_')) {
                           linkId = 'share_' + linkId;
                       }

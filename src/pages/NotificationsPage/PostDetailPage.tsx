@@ -8,6 +8,9 @@ import './PostDetailPage.css';
 import SubPageHeader from '../../components/layout/SubPageHeader';
 import useMediaQuery from '../../useMediaQuery';
 
+import CreatePost from '../../pages/CrearPost/CreatePost';
+import { X } from 'lucide-react';
+
 const PostDetailPage = () => {
   const { postId } = useParams<{ postId: string }>();
   const navigate = useNavigate();
@@ -15,6 +18,14 @@ const PostDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const isMobile = useMediaQuery('(max-width: 1024px)');
   const [error, setError] = useState<string | null>(null);
+
+  const [quotePost, setQuotePost] = useState<PostType | null>(null);
+
+  const handlePostCreated = () => {
+    setQuotePost(null);
+    if (actualPostId) loadPost(actualPostId);
+    alert("Post creado con éxito");
+  };
 
   // Extraer el postId y opcionalmente el commentId de la URL
   // El entity_id puede venir como "post_id" o "post_id?c=comment_id" (para notificaciones nuevas)
@@ -58,27 +69,29 @@ const PostDetailPage = () => {
       // Intentar cargar como Post directo
       let { data, error } = await api.getPost(id);
       
-      // Si falla o no existe, y parece ser un ID (o simplemente por si acaso),
-      // intentamos buscar si es un ID de comentario (fallback para notificaciones viejas)
+      if (error) {
+        setError(error.message);
+        return;
+      }
+
       if (!data) {
+        // Fallback for old notifications only
         const fallback = await api.getPostByCommentId(id);
         if (fallback.data) {
           data = fallback.data;
-          setTargetCommentId(id); // El ID original era el comentario
+          setTargetCommentId(id);
         } else {
-          setError('La publicación no existe o ha sido eliminada.');
+          setError('La publicación no existe o no tienes permiso para verla.');
           return;
         }
       }
 
-      if (error) {
-        setError(error.message);
-      } else if (data) {
+      if (data) {
         setPost(data);
       }
     } catch (err: any) {
       console.error('Error loading post detail:', err);
-      setError(err.message || 'Error desconocido al cargar la publicación.');
+      setError(err.message || String(err));
     } finally {
       setLoading(false);
     }
@@ -132,10 +145,33 @@ const PostDetailPage = () => {
           showCommentsByDefault={true}
           highlightCommentId={targetCommentId || undefined}
           highlight={shouldHighlightPost}
+          onRepost={(p) => setQuotePost(p)}
         />
 
-        <div style={{ height: '40px' }} /> {/* Espacio extra al final */}
+        <div style={{ height: '40px' }} /> 
       </div>
+
+      {/* Quote Modal Overlay */}
+      {quotePost && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 1000,
+          display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '1rem'
+        }} onClick={() => setQuotePost(null)}>
+          <div style={{ width: '100%', maxWidth: '600px' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.5rem' }}>
+              <Button variant="ghost" onClick={() => setQuotePost(null)} style={{ color: 'white' }}>
+                <X size={24} />
+              </Button>
+            </div>
+            <CreatePost 
+               onPostCreated={handlePostCreated}
+               quotedPost={quotePost}
+               onCancelQuote={() => setQuotePost(null)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
