@@ -54,29 +54,42 @@ const MobileHeader = () => {
         <Logo size="small" variant="icon" text="UniFeed" to="/home" className="header-logo" />
         
         <nav className="mobile-header-nav">
-          <NavLink to="/home" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
-            <Home size={22} />
-          </NavLink>
-          <NavLink to="/search" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
-            <Search size={22} />
-          </NavLink>
-          <NavLink to="/events" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
-            <Calendar size={22} />
-          </NavLink>
-          <NavLink to="/trends" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
-            <TrendingUp size={22} />
-          </NavLink>
-          <NavLink to="/notifications" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
-            <div className="nav-item-container">
-              <Bell size={22} />
-              {unreadNotifications > 0 && (
-                <span className="notification-badge">{unreadNotifications}</span>
-              )}
-            </div>
-          </NavLink>
-          <NavLink to="/profile" end className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
-            <User size={22} />
-          </NavLink>
+          {isStandalone ? (
+            <>
+              <NavLink to="/events" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
+                <Calendar size={22} />
+              </NavLink>
+              <NavLink to="/trends" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
+                <TrendingUp size={22} />
+              </NavLink>
+            </>
+          ) : (
+            <>
+              <NavLink to="/home" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
+                <Home size={22} />
+              </NavLink>
+              <NavLink to="/search" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
+                <Search size={22} />
+              </NavLink>
+              <NavLink to="/events" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
+                <Calendar size={22} />
+              </NavLink>
+              <NavLink to="/trends" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
+                <TrendingUp size={22} />
+              </NavLink>
+              <NavLink to="/notifications" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
+                <div className="nav-item-container">
+                  <Bell size={22} />
+                  {unreadNotifications > 0 && (
+                    <span className="notification-badge">{unreadNotifications}</span>
+                  )}
+                </div>
+              </NavLink>
+              <NavLink to="/profile" end className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
+                <User size={22} />
+              </NavLink>
+            </>
+          )}
         </nav>
 
         <div className="menu-section" ref={menuRef}>
