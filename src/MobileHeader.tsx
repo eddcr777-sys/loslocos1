@@ -54,8 +54,8 @@ const MobileHeader = () => {
             {isStandalone ? (
               <div className="standalone-header-grid">
                 <div className="header-left">
-                  <NavLink to="/events" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
-                    <Calendar size={26} />
+                  <NavLink to="/events" className={({ isActive }) => `header-nav-item standalone-item ${isActive ? 'active' : ''}`}>
+                    <Calendar size={24} />
                   </NavLink>
                 </div>
                 
@@ -64,8 +64,8 @@ const MobileHeader = () => {
                 </div>
 
                 <div className="header-right-group">
-                  <NavLink to="/trends" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
-                    <TrendingUp size={26} />
+                  <NavLink to="/trends" className={({ isActive }) => `header-nav-item standalone-item ${isActive ? 'active' : ''}`}>
+                    <TrendingUp size={24} />
                   </NavLink>
                   <div className="menu-section" ref={menuRef}>
                     <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="menu-button">

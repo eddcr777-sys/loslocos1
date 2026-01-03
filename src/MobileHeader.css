@@ -16,21 +16,37 @@
 
 .mobile-header.standalone {
   background: var(--surface-color);
-  /* More solid background for standalone */
-  box-shadow: var(--shadow-sm);
+  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.02), transparent);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   border-bottom: 1px solid var(--border-color);
+  /* Ensure it looks like a native title bar */
+  height: calc(64px + env(safe-area-inset-top));
+}
+
+.dark .mobile-header.standalone {
+  background: var(--surface-color);
+  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.03), transparent);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
 }
 
 .mobile-header-content {
   position: relative;
   height: 60px;
-  /* Keep content at 60px */
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 1rem;
+  padding: 0 1.25rem;
   max-width: 1200px;
   margin: 0 auto;
+  transition: height 0.3s ease;
+}
+
+.mobile-header.standalone .mobile-header-content {
+  height: 64px;
 }
 
 .header-logo {
@@ -56,6 +72,11 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  z-index: 2;
+}
+
+.header-left {
+  z-index: 2;
 }
 
 .standalone-logo-container {
@@ -63,14 +84,12 @@
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  pointer-events: none;
-  /* Let clicks pass through if needed, though Logo is a link */
   z-index: 1;
+  pointer-events: none;
 }
 
-.standalone-logo-container a {
+.standalone-logo-container * {
   pointer-events: auto;
-  /* Re-enable clicks for the logo link */
 }
 
 .standalone-logo {
@@ -93,9 +112,22 @@
   background-color: var(--surface-hover);
 }
 
-.header-nav-item.active {
-  color: var(--accent-color);
-  background-color: var(--accent-soft);
+.header-nav-item.standalone-item {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background-color: var(--surface-hover);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.header-nav-item.standalone-item.active {
+  background: var(--accent-color);
+  color: white;
+  border-color: var(--accent-color);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+  transform: scale(1.05);
 }
 
 .menu-section {
@@ -130,6 +162,11 @@
   padding: 0.5rem;
   z-index: 110;
   animation: slideIn 0.2s ease-out;
+}
+
+.header-nav-item.active:not(.standalone-item) {
+  color: var(--accent-color);
+  background-color: var(--accent-soft);
 }
 
 @keyframes slideIn {

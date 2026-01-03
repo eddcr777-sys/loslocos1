@@ -5,6 +5,10 @@
   <meta charset="utf-8" />
   <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#ffffff" id="theme-color-meta" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" id="apple-status-meta" />
   <script>
     (function () {
       const theme = localStorage.getItem('theme') || 'light';
@@ -18,11 +22,20 @@
       document.documentElement.style.backgroundColor = bgColor;
       document.documentElement.style.colorScheme = colorScheme;
 
-      // Early meta tag update for system bars
-      document.head.insertAdjacentHTML('beforeend',
-        `<meta name="theme-color" content="${bgColor}">` +
-        `<meta name="apple-mobile-web-app-status-bar-style" content="${isDark ? 'black-translucent' : 'default'}">`
-      );
+      // Early update of existing meta tags
+      const updateMeta = () => {
+        const themeMeta = document.getElementById('theme-color-meta');
+        if (themeMeta) themeMeta.setAttribute('content', bgColor);
+
+        const appleMeta = document.getElementById('apple-status-meta');
+        if (appleMeta) appleMeta.setAttribute('content', isDark ? 'black-translucent' : 'default');
+      };
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', updateMeta);
+      } else {
+        updateMeta();
+      }
 
       // Check for standalone mode immediately
       if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
@@ -30,9 +43,6 @@
       }
     })();
   </script>
-  <meta id="color-scheme-meta" name="color-scheme" content="light dark" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta id="apple-status-meta" name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="description"
     content="Conecta con tu comunidad universitaria. Historias, posts, tendencias y más en UniFeed." />

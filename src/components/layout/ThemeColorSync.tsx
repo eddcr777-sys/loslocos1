@@ -15,7 +15,7 @@ const ThemeColorSync = () => {
       const bgColor = isDark ? '#0b0f1a' : '#ffffff';
       const colorScheme = isDark ? 'dark' : 'light';
       
-      // 1. Sync Styles
+      // 1. Sync Root Styles
       document.documentElement.style.backgroundColor = bgColor;
       document.documentElement.style.colorScheme = colorScheme;
       body.style.backgroundColor = bgColor;
@@ -23,24 +23,33 @@ const ThemeColorSync = () => {
 
       // 2. Refresh Meta Tags
       const refreshMeta = () => {
-        // theme-color
-        document.querySelectorAll('meta[name="theme-color"]').forEach(el => el.remove());
-        const themeMeta = document.createElement('meta');
-        themeMeta.name = 'theme-color';
-        themeMeta.content = bgColor;
-        document.head.appendChild(themeMeta);
+        // theme-color (Android nav bar)
+        let themeMeta = document.getElementById('theme-color-meta') as HTMLMetaElement;
+        if (!themeMeta) {
+          themeMeta = document.createElement('meta');
+          themeMeta.id = 'theme-color-meta';
+          themeMeta.name = 'theme-color';
+          document.head.appendChild(themeMeta);
+        }
+        themeMeta.setAttribute('content', bgColor);
 
-        // apple-mobile-web-app-status-bar-style
-        document.querySelectorAll('meta[name="apple-mobile-web-app-status-bar-style"]').forEach(el => el.remove());
-        const appleMeta = document.createElement('meta');
-        appleMeta.name = 'apple-mobile-web-app-status-bar-style';
-        appleMeta.content = isDark ? 'black-translucent' : 'default';
-        document.head.appendChild(appleMeta);
+        // apple-mobile-web-app-status-bar-style (iOS status bar)
+        let appleMeta = document.getElementById('apple-status-meta') as HTMLMetaElement;
+        if (!appleMeta) {
+          appleMeta = document.createElement('meta');
+          appleMeta.id = 'apple-status-meta';
+          appleMeta.name = 'apple-mobile-web-app-status-bar-style';
+          document.head.appendChild(appleMeta);
+        }
+        appleMeta.setAttribute('content', isDark ? 'black-translucent' : 'default');
+
+        // Force a tiny DOM cycle to ensure OS picks it up
+        document.head.appendChild(themeMeta); 
       };
 
       refreshMeta();
-      // Second pass after 100ms for PWA shell update
-      setTimeout(refreshMeta, 100);
+      // Second pass after 200ms for PWA transition completion
+      setTimeout(refreshMeta, 200);
     };
 
     // Listen for system theme changes if set to system
