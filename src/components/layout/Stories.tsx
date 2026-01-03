@@ -73,48 +73,66 @@ const Stories: React.FC = () => {
   const otherGroups = storiesGroups.filter(g => g.user_id !== user?.id);
 
   return (
-    <div className="stories-container">
-      <div className="stories-scroll">
-        {/* Tu Historia / Grupo del usuario */}
-        <div 
-          className="story-item" 
-          onClick={() => currentUserGroup ? handleOpenViewer(storiesGroups.indexOf(currentUserGroup)) : setShowCreator(true)}
-        >
+    <div className="stories-section">
+      <div className="stories-header">
+        <h3 className="stories-title">Historias</h3>
+        <span className="stories-subtitle">Conecta con tu comunidad</span>
+      </div>
+      
+      <div className="stories-container">
+        <div className="stories-scroll">
+          {/* Tu Historia / Grupo del usuario */}
           <div 
-            className={`story-avatar-wrapper ${currentUserGroup ? 'unviewed' : 'viewed'}`}
-            style={currentUserGroup ? { 
-              background: 'var(--accent-color)', 
-              boxShadow: `0 0 10px var(--accent-color)66` 
-            } : {}}
+            className="story-item current-user" 
+            onClick={() => currentUserGroup ? handleOpenViewer(storiesGroups.indexOf(currentUserGroup)) : setShowCreator(true)}
           >
-             <Avatar src={profile?.avatar_url || DEFAULT_AVATAR} size="large" className="story-avatar" />
-             <div className="minimal-add-badge" onClick={(e) => { e.stopPropagation(); setShowCreator(true); }}>
-                <Plus size={14} />
-             </div>
-          </div>
-          <span className="story-username">Tu historia</span>
-        </div>
-
-        {/* Historias de otros */}
-        {loading ? (
-          <div className="story-skeleton" />
-        ) : (
-          otherGroups.map((group) => (
             <div 
-              key={group.user_id} 
-              className="story-item" 
-              onClick={() => handleOpenViewer(storiesGroups.indexOf(group))}
+              className={`story-avatar-wrapper ${currentUserGroup ? 'unviewed' : 'viewed'}`}
+              style={currentUserGroup ? { 
+                background: 'var(--accent-color)', 
+                boxShadow: `0 0 10px var(--accent-color)66` 
+              } : {}}
             >
-              <div 
-                className="story-avatar-wrapper unviewed"
-                style={{ background: getFacultyColor(group.profiles.faculty), boxShadow: `0 0 10px ${getFacultyColor(group.profiles.faculty)}44` }}
-              >
-                 <Avatar src={group.profiles.avatar_url || DEFAULT_AVATAR} size="large" className="story-avatar" />
-              </div>
-              <span className="story-username">{group.profiles.full_name.split(' ')[0]}</span>
+               <Avatar src={profile?.avatar_url || DEFAULT_AVATAR} size="large" className="story-avatar" />
+               <div className="minimal-add-badge" onClick={(e) => { e.stopPropagation(); setShowCreator(true); }}>
+                  <Plus size={14} />
+               </div>
             </div>
-          ))
-        )}
+            <span className="story-username">Tu historia</span>
+          </div>
+
+          {/* Historias de otros */}
+          {loading ? (
+            <>
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="story-item skeleton">
+                  <div className="story-avatar-skeleton" />
+                  <div className="story-text-skeleton" />
+                </div>
+              ))}
+            </>
+          ) : otherGroups.length > 0 ? (
+            otherGroups.map((group) => (
+              <div 
+                key={group.user_id} 
+                className="story-item" 
+                onClick={() => handleOpenViewer(storiesGroups.indexOf(group))}
+              >
+                <div 
+                  className="story-avatar-wrapper unviewed"
+                  style={{ background: getFacultyColor(group.profiles.faculty), boxShadow: `0 0 10px ${getFacultyColor(group.profiles.faculty)}44` }}
+                >
+                   <Avatar src={group.profiles.avatar_url || DEFAULT_AVATAR} size="large" className="story-avatar" />
+                </div>
+                <span className="story-username">{group.profiles.full_name.split(' ')[0]}</span>
+              </div>
+            ))
+          ) : (
+            <div className="stories-empty-state">
+              <p>No hay historias nuevas</p>
+            </div>
+          )}
+        </div>
       </div>
 
       {showViewer && storiesGroups.length > 0 && (
