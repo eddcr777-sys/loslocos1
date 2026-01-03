@@ -27,15 +27,23 @@ const ThemeColorSync = () => {
         const bgColor = computedStyle.getPropertyValue('--bg-color').trim() || (isDark ? '#0b0f1a' : '#ffffff');
         
         // Exact update of existing meta tags
-        const themeMeta = document.getElementById('theme-color-meta');
-        if (themeMeta) themeMeta.setAttribute('content', bgColor);
+        const lightMeta = document.getElementById('theme-color-light');
+        const darkMeta = document.getElementById('theme-color-dark');
+        
+        if (lightMeta) lightMeta.setAttribute('content', bgColor);
+        if (darkMeta) darkMeta.setAttribute('content', bgColor);
         
         const appleMeta = document.getElementById('apple-status-meta');
         if (appleMeta) appleMeta.setAttribute('content', isDark ? 'black-translucent' : 'default');
 
-        // Also update standard theme-color if ID-based fails
-        const standardThemeMeta = document.querySelector('meta[name="theme-color"]');
-        if (standardThemeMeta) standardThemeMeta.setAttribute('content', bgColor);
+        // Force a re-discovery by the browser (crucial for some Android versions)
+        if (darkMeta) {
+          const parent = darkMeta.parentNode;
+          if (parent) {
+            parent.removeChild(darkMeta);
+            parent.appendChild(darkMeta);
+          }
+        }
 
         // Update body and html backgrounds again to be sure
         document.documentElement.style.backgroundColor = bgColor;

@@ -5,7 +5,8 @@
   <meta charset="utf-8" />
   <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#ffffff" id="theme-color-meta" />
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" id="theme-color-light" />
+  <meta name="theme-color" content="#0b0f1a" media="(prefers-color-scheme: dark)" id="theme-color-dark" />
   <meta name="color-scheme" content="light dark" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" id="apple-status-meta" />
@@ -24,11 +25,18 @@
 
       // Early update of existing meta tags
       const updateMeta = () => {
-        const themeMeta = document.getElementById('theme-color-meta');
-        if (themeMeta) themeMeta.setAttribute('content', bgColor);
+        const lightMeta = document.getElementById('theme-color-light');
+        const darkMeta = document.getElementById('theme-color-dark');
+
+        if (lightMeta) lightMeta.setAttribute('content', bgColor);
+        if (darkMeta) darkMeta.setAttribute('content', bgColor);
 
         const appleMeta = document.getElementById('apple-status-meta');
         if (appleMeta) appleMeta.setAttribute('content', isDark ? 'black-translucent' : 'default');
+
+        if (document.body) {
+          document.body.style.backgroundColor = bgColor;
+        }
       };
 
       if (document.readyState === 'loading') {
