@@ -4,6 +4,7 @@ import MainLayout from './MainLayout';
 import { FeedProvider } from './context/FeedContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import AdminRoute from './components/auth/AdminRoute';
+import ThemeColorSync from './components/layout/ThemeColorSync';
 import './styles/App.css';
 
 // Lazy loading pages for performance
@@ -144,6 +145,7 @@ function App() {
   return (
     <Router>
       <ThemeInitializer />
+      <ThemeColorSync />
       <AuthProvider>
         <FeedProvider>
           <AppRoutes />

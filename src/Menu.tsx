@@ -7,18 +7,29 @@ import './Menu.css';
 interface MenuProps {
   hideAdmin?: boolean;
   hideInstitutional?: boolean;
+  onItemClick?: () => void;
 }
 
-const Menu: React.FC<MenuProps> = ({ hideAdmin = false, hideInstitutional = false }) => {
+const Menu: React.FC<MenuProps> = ({ 
+  hideAdmin = false, 
+  hideInstitutional = false,
+  onItemClick 
+}) => {
   const { logout, user, isAdmin, isInstitutional } = useAuth();
   const navigate = useNavigate();
 
+  const handleAction = (action: () => void) => {
+    action();
+    if (onItemClick) onItemClick();
+  };
+
   const handleLogout = async () => {
     await logout();
+    if (onItemClick) onItemClick();
   };
 
   const goToSettings = () => {
-    navigate('/Settings');
+    handleAction(() => navigate('/Settings'));
   };
 
   if (!user) return null;
@@ -26,14 +37,14 @@ const Menu: React.FC<MenuProps> = ({ hideAdmin = false, hideInstitutional = fals
   return (
     <nav className="user-menu">
       {isAdmin && !hideAdmin && (
-        <button onClick={() => navigate('/admin')} className="user-menu-item admin-highlight">
+        <button onClick={() => handleAction(() => navigate('/admin'))} className="user-menu-item admin-highlight">
           <Shield size={20} color="#f59e0b" />
           <span>Panel Administrador</span>
         </button>
       )}
 
       {isInstitutional && !hideInstitutional && (
-        <button onClick={() => navigate('/institutional')} className="user-menu-item admin-highlight">
+        <button onClick={() => handleAction(() => navigate('/institutional'))} className="user-menu-item admin-highlight">
           <Shield size={20} color="#10b981" />
           <span>Panel Institucional</span>
         </button>

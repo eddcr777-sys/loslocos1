@@ -87,7 +87,7 @@ const MobileHeader = () => {
           </button>
           {isMenuOpen && (
             <div className="menu-popover">
-              <Menu />
+              <Menu onItemClick={() => setIsMenuOpen(false)} />
             </div>
           )}
         </div>
