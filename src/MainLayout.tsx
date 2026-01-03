@@ -4,9 +4,11 @@ import Aside from './Aside';
 import MobileHeader from './MobileHeader';
 import useMediaQuery from './useMediaQuery';
 import TrendsAside from './components/layout/TrendsAside';
+import { usePWAStatus } from './hooks/usePWAStatus';
 import './MainLayout.css';
 
 const MainLayout = () => {
+  const { isStandalone } = usePWAStatus();
   const isMobile = useMediaQuery('(max-width: 1024px)'); // Breakpoint for 3-column layout
   const location = useLocation();
 
@@ -22,7 +24,7 @@ const MainLayout = () => {
     <div className={`app-container ${isSpecialPage ? 'full-width-mode' : ''}`}>
       {showAside ? <Aside /> : <MobileHeader />}
 
-      <main className={`main-content ${!showTrends ? 'no-right-sidebar' : ''} ${!showAside ? 'no-left-sidebar' : ''}`}>
+      <main className={`main-content ${!showTrends ? 'no-right-sidebar' : ''} ${!showAside ? 'no-left-sidebar' : ''} ${isStandalone ? 'standalone-mode' : ''}`}>
         <Outlet />
       </main>
 

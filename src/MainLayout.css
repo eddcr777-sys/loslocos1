@@ -12,30 +12,27 @@
 }
 
 /* Mobile layout */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .main-content {
     padding-top: 70px;
     padding-bottom: 24px;
   }
-}
 
-/* Tablet layout (2 columns) */
-@media (min-width: 769px) {
-  .main-content {
-    padding: 24px 4px 24px 254px;
-    /* 250px Aside + 4px gap for maximum expansion */
-  }
-
-  .main-content.no-left-sidebar {
-    padding-left: 12px;
+  .main-content.standalone-mode {
+    padding-bottom: 90px;
+    /* Space for BottomNav (65px + 25px gap) */
   }
 }
 
 /* Desktop layout (3 columns) */
 @media (min-width: 1025px) {
   .main-content {
-    padding-right: 274px;
-    /* 270px TrendsAside + 4px gap */
+    padding: 24px 274px 24px 254px;
+    /* Left: 250px Aside + 4px, Right: 270px Trends + 4px */
+  }
+
+  .main-content.no-left-sidebar {
+    padding-left: 12px;
   }
 
   .main-content.no-right-sidebar {

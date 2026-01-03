@@ -8,21 +8,22 @@ import Logo from './components/ui/logo';
 import { useAuth } from './context/AuthContext';
 import SubPageHeader from './components/layout/SubPageHeader';
 
+import { usePWAStatus } from './hooks/usePWAStatus';
+
 const MobileHeader = () => {
   const { unreadNotifications, isAdmin, isInstitutional, user } = useAuth();
+  const { isStandalone } = usePWAStatus();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Detect if we are on a detail/sub page
+  // ... (rest of the detection logic)
   const isProfileDetail = matchPath('/profile/:userId', location.pathname);
   const isPostDetail = matchPath('/post/:postId', location.pathname);
   const isFollowList = matchPath('/profile/:userId/followers', location.pathname) || matchPath('/profile/:userId/following', location.pathname);
   const isSettings = location.pathname.startsWith('/settings');
   
-  // A "Visitor Profile" is when we are on a profile with a userId in the path
-  // We treat any profile with an ID as a "detail" view to show the back button
   const isSubPage = !!(isProfileDetail || isPostDetail || isFollowList || isSettings);
 
   let pageTitle = '';
@@ -53,31 +54,39 @@ const MobileHeader = () => {
             <Logo size="small" variant="icon" to="/home" className="header-logo" />
 
             <nav className="mobile-header-nav">
-              <NavLink to="/home" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
-                <Home size={24} />
-              </NavLink>
-              <NavLink to="/search" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
-                <Search size={24} />
-              </NavLink>
+              {!isStandalone && (
+                <>
+                  <NavLink to="/home" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
+                    <Home size={24} />
+                  </NavLink>
+                  <NavLink to="/search" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
+                    <Search size={24} />
+                  </NavLink>
+                </>
+              )}
+              
               <NavLink to="/events" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
                 <Calendar size={24} />
               </NavLink>
               <NavLink to="/trends" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
                 <TrendingUp size={24} />
               </NavLink>
-              <NavLink to="/notifications" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
-                <div className="nav-item-container">
-                  <Bell size={24} />
-                  {unreadNotifications > 0 && (
-                    <span className="notification-badge">{unreadNotifications}</span>
-                  )}
-                </div>
-              </NavLink>
-              <NavLink to="/profile" end className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
-                <User size={24} />
-              </NavLink>
-              
 
+              {!isStandalone && (
+                <>
+                  <NavLink to="/notifications" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
+                    <div className="nav-item-container">
+                      <Bell size={24} />
+                      {unreadNotifications > 0 && (
+                        <span className="notification-badge">{unreadNotifications}</span>
+                      )}
+                    </div>
+                  </NavLink>
+                  <NavLink to="/profile" end className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
+                    <User size={24} />
+                  </NavLink>
+                </>
+              )}
             </nav>
 
 
