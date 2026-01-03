@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
 
 export const usePWAStatus = () => {
-    const [isStandalone, setIsStandalone] = useState(false);
-    const [isMobile, setIsMobile] = useState(false);
+    const [isStandalone, setIsStandalone] = useState(() => {
+        return document.documentElement.classList.contains('standalone') ||
+            window.matchMedia('(display-mode: standalone)').matches ||
+            (window.navigator as any).standalone === true;
+    });
+    const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 1024);
 
     useEffect(() => {
         const checkStatus = () => {
