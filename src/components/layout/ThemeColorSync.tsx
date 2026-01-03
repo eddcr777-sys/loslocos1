@@ -19,13 +19,20 @@ const ThemeColorSync = () => {
       // Colores hardcodeados para asegurar compatibilidad total en móviles
       const bgColor = isDark ? '#0b0f1a' : '#ffffff';
       
-      // Sincronizar clase dark en html para que el navegador sepa el tema global
+      // Sincronizar clase dark y estilos en html/body para que el navegador sepa el tema global
+      // Esto ayuda a que la barra de navegación del sistema (Android) siga el tema
       if (isDark) {
         html.classList.add('dark');
         html.style.backgroundColor = bgColor;
+        html.style.colorScheme = 'dark';
+        body.style.backgroundColor = bgColor;
+        body.style.colorScheme = 'dark';
       } else {
         html.classList.remove('dark');
         html.style.backgroundColor = bgColor;
+        html.style.colorScheme = 'light';
+        body.style.backgroundColor = bgColor;
+        body.style.colorScheme = 'light';
       }
 
       if (themeColorMeta) {
@@ -39,8 +46,6 @@ const ThemeColorSync = () => {
       // Sync specific iOS status bar
       const appleStatusMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
       if (appleStatusMeta) {
-        // En iOS, 'default' se adapta al theme-color si viewport-fit=cover está presente,
-        // pero 'black-translucent' suele dar mejores resultados para apps tipo app nativa.
         appleStatusMeta.setAttribute('content', isDark ? 'black-translucent' : 'default');
       }
     };
