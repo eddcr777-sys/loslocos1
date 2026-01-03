@@ -41,7 +41,8 @@
 .mobile-header-nav {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 2px;
+  /* Super compact for browser mode */
 }
 
 .standalone-header-grid {
@@ -51,6 +52,12 @@
   width: 100%;
 }
 
+.header-right-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .standalone-logo-container {
   position: absolute;
   left: 50%;
@@ -58,6 +65,7 @@
   transform: translate(-50%, -50%);
   pointer-events: none;
   /* Let clicks pass through if needed, though Logo is a link */
+  z-index: 1;
 }
 
 .standalone-logo-container a {
@@ -67,6 +75,7 @@
 
 .standalone-logo {
   margin: 0;
+  pointer-events: auto;
 }
 
 .header-nav-item {

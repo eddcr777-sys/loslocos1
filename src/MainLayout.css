@@ -11,40 +11,55 @@
   /* Default for all, we specify in media queries */
 }
 
-/* Mobile layout */
-@media (max-width: 1024px) {
+/* Mobile/Phone layout */
+@media (max-width: 768px) {
   .main-content {
-    /* 70px base + safe area top */
     padding-top: calc(70px + env(safe-area-inset-top));
     padding-bottom: calc(24px + env(safe-area-inset-bottom));
+    padding-left: 12px;
+    padding-right: 12px;
+    max-width: 100%;
   }
 
   .main-content.standalone-mode {
-    /* Space for BottomNav (65px + 25px gap) + safe area bottom */
     padding-bottom: calc(90px + env(safe-area-inset-bottom));
   }
 }
 
-/* Desktop layout (3 columns) */
-@media (min-width: 1025px) {
+/* Tablet / Small Desktop layout */
+@media (min-width: 769px) {
   .main-content {
-    padding: 24px 274px 24px 254px;
-    /* Left: 250px Aside + 4px, Right: 270px Trends + 4px */
+    padding-top: 24px;
+    padding-bottom: 24px;
+    padding-left: 270px;
+    /* Aside space */
+    padding-right: 24px;
+    max-width: 1100px;
   }
 
   .main-content.no-left-sidebar {
-    padding-left: 12px;
+    padding-left: 24px;
+  }
+}
+
+/* Large Desktop layout (3 columns) */
+@media (min-width: 1100px) {
+  .main-content {
+    padding-right: 290px;
+    /* Trends space */
+    max-width: 1400px;
   }
 
   .main-content.no-right-sidebar {
-    padding-right: 16px;
+    padding-right: 24px;
   }
+}
 
-  /* Full width mode with extra spacing */
-  .app-container.full-width-mode .main-content {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding-top: 80px;
-    /* Space for top header */
-  }
+/* Full width mode (Settings, Admin, etc.) */
+.app-container.full-width-mode .main-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding-top: 80px;
+  padding-left: 24px;
+  padding-right: 24px;
 }

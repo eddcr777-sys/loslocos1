@@ -9,16 +9,16 @@ import './MainLayout.css';
 
 const MainLayout = () => {
   const { isStandalone } = usePWAStatus();
-  const isMobile = useMediaQuery('(max-width: 1024px)'); // Breakpoint for 3-column layout
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isDesktop = useMediaQuery('(min-width: 1100px)');
   const location = useLocation();
 
-  // Hide Asides on admin, institutional and settings pages to give more space
   const isSpecialPage = location.pathname.startsWith('/admin') || 
                         location.pathname.startsWith('/institutional') ||
                         location.pathname.startsWith('/settings');
   
   const showAside = !isMobile && !isSpecialPage;
-  const showTrends = !isMobile && !isSpecialPage;
+  const showTrends = isDesktop && !isSpecialPage;
 
   return (
     <div className={`app-container ${isSpecialPage ? 'full-width-mode' : ''}`}>
