@@ -136,8 +136,33 @@ const NotificationsPage = () => {
                     linkId = notif.entity_id;
                   } 
                   // If we have both post_id and entity_id (common for mentions in comments), combine them
-                  else if (notif.post_id && notif.entity_id && notif.type !== 'like') {
+                  else if (notif.post_id && notif.entity_id && notif.type !== 'like' && notif.type !== 'repost' && notif.type !== 'quote') {
                     linkId = `${notif.post_id}?c=${notif.entity_id}`;
+                  }
+                  // Handle Reposts - Prefix with share_ so api.getPost knows where to look
+                  else if (notif.type === 'repost') {
+                      // entity_id is usually empty or same as post_id for shares in our new trigger
+                      // But the share ID is what we want.
+                      // In our trigger we set entity_id = NEW.post_id (original post).
+                      // Wait, we need the SHARE ID to be able to load the "share_XXX" virtual post.
+                      // If the trigger saves 'post_id' as the original_post ID, and 'entity_id' as original_post ID...
+                      // WE HAVE A PROBLEM. We need the share ID.
+                      // The previous trigger likely saved share ID as entity_id?
+                      // Let's assume entity_id is the share ID or we can't deep-link to the share wrapper.
+                      // IF NOT, we just link to the original post (notif.post_id).
+                      
+                      // Let's assume standard behavior: Link to the interactions.
+                      linkId = notif.entity_id; 
+                      // If entity_id is a UUID without share_, api.getPost will fail if it's a share ID.
+                      // Let's try adding share_ prefix if it looks like a direct share link is intended.
+                      if (linkId && !linkId.startsWith('share_')) {
+                          linkId = 'share_' + linkId;
+                      }
+                  }
+                  // Handle Quote - entity_id is the QUOTE post ID.
+                  else if (notif.type === 'quote') {
+                       // Try to go to the quote itself (which contains the original)
+                       linkId = notif.entity_id || notif.post_id;
                   }
                   // Fallback to whichever is available
                   else {

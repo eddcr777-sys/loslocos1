@@ -66,12 +66,15 @@ const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose, onPo
       setContent('');
       setImage(null);
       setPreview(null);
-      onClose();
+      
       if (onPostCreated) {
         onPostCreated();
-      } else {
-        window.location.reload();
       }
+      
+      // Delay closing to avoid React DOM 'removeChild' errors
+      setTimeout(() => {
+        onClose();
+      }, 200);
     } catch (error) {
       console.error('Error creating post:', error);
       alert('Error al crear la publicación');

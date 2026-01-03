@@ -79,7 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Realtime Notifications Logic
+  // Realtime Notifications Logic with Private Channel and Proper Cleanup
   const [unreadNotifications, setUnreadNotifications] = useState(0);
 
   useEffect(() => {
@@ -94,7 +94,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 .eq('user_id', user.id)
                 .eq('read', false);
             
-            if (error) console.error('DEBUG: AuthContext - Fetch error:', error);
+            if (error) {
+                console.error('DEBUG: AuthContext - Fetch error:', error.message);
+                if (error.code === '42501') {
+                    console.warn('RLS Error: Insufficient permissions for notifications');
+                }
+            }
             setUnreadNotifications(count || 0);
         } catch (err) {
             console.error('AuthContext - Error fetching unread count:', err);
@@ -102,9 +107,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
     fetchUnread();
 
-    // 2. Subscribe to new notifications
+    // 2. Subscribe to new notifications using a robust channel name
+    const channelName = `notifs-${user.id}`;
     const channel = supabase
-        .channel('public:notifications')
+        .channel(channelName)
         .on(
             'postgres_changes',
             {
@@ -114,14 +120,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 filter: `user_id=eq.${user.id}`
             },
             (payload) => {
+                console.log('REALTIME: Nueva notificación recibida!', payload);
                 setUnreadNotifications(prev => prev + 1);
             }
         )
         .subscribe((status) => {
+            console.log(`REALTIME STATUS (${channelName}):`, status);
         });
 
     return () => {
+        // Subscribe cleanup
         supabase.removeChannel(channel);
+        console.log(`REALTIME: Canal ${channelName} desmontado.`);
     };
   }, [user]);
 
@@ -154,7 +164,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             username: username,
             faculty: faculty,
             university: university,
-            birth_date: birthDate
+            birth_date: birthDate,
+            user_type: 'common' // Default role in metadata
           },
         },
       });
@@ -191,8 +202,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   const value = useMemo(() => {
-    const isAdmin = profile?.user_type === 'ceo' || profile?.user_type === 'admin';
-    const isInstitutional = profile?.user_type === 'institutional';
+    // Requisito: Usar JWT claims (user_metadata o app_metadata)
+    // Buscamos el rol tanto en el perfil (DB) como en los metadata del JWT (Seguridad)
+    const metadata = user?.app_metadata || user?.user_metadata || {};
+    const roleFromClaim = metadata.user_type || metadata.role;
+    const effectiveUserType = profile?.user_type || roleFromClaim;
+
+    const isAdmin = effectiveUserType === 'ceo' || effectiveUserType === 'admin';
+    const isInstitutional = effectiveUserType === 'institutional';
     
     return {
       session, user, profile, register, login, logout, loading, refreshProfile, unreadNotifications,

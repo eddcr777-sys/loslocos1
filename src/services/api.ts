@@ -90,7 +90,7 @@ export const api = {
     getProfile: async (userId: string) => {
         const { data, error } = await supabase
             .from('profiles')
-            .select('*')
+            .select('id, full_name, username, avatar_url, user_type, faculty, bio, created_at')
             .eq('id', userId)
             .maybeSingle();
         return { data, error };
@@ -178,66 +178,122 @@ export const api = {
                     likes (count),
                     comments (count),
                     shares (count),
-                    quotes:posts!original_post_id(count),
-                    original_post:original_post_id (
-                        id, content, image_url, created_at,
-                        profiles (id, full_name, avatar_url, user_type)
+                    quotes:posts!original_post_id (count),
+                    original_post:posts!original_post_id (
+                        *,
+                        profiles (id, full_name, avatar_url, user_type),
+                        likes (count),
+                        comments (count),
+                        shares (count),
+                        quotes:posts!original_post_id (count)
                     )
                 `)
                 .is('deleted_at', null)
                 .order('created_at', { ascending: false });
-            return { data: posts, error: standardError };
+            return { data: posts ? posts.map(api.mapPostData) : null, error: standardError };
         }
 
         // Map RPC result to Post structure
-        const mappedPosts = data.map((p: any) => ({
-            ...p,
-            profiles: p.author_data,
-            likes: { count: p.likes_count },
-            comments: { count: p.comments_count },
-            shares: {
-                count: (p.shares?.[0]?.count || 0) + (p.quotes?.[0]?.count || 0)
-            },
-            original_post: p.original_post_data,
-            is_repost_from_shares: p.is_repost
-        }));
-
-        return { data: mappedPosts, error: null };
+        return { data: data.map(api.mapPostData), error: null };
     },
 
     getPost: async (postId: string) => {
+        if (!postId) return { data: null, error: new Error('ID de post no proporcionado') };
+
+        // SMART RESOLUTION for Shares vs Posts
+        const isShare = postId.startsWith('share_');
+        const cleanId = isShare ? postId.replace('share_', '') : postId;
+
+        // Robustness check for UUID
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        if (!uuidRegex.test(cleanId.split('?')[0])) {
+            return { data: null, error: new Error('ID inválido') };
+        }
+
+        const idToFetch = cleanId.split('?')[0];
+
+        if (isShare) {
+            const { data, error } = await supabase
+                .from('shares')
+                .select(`
+                    id,
+                    created_at,
+                    user_id,
+                    profiles:user_id (id, full_name, avatar_url, user_type, faculty),
+                    posts (
+                        *,
+                        profiles (id, full_name, avatar_url, user_type, faculty),
+                        likes (count),
+                        comments (count),
+                        shares (count),
+                        quotes:posts!original_post_id (count),
+                        original_post:posts!original_post_id (
+                            *,
+                            profiles (id, full_name, avatar_url, user_type)
+                        )
+                    )
+                `)
+                .eq('id', idToFetch)
+                .maybeSingle();
+
+            if (error) return { data: null, error };
+            if (!data) return { data: null, error: null };
+
+            // Map standard 'posts' relation to our internal 'original_post_data' structure
+            // Note: Data.posts will be an object because it's a single relation (belongs to)
+            const postData = Array.isArray(data.posts) ? data.posts[0] : data.posts;
+
+            return {
+                data: api.mapPostData({
+                    share_id: data.id,
+                    shared_at: data.created_at,
+                    reposter_data: data.profiles,
+                    original_post_data: postData
+                }),
+                error: null
+            };
+        }
+
         const { data, error } = await supabase
             .from('posts')
             .select(`
-        *,
-        profiles (id, full_name, avatar_url, user_type),
-        likes (count),
-        comments (count),
-        shares (count),
-        quotes:posts!original_post_id(count)
-      `)
-            .eq('id', postId)
+                *,
+                profiles (id, full_name, avatar_url, user_type, faculty),
+                likes (count),
+                comments (count),
+                shares (count),
+                quotes:posts!original_post_id (count),
+                original_post:posts!original_post_id (
+                    *,
+                    profiles (id, full_name, avatar_url, user_type)
+                )
+            `)
+            .eq('id', idToFetch)
             .maybeSingle();
 
-        if (error) return { data, error };
+        if (error) return { data: null, error };
         if (!data) return { data: null, error: null };
 
-        const mappedPost = {
-            ...data,
-            shares: {
-                count: (data.shares?.[0]?.count || 0) + (data.quotes?.[0]?.count || 0)
-            }
-        };
-
-        return { data: mappedPost, error: null };
+        return { data: api.mapPostData(data), error: null };
     },
 
     getPostByCommentId: async (commentId: string) => {
+        if (!commentId) return { data: null, error: new Error('ID de comentario no proporcionado') };
+
+        // Sanatize ID to get pure UUID
+        const cleanCommentId = commentId.split('?')[0].replace('share_', '');
+
+        // Robustness check for UUID
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        if (!uuidRegex.test(cleanCommentId)) {
+            return { data: null, error: new Error('ID de comentario inválido') };
+        }
+
         // Primero buscamos el comment para obtener el post_id
         const { data: comment, error: commentError } = await supabase
             .from('comments')
             .select('post_id')
-            .eq('id', commentId)
+            .eq('id', cleanCommentId)
             .maybeSingle();
 
         if (commentError || !comment) {
@@ -248,47 +304,98 @@ export const api = {
         return api.getPost(comment.post_id);
     },
 
+    // Helper para normalizar la estructura de los posts de diferentes fuentes (RPC vs Tablas)
+    mapPostData: (p: any): any => {
+        if (!p) return null;
+
+        // Si viene del RPC get_profile_shares o de un mapeo de smart feed, es un wrapper virtual
+        if ((p.share_id || p.is_repost_wrapper) && p.original_post_data) {
+            return {
+                id: p.share_id ? 'share_' + p.share_id : (p.id || 'virtual_' + Math.random()),
+                user_id: p.reposter_data?.id || p.user_id,
+                content: '',
+                image_url: null,
+                created_at: p.shared_at || p.created_at,
+                profiles: p.reposter_data || p.profiles,
+                likes: { count: 0 },
+                comments: { count: 0 },
+                shares: { count: 0 },
+                original_post: api.mapPostData(p.original_post_data),
+                original_post_id: p.original_post_data.id,
+                is_repost_from_shares: true,
+                is_repost: true
+            };
+        }
+
+        // Si ya es un post normal, mapeamos sus campos
+        const resolveCount = (val: any) => {
+            if (val === undefined || val === null) return 0;
+            if (typeof val === 'number') return val;
+            if (Array.isArray(val)) {
+                if (val.length === 0) return 0;
+                if (val[0]?.count !== undefined) return val[0].count;
+                return val.length;
+            }
+            if (typeof val === 'object' && val.count !== undefined) return val.count;
+            return 0;
+        };
+
+        const likesCount = p.likes_count ?? resolveCount(p.likes);
+        const commentsCount = p.comments_count ?? resolveCount(p.comments);
+        const sharesCount = (p.shares_count ?? resolveCount(p.shares)) + resolveCount(p.quotes);
+
+        return {
+            ...p,
+            profiles: p.profiles || p.author_data,
+            likes: { count: likesCount },
+            comments: { count: commentsCount },
+            shares: { count: sharesCount },
+            original_post: p.original_post_data ? api.mapPostData(p.original_post_data) :
+                (p.original_post ? api.mapPostData(p.original_post) : null),
+            is_repost_from_shares: p.is_repost || p.is_repost_from_shares || (!!p.original_post && !p.content)
+        };
+    },
+
     getUserPosts: async (userId: string) => {
         const { data, error } = await supabase
             .from('posts')
             .select(`
-        *,
-        profiles (id, full_name, avatar_url, user_type),
-        likes (count),
-        comments (count),
-        shares (count),
-        quotes:posts!original_post_id(count),
-        original_post:original_post_id (
-            id,
-            content,
-            image_url,
-            created_at,
-            deleted_at,
-            profiles (id, full_name, avatar_url, user_type)
-        )
-      `)
+                *,
+                profiles (id, full_name, avatar_url, user_type, faculty),
+                likes (count),
+                comments (count),
+                shares (count),
+                quotes:posts!original_post_id (count),
+                original_post:posts!original_post_id (
+                    *,
+                    profiles (id, full_name, avatar_url, user_type),
+                    likes (count),
+                    comments (count),
+                    shares (count),
+                    quotes:posts!original_post_id (count)
+                )
+            `)
             .eq('user_id', userId)
             .is('deleted_at', null)
             .order('created_at', { ascending: false });
 
-        if (error) return { data, error };
-
-        const mappedPosts = data.map((p: any) => ({
-            ...p,
-            shares: {
-                count: (p.shares?.[0]?.count || 0) + (p.quotes?.[0]?.count || 0)
-            }
-        }));
-
-        return { data: mappedPosts, error: null };
+        if (error) return { data: null, error };
+        return { data: data.map(api.mapPostData), error: null };
     },
 
     createPost: async (content: string, userId: string, imageUrl: string | null = null, isOfficial: boolean = false, originalPostId: string | null = null) => {
+        // SEGURIDAD: Sanitización contra XSS y validación de contenido
+        const sanitizedContent = content ? content.replace(/<[^>]*>?/gm, '').trim() : '';
+
+        if (!sanitizedContent && !imageUrl && !originalPostId) {
+            return { error: { message: 'La publicación no puede estar vacía.' } };
+        }
+
         const { data, error } = await supabase
             .from('posts')
             .insert({
                 user_id: userId,
-                content,
+                content: sanitizedContent,
                 image_url: imageUrl,
                 is_official: isOfficial,
                 original_post_id: originalPostId
@@ -320,11 +427,12 @@ export const api = {
 
     // --- LIKES ---
     toggleLike: async (postId: string, userId: string) => {
+        const cleanId = postId.startsWith('share_') ? postId.replace('share_', '') : postId;
         // Check if liked
         const { data: existingLike } = await supabase
             .from('likes')
             .select('id')
-            .eq('post_id', postId)
+            .eq('post_id', cleanId)
             .eq('user_id', userId)
             .maybeSingle();
 
@@ -339,47 +447,71 @@ export const api = {
             // Like
             const { error } = await supabase
                 .from('likes')
-                .insert({ post_id: postId, user_id: userId });
+                .insert({ post_id: cleanId, user_id: userId });
             return { data: { liked: true }, error };
         }
     },
 
     getLikesCount: async (postId: string) => {
+        const cleanId = postId.startsWith('share_') ? postId.replace('share_', '') : postId;
         const { count, error } = await supabase
             .from('likes')
             .select('id', { count: 'exact', head: true })
-            .eq('post_id', postId);
+            .eq('post_id', cleanId);
         return { count, error };
     },
 
     checkUserLiked: async (postId: string, userId: string) => {
+        const cleanId = postId.startsWith('share_') ? postId.replace('share_', '') : postId;
         const { data, error } = await supabase
             .from('likes')
             .select('id')
-            .eq('post_id', postId)
+            .eq('post_id', cleanId)
             .eq('user_id', userId)
             .maybeSingle();
         return { liked: !!data, error };
     },
 
+    getSharesCount: async (postId: string) => {
+        const cleanId = postId.startsWith('share_') ? postId.replace('share_', '') : postId;
+        const { count, error } = await supabase
+            .from('shares')
+            .select('id', { count: 'exact', head: true })
+            .eq('post_id', cleanId);
+        return { count, error };
+    },
+
+    checkUserReposted: async (postId: string, userId: string) => {
+        const cleanId = postId.startsWith('share_') ? postId.replace('share_', '') : postId;
+        const { data, error } = await supabase
+            .from('shares')
+            .select('id')
+            .eq('post_id', cleanId)
+            .eq('user_id', userId)
+            .maybeSingle();
+        return { reposted: !!data, error };
+    },
+
     // --- COMMENTS ---
     getComments: async (postId: string) => {
+        const cleanId = postId.startsWith('share_') ? postId.replace('share_', '') : postId;
         const { data, error } = await supabase
             .from('comments')
             .select(`
         *,
         profiles (id, full_name, avatar_url, user_type)
       `)
-            .eq('post_id', postId)
+            .eq('post_id', cleanId)
             .order('created_at', { ascending: true });
         return { data, error };
     },
 
     addComment: async (postId: string, content: string, userId: string, parentId: string | null = null) => {
+        const cleanId = postId.startsWith('share_') ? postId.replace('share_', '') : postId;
         const { data, error } = await supabase
             .from('comments')
             .insert({
-                post_id: postId,
+                post_id: cleanId,
                 user_id: userId,
                 parent_id: parentId,
                 content
@@ -649,18 +781,45 @@ export const api = {
 
     // --- ADMIN / STATS ---
     getSystemStats: async () => {
-        const [profiles, posts, comments] = await Promise.all([
-            supabase.from('profiles').select('id', { count: 'exact', head: true }),
-            supabase.from('posts').select('id', { count: 'exact', head: true }),
-            supabase.from('comments').select('id', { count: 'exact', head: true })
-        ]);
+        try {
+            // Llamada al RPC get_system_stats()
+            const { data, error } = await supabase.rpc('get_system_stats');
 
-        return {
-            usersCount: profiles.count || 0,
-            postsCount: posts.count || 0,
-            commentsCount: comments.count || 0,
-            error: profiles.error || posts.error || comments.error
-        };
+            if (error) {
+                if (error.code === '42501' || error.message.includes('permission')) {
+                    console.error('RLS Error: Permission denied to access system stats.');
+                    return { error: { message: 'No tienes permiso para ver las estadísticas del sistema.', code: 'FORBIDDEN' } };
+                }
+                throw error;
+            }
+
+            if (data) {
+                console.log('DEBUG: Resultado Real de la DB:', data);
+                return {
+                    usersCount: data.users_count ?? data.usersCount ?? 0,
+                    postsCount: data.posts_count ?? data.postsCount ?? 0,
+                    commentsCount: data.comments_count ?? data.commentsCount ?? 0,
+                    error: null
+                };
+            }
+
+            // Fallback manual si el RPC falla o no devuelve datos
+            const [profiles, posts, comments] = await Promise.all([
+                supabase.from('profiles').select('id', { count: 'exact', head: true }),
+                supabase.from('posts').select('id', { count: 'exact', head: true }).is('deleted_at', null),
+                supabase.from('comments').select('id', { count: 'exact', head: true })
+            ]);
+
+            return {
+                usersCount: profiles.count || 0,
+                postsCount: posts.count || 0,
+                commentsCount: comments.count || 0,
+                error: (profiles.error || posts.error || comments.error) ? { message: 'Permiso insuficiente parcial', code: 'RLS_LIMIT' } : null
+            };
+        } catch (error: any) {
+            console.error('Critical Stats Error:', error);
+            return { error: { message: error.message || 'Error desconocido al cargar estadísticas' } };
+        }
     },
 
     getOfficialPosts: async () => {
@@ -670,7 +829,9 @@ export const api = {
                 *,
                 profiles (id, full_name, avatar_url, user_type),
                 likes (count),
-                comments (count)
+                comments (count),
+                shares (count),
+                quotes:posts!original_post_id (count)
             `)
             .eq('is_official', true)
             .order('created_at', { ascending: false });
@@ -767,15 +928,8 @@ export const api = {
 
     getProfileShares: async (userId: string) => {
         const { data, error } = await supabase.rpc('get_profile_shares', { user_id_param: userId });
-
-        // Transform the data to match expected Post structure if possible, or a new structure
-        // The RPC returns mixed types. We might need to map them to 'Post' like objects for the UI
-        // or the UI handles a 'ShareItem' interface.
-        // Let's try to map to a structure compatible with our Post component if possible, 
-        // OR return as is and let UI handle.
-        // Given 'original_post_data' comes as JSONB, we should ensure it has profiles.
-        // For simplicity, we pass the raw data and let the specific component adapt it.
-        return { data, error };
+        if (error) return { data: null, error };
+        return { data: data.map(api.mapPostData), error: null };
     },
 
     // --- SMART FEED (Algoritmo Avanzado) ---
@@ -811,10 +965,14 @@ export const api = {
                     likes (count),
                     comments (count),
                     shares (count),
-                    quotes:posts!original_post_id(count),
-                    original_post:original_post_id (
-                        id, content, image_url, created_at,
-                        profiles (id, full_name, avatar_url, user_type)
+                    quotes:posts!original_post_id (count),
+                    original_post:posts!original_post_id (
+                        *,
+                        profiles (id, full_name, avatar_url, user_type),
+                        likes (count),
+                        comments (count),
+                        shares (count),
+                        quotes:posts!original_post_id (count)
                     )
                 `)
                 .in('user_id', followingIds)
@@ -832,15 +990,24 @@ export const api = {
                     user_id,
                     profiles:user_id (id, full_name, avatar_url, user_type, faculty),
                     post:post_id (
-                        id, content, image_url, created_at, user_id,
+                        *,
                         profiles (id, full_name, avatar_url, user_type, faculty),
                         likes (count),
                         comments (count),
                         shares (count),
-                        quotes:posts!original_post_id(count)
+                        quotes:posts!original_post_id (count),
+                        original_post:posts!original_post_id (
+                            *,
+                            profiles (id, full_name, avatar_url, user_type),
+                            likes (count),
+                            comments (count),
+                            shares (count),
+                            quotes:posts!original_post_id (count)
+                        )
                     )
                 `)
                 .in('user_id', followingIds)
+                .is('posts.deleted_at', null) // Only non-deleted
                 .order('created_at', { ascending: false })
                 .limit(50);
 
@@ -854,49 +1021,19 @@ export const api = {
 
             // 4. Map Posts
             const mappedPosts = (postsResult.data || []).map((p: any) => ({
-                ...p,
-                profiles: p.profiles,
-                likes: { count: p.likes ? p.likes[0]?.count ?? 0 : 0 },
-                comments: { count: p.comments ? p.comments[0]?.count ?? 0 : 0 },
-                shares: {
-                    count: (p.shares?.[0]?.count || 0) + (p.quotes?.[0]?.count || 0)
-                },
-                original_post: p.original_post,
-                is_repost_from_shares: !!p.original_post_id && !p.content, // Old style reposts if any
+                ...api.mapPostData(p),
                 type: 'post'
             }));
 
-            // 5. Map Shares to Post structure (as Reposts)
+            // 5. Map Shares (Reposts)
             const mappedShares = (sharesResult.data || []).map((s: any) => {
-                if (!s.post) return null; // Skip if original post deleted
-
-                // We construct a "Post" object that acts as a container for the Repost
-                return {
-                    id: 'share_' + s.id, // Unique ID for key
-                    user_id: s.user_id,
-                    content: '', // Reposts typically have empty content in the wrapper
-                    image_url: null,
-                    created_at: s.created_at,
-                    profiles: s.profiles, // The person who SHARED it (The Reposter)
-
-                    // Stats for the wrapper (usually 0, but maybe we want to track likes on the repost itself? For now 0)
-                    likes: { count: 0 },
-                    comments: { count: 0 },
-                    shares: { count: 0 },
-
-                    // The Original Post Data
-                    original_post: {
-                        ...s.post,
-                        profiles: s.post.profiles,
-                        likes: { count: s.post.likes ? s.post.likes[0]?.count ?? 0 : 0 },
-                        comments: { count: s.post.comments ? s.post.comments[0]?.count ?? 0 : 0 },
-                        shares: { count: (s.post.shares?.[0]?.count || 0) + (s.post.quotes?.[0]?.count || 0) }
-                    },
-                    original_post_id: s.post.id,
-
-                    is_repost_from_shares: true, // Marker for UI
-                    type: 'repost'
-                };
+                if (!s.post) return null;
+                return api.mapPostData({
+                    share_id: s.id,
+                    shared_at: s.created_at,
+                    reposter_data: s.profiles,
+                    original_post_data: s.post
+                });
             }).filter(Boolean);
 
             // 6. Merge and Sort

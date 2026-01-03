@@ -10,12 +10,14 @@ interface PostsSectionProps {
 const PostsSection: React.FC<PostsSectionProps> = ({ posts, loading }) => {
   return (
     <section style={styles.section}>
-      <h2 style={{ marginBottom: '1rem' }}>Publicaciones</h2>
+      <h2 style={{ marginBottom: '1rem', display: 'none' }}>Publicaciones</h2>
       <div style={styles.postsContainer}>
         {loading ? (
-          <p>Cargando posts...</p>
+          <div className="skeleton-loader" style={{ height: '200px' }}></div>
         ) : posts.length === 0 ? (
-          <p style={{ color: '#999', fontStyle: 'italic' }}>No hay publicaciones aún.</p>
+          <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-secondary)' }}>
+             <p>No hay publicaciones aún.</p>
+          </div>
         ) : (
           posts.map((post) => (
             <Post key={post.id} post={post} />

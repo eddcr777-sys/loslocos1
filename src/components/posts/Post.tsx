@@ -60,6 +60,7 @@ const Post: React.FC<PostProps> = ({
   // DETERMINE INTERACTION TARGET
   // If it's a pure Repost, we interact with the ORIGINAL post (Like/Comment/Share count refers to original)
   // If it's a Quote or Normal, we interact with THIS post.
+  // CRITICAL: For Quotes, effectivePost must be the post itself so we can like the commentary.
   const effectivePost = isRepost && post.original_post ? post.original_post : post;
 
   const {
@@ -69,39 +70,15 @@ const Post: React.FC<PostProps> = ({
     showComments,
     setShowComments,
     handleLike,
-    handleCommentsUpdate
+    handleCommentsUpdate,
+    sharesCount,
+    reposted
   } = usePost(effectivePost, user, showCommentsByDefault || !!highlightCommentId);
-
-  // Shares count logic
-  const sharesCount = useMemo(() => {
-     if (!effectivePost.shares) return 0;
-     return Array.isArray(effectivePost.shares) ? (effectivePost.shares[0]?.count || 0) : (effectivePost.shares.count || 0);
-  }, [effectivePost.shares]);
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isRepostersModalOpen, setIsRepostersModalOpen] = useState(false);
-  const [userHasReposted, setUserHasReposted] = useState(false);
-
-  // Check if current user has reposted this post
-  React.useEffect(() => {
-    const checkRepost = async () => {
-      if (user && post.id) {
-        const { data } = await supabase
-          .from('shares')
-          .select('id')
-          .eq('user_id', user.id)
-          .eq('post_id', (post as any).is_repost_from_shares ? (post as any).original_post_id : post.id)
-          .maybeSingle();
-        
-        setUserHasReposted(!!data);
-      }
-    };
-    checkRepost();
-  }, [user, post.id]);
-
-
 
   // Header Logic for Reposters
   let repostHeader = null;
@@ -110,7 +87,7 @@ const Post: React.FC<PostProps> = ({
   const repostersData = reposters || [];
   const currentUserInReposters = repostersData.some((r: any) => r.user_id === user?.id);
   
-  if (currentUserInReposters) {
+  if (currentUserInReposters || reposted) {
     // Current user reposted this
     repostHeader = "Lo compartiste";
   } else if (reposters && reposters.length > 0) {
@@ -129,9 +106,6 @@ const Post: React.FC<PostProps> = ({
       } else {
         repostHeader = `${post.profiles?.full_name} compartió esto`;
       }
-  } else if (userHasReposted && !isRepost) {
-    // User has reposted this post (but we're showing the original)
-    repostHeader = "Lo compartiste";
   }
 
   const renderContentWithMentions = (text: string) => {
@@ -166,6 +140,16 @@ const Post: React.FC<PostProps> = ({
   const handleShare = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsShareModalOpen(true);
+  };
+
+  const handleQuote = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsShareModalOpen(false);
+    console.log("Quoting post:", effectivePost);
+    // Directly use onRepost prop if available, which opens the CreatePost modal in parent
+    if (onRepost) {
+       onRepost(effectivePost);
+    }
   };
   
   const handleCopyLink = () => {
@@ -284,7 +268,7 @@ const Post: React.FC<PostProps> = ({
             {/* Main Content Logic */}
             <div style={{ marginBottom: '1rem' }}>
                 {isRepost 
-                    ? renderContentWithMentions(post.original_post!.content) 
+                    ? renderContentWithMentions(post.original_post?.content || "") 
                     : renderContentWithMentions(post.content)
                 }
             </div>
@@ -304,7 +288,7 @@ const Post: React.FC<PostProps> = ({
         {/* Image for Repost (Original Image) or Normal Post */}
         {(isRepost ? post.original_post?.image_url : post.image_url) && !isQuote && (
           <img 
-            src={isRepost ? post.original_post!.image_url! : post.image_url!} 
+            src={isRepost ? post.original_post?.image_url || '' : post.image_url || ''} 
             alt="Contenido del post" 
             className="post-image" 
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsLightboxOpen(true); }}
@@ -333,8 +317,8 @@ const Post: React.FC<PostProps> = ({
 
       {showComments && (
         <CommentSection 
-          postId={post.id} 
-          postOwnerId={post.user_id} 
+          postId={effectivePost.id} 
+          postOwnerId={effectivePost.user_id} 
           onCommentsChange={handleCommentsUpdate}
           highlightCommentId={highlightCommentId}
         />

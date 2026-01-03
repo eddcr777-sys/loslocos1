@@ -11,6 +11,7 @@ export const useFullProfile = (userId: string | undefined, currentUser: any) => 
   } = useProfile(userId);
 
   const [isFollowing, setIsFollowing] = useState(false);
+  const [actualProfileId, setActualProfileId] = useState<string | null>(null);
   const [isFollowLoading, setIsFollowLoading] = useState(true);
   const [stats, setStats] = useState({ followers: 0, following: 0, posts: 0 });
 
@@ -34,6 +35,7 @@ export const useFullProfile = (userId: string | undefined, currentUser: any) => 
         if (profileData) {
           actualId = profileData.id;
         }
+        setActualProfileId(actualId);
 
         // Fetch followers, following, and posts counts
         const { count: followersCount } = await supabase.from('followers').select('*', { count: 'exact', head: true }).eq('following_id', actualId);
@@ -77,22 +79,13 @@ export const useFullProfile = (userId: string | undefined, currentUser: any) => 
 
 
   const handleFollow = async () => {
-    if (!currentUser || !userId || isFollowLoading) return;
+    if (!currentUser || !actualProfileId || isFollowLoading) return;
     try {
       setIsFollowLoading(true);
-      const { error } = await supabase.from('followers').insert({ follower_id: currentUser.id, following_id: userId });
+      const { error } = await supabase.from('followers').insert({ follower_id: currentUser.id, following_id: actualProfileId });
       if (!error) {
         setIsFollowing(true);
         setStats(prev => ({ ...prev, followers: prev.followers + 1 }));
-
-        // Notificar al usuario seguido
-        if (currentUser && userId && currentUser.id !== userId) {
-          await api.createNotification({
-            user_id: userId,
-            actor_id: currentUser.id,
-            type: 'follow'
-          });
-        }
       } else {
         console.error('Error al seguir:', error);
         alert('Error al seguir: ' + error.message);
@@ -103,10 +96,10 @@ export const useFullProfile = (userId: string | undefined, currentUser: any) => 
   };
 
   const handleUnfollow = async () => {
-    if (!currentUser || !userId || isFollowLoading) return;
+    if (!currentUser || !actualProfileId || isFollowLoading) return;
     try {
       setIsFollowLoading(true);
-      const { error } = await supabase.from('followers').delete().eq('follower_id', currentUser.id).eq('following_id', userId);
+      const { error } = await supabase.from('followers').delete().eq('follower_id', currentUser.id).eq('following_id', actualProfileId);
       if (!error) {
         setIsFollowing(false);
         setStats(prev => ({ ...prev, followers: Math.max(0, prev.followers - 1) }));

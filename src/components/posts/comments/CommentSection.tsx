@@ -83,18 +83,6 @@ const CommentSection: React.FC<CommentSectionProps> = ({
     if (data) {
       setComments([...comments, data as any]);
       setNewComment('');
-
-      // --- NOTIFICACIÓN PARA COMENTARIO DIRECTO ---
-      // Notificar al dueño del post SOLO si es un comentario de nivel superior
-      // y si el autor no es el mismo dueño del post.
-      if (postOwnerId && user && postOwnerId !== user.id) {
-        await api.createNotification({
-          user_id: postOwnerId,
-          actor_id: user.id,
-          type: 'comment',
-          entity_id: `${postId}?c=${data.id}`
-        });
-      }
     }
   };
 
@@ -113,36 +101,6 @@ const CommentSection: React.FC<CommentSectionProps> = ({
       setComments([...comments, data as any]);
       setReplyContent('');
       setReplyTo(null);
-
-      // --- NOTIFICACIÓN PARA RESPUESTA (REPLY) ---
-      // Caso 1: Notificar al autor del comentario al que se está respondiendo.
-      const parentComment = comments.find(c => c.id === parentId);
-      
-      if (parentComment && user && parentComment.user_id !== user.id) {
-        // Intentamos enviar con tipo 'reply'
-        const result = await api.createNotification({
-          user_id: parentComment.user_id,
-          actor_id: user.id,
-          type: 'reply',
-          entity_id: `${postId}?c=${data.id}`
-        });
-        
-        // Si falla por el tipo 'reply' (posible ENUM no actualizado), intentamos con 'comment'
-        if (result && result.error) {
-          console.warn('DEBUG: createNotification fail with type "reply", retrying with "comment":', result.error);
-          await api.createNotification({
-            user_id: parentComment.user_id,
-            actor_id: user.id,
-            type: 'comment',
-            entity_id: `${postId}?c=${data.id}`
-          });
-        }
-      }
-      
-      // Caso 2 (Opcional/Omitido para evitar duplicados del usuario):
-      // Si el autor del post NO es el autor del comentario parent, podrías notificarle también,
-      // pero el usuario ha pedido que NO haya 2 notificaciones.
-      // Así que priorizamos la notificación de "respuesta" al autor del comentario.
     }
   };
 

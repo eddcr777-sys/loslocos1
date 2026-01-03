@@ -47,26 +47,7 @@ const ProfilePage = () => {
         setLoadingShared(true);
         api.getProfileShares(finalId).then(({ data, error }) => {
             if (data) {
-                const formatted = data.map((item: any) => {
-                    const isRepost = item.type === 'repost';
-                    const isQuote = item.type === 'quote';
-                    return {
-                        id: item.id,
-                        user_id: item.user_id,
-                        content: item.content,
-                        image_url: item.image_url,
-                        created_at: item.created_at,
-                        profiles: item.author_data, 
-                        original_post: item.original_post_data, 
-                        original_post_id: item.original_post_id,
-                        is_official: item.is_official,
-                        likes: { count: 0 }, 
-                        comments: { count: 0 },
-                        is_repost_from_shares: isRepost,
-                        is_quote: isQuote
-                    };
-                });
-                setSharedPosts(formatted);
+                setSharedPosts(data);
             } else if (error) {
                 console.error("Error loading shares:", error);
             }
@@ -80,7 +61,7 @@ const ProfilePage = () => {
 
   // Filter posts based on active tab
   const displayPosts = activeTab === 'posts' 
-    ? userPosts.filter(p => !p.original_post_id)  // Solo posts originales
+    ? userPosts  // Mostrar todo lo que el usuario escribió (originales y citas)
     : sharedPosts;  // Usar sharedPosts para la pestaña compartidos
 
   return (

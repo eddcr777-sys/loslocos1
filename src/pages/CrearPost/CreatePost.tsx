@@ -52,6 +52,7 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated, quotedPost, onCa
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
     if (!content.trim() && !image && !quotedPost) return;
 
     setLoading(true);
@@ -78,18 +79,24 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated, quotedPost, onCa
     
     setLoading(false);
     if (error) {
-     alert('Error al crear la publicación: ' + error.message);
+      alert('Error al crear la publicación: ' + error.message);
     } else {
       setContent('');
       setImage(null);
-      if (!quotedPost) setIsExpanded(false); // Close ONLY if not in specialized quote mode
+      
+      // Notify parent first
       onPostCreated();
+      
+      // Delay closing to avoid DOM conflicts that cause 'removeChild' error
+      setTimeout(() => {
+        if (!quotedPost) setIsExpanded(false);
+      }, 100);
     }
   };
 
   if (!isExpanded && !quotedPost) {
       return (
-          <div className="create-post-container" onClick={() => setIsExpanded(true)}>
+          <div key="collapsed-creator" className="create-post-container" onClick={() => setIsExpanded(true)}>
             <div className="create-post-card">
                 <Avatar 
                   src={profile?.avatar_url || DEFAULT_AVATAR_URL} 
@@ -106,7 +113,7 @@ const CreatePost: React.FC<CreatePostProps> = ({ onPostCreated, quotedPost, onCa
   }
 
   return (
-    <div className="create-post-container">
+    <div key="expanded-creator" className="create-post-container">
       <Card className="create-post-expanded">
         <div className="create-post-header">
             <h3>{quotedPost ? 'Citar Publicación' : 'Nueva publicación'}</h3>

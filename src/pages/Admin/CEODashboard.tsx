@@ -25,6 +25,7 @@ import Button from '../../components/ui/Button';
 const CEODashboard = () => {
     const [activeTab, setActiveTab] = useState('overview');
     const [stats, setStats] = useState({ users: 0, posts: 0, comments: 0 });
+    const [statsError, setStatsError] = useState<string | null>(null);
     const [logs, setLogs] = useState<any[]>([]);
     const [posts, setPosts] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -36,6 +37,7 @@ const CEODashboard = () => {
 
     const loadDashboardData = async () => {
         setLoading(true);
+        setStatsError(null);
         try {
             const [sysStats, adminLogs, recentPosts] = await Promise.all([
                 api.getSystemStats(),
@@ -43,11 +45,21 @@ const CEODashboard = () => {
                 api.getPosts()
             ]);
 
-            if (sysStats) setStats({ users: sysStats.usersCount, posts: sysStats.postsCount, comments: sysStats.commentsCount });
+            if (sysStats.error) {
+                setStatsError(sysStats.error.message);
+            } else if (sysStats) {
+                setStats({ 
+                    users: sysStats.usersCount, 
+                    posts: sysStats.postsCount, 
+                    comments: sysStats.commentsCount 
+                });
+            }
+
             if (adminLogs.data) setLogs(adminLogs.data);
             if (recentPosts.data) setPosts(recentPosts.data);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error loading dashboard data:', error);
+            setStatsError('Fallo en la conexión con el servidor.');
         } finally {
             setLoading(false);
         }
@@ -139,24 +151,40 @@ const CEODashboard = () => {
                 <div className="view-container">
                     {activeTab === 'overview' && (
                         <div className="overview-view animate-fade-in">
+                            {statsError && (
+                                <div className="admin-error-banner" style={{ 
+                                    backgroundColor: 'var(--error-soft)', 
+                                    color: 'var(--error)', 
+                                    padding: '1rem', 
+                                    borderRadius: '12px', 
+                                    marginBottom: '1.5rem',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.75rem',
+                                    border: '1px solid var(--error)'
+                                }}>
+                                    <AlertTriangle size={20} />
+                                    <span><strong>Error de Acceso:</strong> {statsError}</span>
+                                </div>
+                            )}
                             <div className="stats-row-expanded">
                                 <StatCard 
                                     title="Usuarios Totales"
-                                    value={stats.users.toLocaleString()}
+                                    value={statsError ? '---' : stats.users.toLocaleString()}
                                     subtext="Registrados en la plataforma"
                                     icon={<Users size={20} />}
                                     className="users-g"
                                 />
                                 <StatCard 
                                     title="Posteos"
-                                    value={stats.posts.toLocaleString()}
+                                    value={statsError ? '---' : stats.posts.toLocaleString()}
                                     subtext="Contenido publicado"
                                     icon={<MessageSquare size={20} />}
                                     className="posts-g"
                                 />
                                 <StatCard 
                                     title="Interacciones"
-                                    value={stats.comments.toLocaleString()}
+                                    value={statsError ? '---' : stats.comments.toLocaleString()}
                                     subtext="Comentarios totales"
                                     icon={<Activity size={20} />}
                                     className="eng-g"
@@ -230,9 +258,9 @@ const CEODashboard = () => {
                                         </div>
                                         <div className="mod-body">
                                             <p>{post.content}</p>
-                                            {post.media_url && (
+                                            {post.image_url && (
                                                 <div className="mod-img-container">
-                                                    <img src={post.media_url} alt="Post Media" />
+                                                    <img src={post.image_url} alt="Post Media" />
                                                 </div>
                                             )}
                                         </div>

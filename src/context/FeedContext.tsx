@@ -1,6 +1,7 @@
 import React, { createContext, useState, ReactNode, FC, useContext, useEffect, useCallback } from 'react';
 import { api, Post } from '../services/api';
 import { useAuth } from './AuthContext';
+import { supabase } from '../utils/supabaseClient';
 
 interface FeedContextType {
   posts: Post[];
@@ -47,6 +48,31 @@ export const FeedProvider: FC<{children: ReactNode}> = ({ children }) => {
 
   useEffect(() => {
     refreshFeed();
+
+    // --- REALTIME POSTS ---
+    const postsChannel = supabase
+      .channel('public:posts-feed')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'posts' },
+        () => {
+          console.log('REALTIME: Nuevo post detectado!');
+          refreshFeed();
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'shares' },
+        () => {
+          console.log('REALTIME: Cambio en compartidos detectado!');
+          refreshFeed(); // Refresh to update "reposters header"
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(postsChannel);
+    };
   }, [refreshFeed]);
 
   const value = { posts, loading, activeTab, setActiveTab, refreshFeed, createPost };

@@ -35,10 +35,8 @@ const PostDetailPage = () => {
         setActualPostId(postId);
         const params = new URLSearchParams(window.location.search);
         if (params.has('c')) {
-
           setTargetCommentId(params.get('c'));
         } else {
-          // Si no hay comentario pero venimos de notificación, resaltamos el post
           setShouldHighlightPost(true);
         }
       }
@@ -63,7 +61,6 @@ const PostDetailPage = () => {
       // Si falla o no existe, y parece ser un ID (o simplemente por si acaso),
       // intentamos buscar si es un ID de comentario (fallback para notificaciones viejas)
       if (!data) {
-// Log removed
         const fallback = await api.getPostByCommentId(id);
         if (fallback.data) {
           data = fallback.data;
@@ -129,6 +126,7 @@ const PostDetailPage = () => {
 
       <div className="feed-container" style={{ padding: '0 10px' }}>
         <Post 
+          key={post.id}
           post={post} 
           onPostDeleted={() => navigate('/home')} 
           showCommentsByDefault={true}

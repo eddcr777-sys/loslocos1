@@ -13,122 +13,139 @@ const TrendsAside = () => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchTrendsData = async () => {
-      try {
-        // Usamos 'day' como periodo por defecto para el widget lateral
-        const now = new Date();
-        const startDate = new Date();
-        startDate.setDate(now.getDate() - 1);
-        const isoDate = startDate.toISOString();
+  const fetchTrendsData = React.useCallback(async () => {
+    try {
+      // Usamos 'day' como periodo por defecto para el widget lateral
+      const now = new Date();
+      const startDate = new Date();
+      startDate.setDate(now.getDate() - 1);
+      const isoDate = startDate.toISOString();
 
-        const { data: postsData, error } = await supabase
-          .from('posts')
-          .select(`
-            *,
-            profiles (full_name, username, avatar_url, faculty),
-            likes (user_id),
-            comments (count)
-          `)
-          .gte('created_at', isoDate)
-          .limit(500);
+      const { data: postsData, error } = await supabase
+        .from('posts')
+        .select(`
+          *,
+          profiles (full_name, username, avatar_url, faculty),
+          likes (count),
+          comments (count)
+        `)
+        .gte('created_at', isoDate)
+        .limit(500);
 
-        if (error) throw error;
+      if (error) throw error;
 
-        if (!postsData || postsData.length === 0) {
-            setLoading(false);
-            return;
-        }
-
-        // 1. Usuario Destacado (Más activo)
-        const userPostCounts: Record<string, number> = {};
-        postsData.forEach(post => {
-            const uid = post.user_id;
-            userPostCounts[uid] = (userPostCounts[uid] || 0) + 1;
-        });
-        
-        if (Object.keys(userPostCounts).length > 0) {
-            const topUserId = Object.keys(userPostCounts).reduce((a, b) => userPostCounts[a] > userPostCounts[b] ? a : b);
-            const topUserProfile = postsData.find(p => p.user_id === topUserId)?.profiles;
-
-            if (topUserProfile) {
-                setFeaturedUser({
-                    id: topUserId,
-                    name: (topUserProfile as any).full_name || 'Usuario',
-                    handle: (topUserProfile as any).username ? `@${(topUserProfile as any).username}` : '@usuario',
-                    faculty: (topUserProfile as any).faculty || 'Comunidad',
-                    reason: 'Usuario del día'
-                });
-            }
-        }
-
-        // 2. Post Destacado (Oficiales primero, luego más likes)
-        const officialPosts = postsData.filter(p => p.is_official === true);
-        let topPost = null;
-
-        if (officialPosts.length > 0) {
-            // Priorizar el aviso oficial más reciente
-            topPost = officialPosts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0];
-            setFeaturedPost({
-                id: topPost.id,
-                author: (topPost.profiles as any)?.full_name || 'Institucional',
-                content: topPost.content,
-                likes: (topPost.likes as any)?.length || 0,
-                comments: (topPost.comments as any)?.[0]?.count || 0,
-                reason: 'Aviso Universitario'
-            });
-        } else {
-            const sortedByLikes = [...postsData].sort((a, b) => {
-                const likesA = a.likes ? a.likes.length : 0;
-                const likesB = b.likes ? b.likes.length : 0;
-                return likesB - likesA;
-            });
-
-            if (sortedByLikes.length > 0) {
-                topPost = sortedByLikes[0];
-                setFeaturedPost({
-                    id: topPost.id,
-                    author: (topPost.profiles as any)?.full_name || 'Usuario',
-                    content: topPost.content,
-                    likes: (topPost.likes as any)?.length || 0,
-                    comments: (topPost.comments as any)?.[0]?.count || 0,
-                    reason: 'Post destacado'
-                });
-            }
-        }
-
-        // 3. Temas (Hashtags)
-        const hashtagCounts: Record<string, number> = {};
-        postsData.forEach(post => {
-            const tags = post.content?.match(/#[a-zA-Z0-9_ñáéíóú]+/g);
-            if (tags) {
-                tags.forEach((tag: string) => {
-                    hashtagCounts[tag] = (hashtagCounts[tag] || 0) + 1;
-                });
-            }
-        });
-
-        const sortedTopics = Object.entries(hashtagCounts)
-            .map(([name, count]) => ({ name, posts: `${count} posts` }))
-            .sort((a, b) => parseInt(b.posts) - parseInt(a.posts))
-            .slice(0, 3);
-        
-        setTrendingTopics(sortedTopics);
-
-      } catch (error) {
-        console.error('Error fetching trends aside:', error);
-      } finally {
-        setLoading(false);
+      if (!postsData || postsData.length === 0) {
+          setLoading(false);
+          return;
       }
-    };
 
-    fetchTrendsData();
-    const interval = setInterval(fetchTrendsData, 60000); // Actualizar cada minuto
+      // 1. Usuario Destacado (Más activo)
+      const userPostCounts: Record<string, number> = {};
+      postsData.forEach(post => {
+          const uid = post.user_id;
+          userPostCounts[uid] = (userPostCounts[uid] || 0) + 1;
+      });
+      
+      if (Object.keys(userPostCounts).length > 0) {
+          const topUserId = Object.keys(userPostCounts).reduce((a, b) => userPostCounts[a] > userPostCounts[b] ? a : b);
+          const topUserProfile = postsData.find(p => p.user_id === topUserId)?.profiles;
 
-    return () => clearInterval(interval);
+          if (topUserProfile) {
+              setFeaturedUser({
+                  id: topUserId,
+                  name: (topUserProfile as any).full_name || 'Usuario',
+                  handle: (topUserProfile as any).username ? `@${(topUserProfile as any).username}` : '@usuario',
+                  faculty: (topUserProfile as any).faculty || 'Comunidad',
+                  reason: 'Usuario del día'
+              });
+          }
+      }
+
+      // 2. Post Destacado (Oficiales primero, luego más likes)
+      const officialPosts = postsData.filter(p => p.is_official === true);
+      let topPost = null;
+
+      if (officialPosts.length > 0) {
+          topPost = officialPosts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0];
+          setFeaturedPost({
+              id: topPost.id,
+              author: (topPost.profiles as any)?.full_name || 'Institucional',
+              content: topPost.content,
+              likes: (topPost.likes as any)?.length || 0,
+              comments: (topPost.comments as any)?.[0]?.count || 0,
+              reason: 'Aviso Universitario'
+          });
+      } else {
+          const sortedByLikes = [...postsData].sort((a, b) => {
+              const likesA = a.likes ? a.likes.length : 0;
+              const likesB = b.likes ? b.likes.length : 0;
+              return likesB - likesA;
+          });
+
+          if (sortedByLikes.length > 0) {
+              topPost = sortedByLikes[0];
+              setFeaturedPost({
+                  id: topPost.id,
+                  author: (topPost.profiles as any)?.full_name || 'Usuario',
+                  content: topPost.content,
+                  likes: (topPost.likes as any)?.length || 0,
+                  comments: (topPost.comments as any)?.[0]?.count || 0,
+                  reason: 'Post destacado'
+              });
+          }
+      }
+
+      // 3. Temas (Hashtags)
+      const hashtagCounts: Record<string, number> = {};
+      postsData.forEach(post => {
+          const tags = post.content?.match(/#[a-zA-Z0-9_ñáéíóú]+/g);
+          if (tags) {
+              tags.forEach((tag: string) => {
+                  hashtagCounts[tag] = (hashtagCounts[tag] || 0) + 1;
+              });
+          }
+      });
+
+      const sortedTopics = Object.entries(hashtagCounts)
+          .map(([name, count]) => ({ name, posts: `${count} posts` }))
+          .sort((a, b) => parseInt(b.posts) - parseInt(a.posts))
+          .slice(0, 3);
+      
+      setTrendingTopics(sortedTopics);
+
+    } catch (error) {
+      console.error('Error fetching trends aside:', error);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  if (loading) return null; // O un skeleton loader simple
+  useEffect(() => {
+    fetchTrendsData();
+    
+    // --- REALTIME FOR TRENDS ---
+    // Suscribirse a cambios en posts, likes y comments para refrescar tendencias
+    const channels = ['posts', 'likes', 'comments'].map(table => 
+      supabase
+        .channel(`trends-refresh-${table}`)
+        .on('postgres_changes', { event: '*', schema: 'public', table }, () => {
+          fetchTrendsData();
+        })
+        .subscribe()
+    );
+
+    return () => {
+      channels.forEach(channel => supabase.removeChannel(channel));
+    };
+  }, [fetchTrendsData]);
+
+  if (loading) return (
+      <aside className="trends-aside">
+          <div className="trends-widget">
+              <h2 className="trends-title">Cargando tendencias...</h2>
+          </div>
+      </aside>
+  );
 
   return (
     <aside className="trends-aside">
