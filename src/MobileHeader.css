@@ -31,22 +31,19 @@
 .mobile-header-nav {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
-  background: var(--surface-hover);
-  padding: 4px;
-  border-radius: var(--radius-full);
-  border: 1px solid var(--border-color);
+  gap: 0.5rem;
 }
 
 .header-nav-item {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   color: var(--text-secondary);
   border-radius: var(--radius-full);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.25s ease;
+  position: relative;
 }
 
 .header-nav-item:hover {
@@ -55,9 +52,20 @@
 }
 
 .header-nav-item.active {
-  color: white;
+  color: var(--accent-color);
+  background-color: var(--accent-soft);
+}
+
+.header-nav-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
   background-color: var(--accent-color);
-  box-shadow: 0 2px 8px var(--accent-soft);
 }
 
 .menu-section {

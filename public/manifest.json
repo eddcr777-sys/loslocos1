@@ -1,7 +1,17 @@
 {
   "short_name": "UniFeed",
-  "name": "UniFeed - Conociendo Gente",
-  "description": "Conecta con tu comunidad universitaria. Historias, posts, tendencias y más en UniFeed.",
+  "name": "UniFeed - Conecta con tu Campus",
+  "description": "La red social universitaria definitiva. Comparte historias, descubre tendencias y conecta con tu comunidad académica.",
+  "lang": "es-ES",
+  "start_url": "/home",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#ffffff",
+  "background_color": "#ffffff",
+  "categories": [
+    "social",
+    "education"
+  ],
   "icons": [
     {
       "src": "favicon.ico",
@@ -21,11 +31,59 @@
       "purpose": "any maskable"
     }
   ],
-  "start_url": "/home",
-  "display": "standalone",
-  "orientation": "portrait",
-  "theme_color": "#ffffff",
-  "background_color": "#ffffff",
+  "shortcuts": [
+    {
+      "name": "Crear Publicación",
+      "short_name": "Crear",
+      "description": "Publica algo nuevo en UniFeed",
+      "url": "/home?action=create",
+      "icons": [
+        {
+          "src": "logo192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Tendencias",
+      "short_name": "Trends",
+      "description": "Mira lo más viral del campus",
+      "url": "/trends",
+      "icons": [
+        {
+          "src": "logo192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Mi Perfil",
+      "short_name": "Perfil",
+      "url": "/profile",
+      "icons": [
+        {
+          "src": "logo192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "form_factor": "narrow",
+      "label": "UniFeed en tu móvil"
+    },
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "form_factor": "wide",
+      "label": "UniFeed en escritorio"
+    }
+  ],
   "prefer_related_applications": false,
   "scope": "/"
 }

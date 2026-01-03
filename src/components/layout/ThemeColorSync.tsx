@@ -37,13 +37,14 @@ const ThemeColorSync = () => {
         if (appleMeta) appleMeta.setAttribute('content', isDark ? 'black-translucent' : 'default');
 
         // Force a re-discovery by the browser (crucial for some Android versions)
-        if (darkMeta) {
-          const parent = darkMeta.parentNode;
-          if (parent) {
-            parent.removeChild(darkMeta);
-            parent.appendChild(darkMeta);
+        // We clone and replace to trigger a OS-level re-evaluation
+        [lightMeta, darkMeta].forEach(meta => {
+          if (meta && meta.parentNode) {
+            const parent = meta.parentNode;
+            const clone = meta.cloneNode(true);
+            parent.replaceChild(clone, meta);
           }
-        }
+        });
 
         // Update body and html backgrounds again to be sure
         document.documentElement.style.backgroundColor = bgColor;

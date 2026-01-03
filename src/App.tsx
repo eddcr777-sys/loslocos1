@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import AdminRoute from './components/auth/AdminRoute';
 import ThemeColorSync from './components/layout/ThemeColorSync';
 import BottomNav from './BottomNav';
+import OfflineBadge from './components/ui/OfflineBadge';
 import { usePWAStatus } from './hooks/usePWAStatus';
 import './styles/App.css';
 
@@ -143,18 +144,28 @@ const AppRoutes = () => (
   </Suspense>
 );
 
-function App() {
+const AppContent = () => {
   const { isStandalone, isMobile } = usePWAStatus();
+  const { user } = useAuth();
 
+  return (
+    <FeedProvider>
+      <AppRoutes />
+      <OfflineBadge />
+      {/* Solo mostrar la barra de navegación inferior si el usuario está logueado,
+          está en móvil y en modo instalado (PWA) */}
+      {user && isMobile && isStandalone && <BottomNav />}
+    </FeedProvider>
+  );
+};
+
+function App() {
   return (
     <Router>
       <ThemeInitializer />
       <ThemeColorSync />
       <AuthProvider>
-        <FeedProvider>
-          <AppRoutes />
-          {isMobile && isStandalone && <BottomNav />}
-        </FeedProvider>
+        <AppContent />
       </AuthProvider>
     </Router>
   );
