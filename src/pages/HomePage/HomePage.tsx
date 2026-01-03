@@ -3,7 +3,7 @@ import { useFeed } from '../../context/FeedContext';
 import CreatePost from '../CrearPost/CreatePost';
 import Post from '../../components/posts/Post';
 import './HomePage.css'; 
-import Logo from '../../components/ui/logo';
+
 
 import Stories from '../../components/layout/Stories';
 import FeedFilters from '../../components/layout/FeedFilters';

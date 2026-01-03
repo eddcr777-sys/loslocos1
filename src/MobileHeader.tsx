@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link, NavLink, useLocation, useNavigate, matchPath } from 'react-router-dom';
+import { NavLink, useLocation, matchPath } from 'react-router-dom';
 import { Menu as MenuIcon, X, Home, TrendingUp, Bell, User, Search, Calendar } from 'lucide-react';
 import Menu from './Menu';
 import './MobileHeader.css';
@@ -11,11 +11,10 @@ import SubPageHeader from './components/layout/SubPageHeader';
 import { usePWAStatus } from './hooks/usePWAStatus';
 
 const MobileHeader = () => {
-  const { unreadNotifications, isAdmin, isInstitutional, user } = useAuth();
+  const { unreadNotifications } = useAuth();
   const { isStandalone } = usePWAStatus();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
   const menuRef = useRef<HTMLDivElement>(null);
 
   // ... (rest of the detection logic)

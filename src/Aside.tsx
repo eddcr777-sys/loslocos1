@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import Logo from './components/ui/logo';
 import Menu from './Menu';
 import { Home, TrendingUp, Bell, User, Search, Shield, Calendar } from 'lucide-react';

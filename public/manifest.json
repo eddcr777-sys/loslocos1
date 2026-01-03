@@ -3,7 +3,7 @@
   "name": "UniFeed - Conecta con tu Campus",
   "description": "La red social universitaria definitiva. Comparte historias, descubre tendencias y conecta con tu comunidad académica.",
   "lang": "es-ES",
-  "start_url": "/home",
+  "start_url": "/home?source=pwa",
   "display": "standalone",
   "orientation": "portrait",
   "theme_color": "#ffffff",
@@ -36,7 +36,7 @@
       "name": "Crear Publicación",
       "short_name": "Crear",
       "description": "Publica algo nuevo en UniFeed",
-      "url": "/home?action=create",
+      "url": "/home?action=create&source=pwa",
       "icons": [
         {
           "src": "logo192.png",
@@ -48,7 +48,7 @@
       "name": "Tendencias",
       "short_name": "Trends",
       "description": "Mira lo más viral del campus",
-      "url": "/trends",
+      "url": "/trends?source=pwa",
       "icons": [
         {
           "src": "logo192.png",
@@ -59,7 +59,7 @@
     {
       "name": "Mi Perfil",
       "short_name": "Perfil",
-      "url": "/profile",
+      "url": "/profile?source=pwa",
       "icons": [
         {
           "src": "logo192.png",

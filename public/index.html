@@ -47,7 +47,11 @@
       }
 
       // Check for standalone mode immediately
-      if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+      const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches ||
+        window.navigator.standalone ||
+        window.location.search.includes('source=pwa');
+
+      if (isStandaloneMode) {
         document.documentElement.classList.add('standalone');
       }
     })();

@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 
 export const usePWAStatus = () => {
     const [isStandalone, setIsStandalone] = useState(() => {
-        return document.documentElement.classList.contains('standalone') ||
+        return window.location.search.includes('source=pwa') ||
+            document.documentElement.classList.contains('standalone') ||
             window.matchMedia('(display-mode: standalone)').matches ||
+            window.matchMedia('(display-mode: minimal-ui)').matches ||
             (window.navigator as any).standalone === true;
     });
     const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 1024);
@@ -11,7 +13,9 @@ export const usePWAStatus = () => {
     useEffect(() => {
         const checkStatus = () => {
             // Check if the app is running in standalone mode (PWA)
-            const standalone = window.matchMedia('(display-mode: standalone)').matches ||
+            const standalone = window.location.search.includes('source=pwa') ||
+                window.matchMedia('(display-mode: standalone)').matches ||
+                window.matchMedia('(display-mode: minimal-ui)').matches ||
                 (window.navigator as any).standalone === true;
 
             // Check if the current device is mobile based on screen width (consistent with MainLayout)
