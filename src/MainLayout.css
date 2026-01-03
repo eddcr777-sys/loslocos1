@@ -7,8 +7,16 @@
 .main-content {
   width: 100%;
   box-sizing: border-box;
-  padding: 70px 0 24px 0;
-  /* Default for mobile - Removed horizontal padding */
+  padding: 0;
+  /* Default for all, we specify in media queries */
+}
+
+/* Mobile layout */
+@media (max-width: 768px) {
+  .main-content {
+    padding-top: 70px;
+    padding-bottom: 24px;
+  }
 }
 
 /* Tablet layout (2 columns) */

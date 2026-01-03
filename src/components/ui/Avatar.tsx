@@ -12,7 +12,7 @@ const Avatar: React.FC<AvatarProps> = ({ src, alt = 'Usuario', size = 'medium', 
   const sizeMap = {
     small: '32px',
     medium: '48px',
-    large: '80px'
+    large: '64px'
   };
 
   const finalStyle: React.CSSProperties = {

@@ -16,17 +16,7 @@ const Aside = () => {
     <aside className="app-aside">
       <div>
         <div className="aside-logo">
-          <h1>
-            <span style={{
-              background: 'linear-gradient(to right, var(--text-primary), var(--accent-color))',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              color: 'transparent'
-            }}>
-              UniFeed
-            </span>
-          </h1>
+          <Logo size="large" to="/home" text="UniFeed" />
         </div>
         <nav className="aside-nav">
           <NavLink to="/home" className={getNavLinkClass}>

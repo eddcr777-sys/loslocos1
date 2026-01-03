@@ -52,8 +52,8 @@
 
 .story-avatar {
     border: 2px solid var(--surface-color) !important;
-    width: 64px !important;
-    height: 64px !important;
+    width: 64px;
+    height: 64px;
 }
 
 .story-username {

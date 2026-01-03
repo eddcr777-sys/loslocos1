@@ -11,14 +11,38 @@ const ThemeColorSync = () => {
     // Función para actualizar el color basado en las variables CSS
     const updateThemeColor = () => {
       const themeColorMeta = document.querySelector('meta[name="theme-color"]');
-      if (!themeColorMeta) return;
+      const colorSchemeMeta = document.querySelector('meta[name="color-scheme"]');
+      const body = document.body;
+      const html = document.documentElement;
+      const isDark = body.classList.contains('dark');
 
-      // Obtenemos el color de fondo de la app (u otro color representativo del header)
-      // Usamos el color de fondo del body o una variable CSS dedicada
-      const style = getComputedStyle(document.documentElement);
-      const bgColor = style.getPropertyValue('--bg-primary').trim() || '#ffffff';
+      // Colores hardcodeados para asegurar compatibilidad total en móviles
+      const bgColor = isDark ? '#0b0f1a' : '#ffffff';
       
-      themeColorMeta.setAttribute('content', bgColor);
+      // Sincronizar clase dark en html para que el navegador sepa el tema global
+      if (isDark) {
+        html.classList.add('dark');
+        html.style.backgroundColor = bgColor;
+      } else {
+        html.classList.remove('dark');
+        html.style.backgroundColor = bgColor;
+      }
+
+      if (themeColorMeta) {
+        themeColorMeta.setAttribute('content', bgColor);
+      }
+
+      if (colorSchemeMeta) {
+        colorSchemeMeta.setAttribute('content', isDark ? 'dark' : 'light');
+      }
+
+      // Sync specific iOS status bar
+      const appleStatusMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
+      if (appleStatusMeta) {
+        // En iOS, 'default' se adapta al theme-color si viewport-fit=cover está presente,
+        // pero 'black-translucent' suele dar mejores resultados para apps tipo app nativa.
+        appleStatusMeta.setAttribute('content', isDark ? 'black-translucent' : 'default');
+      }
     };
 
     // Al montar y en cada cambio del DOM (por si cambia la clase dark/light)
@@ -32,7 +56,8 @@ const ThemeColorSync = () => {
       });
     });
 
-    observer.observe(document.documentElement, { attributes: true });
+    // Observamos el body porque es donde se aplica la clase 'dark'
+    observer.observe(document.body, { attributes: true });
 
     return () => observer.disconnect();
   }, []);

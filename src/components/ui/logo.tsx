@@ -8,6 +8,7 @@ interface LogoProps {
   className?: string;
   style?: React.CSSProperties;
   to?: string;
+  text?: string;
 }
 
 const Logo: React.FC<LogoProps> = ({ 
@@ -15,7 +16,8 @@ const Logo: React.FC<LogoProps> = ({
   variant = 'full', 
   className = '',
   style = {},
-  to = '/'
+  to = '/',
+  text = 'ConociendoGente'
 }) => {
   const sizeMap = {
     small: { fontSize: '1.25rem', iconSize: 24 },
@@ -54,7 +56,7 @@ const Logo: React.FC<LogoProps> = ({
           backgroundClip: 'text',
           color: primaryColor // Fallback
         }}>
-          ConociendoGente
+          {text}
         </span>
       )}
     </Link>
