@@ -6,11 +6,13 @@ import { supabase } from '../utils/supabaseClient';
 export const usePost = (post: Post, user: User | null, initialShowComments: boolean = false) => {
   // Inicializar contadores manejando la estructura de datos de Supabase (puede ser array u objeto)
   const [likes, setLikes] = useState<number>(
-    post.likes ? (Array.isArray(post.likes) ? post.likes[0]?.count : post.likes.count) : 0
+    post.likes_count !== undefined ? post.likes_count :
+      (post.likes ? (Array.isArray(post.likes) ? (post.likes[0]?.count || 0) : (post.likes.count || 0)) : 0)
   );
 
   const [commentsCount, setCommentsCount] = useState<number>(
-    post.comments ? (Array.isArray(post.comments) ? post.comments[0]?.count : post.comments.count) : 0
+    post.comments_count !== undefined ? post.comments_count :
+      (post.comments ? (Array.isArray(post.comments) ? (post.comments[0]?.count || 0) : (post.comments.count || 0)) : 0)
   );
 
   const [sharesCount, setSharesCount] = useState<number>(

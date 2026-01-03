@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { User, MessageSquare, TrendingUp, Star, Plus } from 'lucide-react';
+import { User, MessageCircle, TrendingUp, Star, Plus, Heart, Share2 } from 'lucide-react';
 import { supabase } from '../../utils/supabaseClient';
 import FloatingActionButton from '../ui/FloatingActionButton';
 import CreatePostModal from '../../modals/CreatePostModal';
+import { api } from '../../services/api';
 import './TrendsAside.css';
 
 const TrendsAside = () => {
@@ -15,97 +16,82 @@ const TrendsAside = () => {
 
   const fetchTrendsData = React.useCallback(async () => {
     try {
-      // Usamos 'day' como periodo por defecto para el widget lateral
-      const now = new Date();
-      const startDate = new Date();
-      startDate.setDate(now.getDate() - 1);
-      const isoDate = startDate.toISOString();
-
-      const { data: postsData, error } = await supabase
-        .from('posts')
-        .select(`
-          *,
-          profiles:profiles!user_id (full_name, username, avatar_url, faculty),
-          likes (count),
-          comments (count)
-        `)
-        .gte('created_at', isoDate)
-        .limit(500);
-
-      if (error) throw error;
-
-      if (!postsData || postsData.length === 0) {
-          setLoading(false);
-          return;
-      }
-
-      // 1. Usuario Destacado (Más activo)
-      const userPostCounts: Record<string, number> = {};
-      postsData.forEach(post => {
-          const uid = post.user_id;
-          userPostCounts[uid] = (userPostCounts[uid] || 0) + 1;
-      });
+      setLoading(true);
       
-      if (Object.keys(userPostCounts).length > 0) {
-          const topUserId = Object.keys(userPostCounts).reduce((a, b) => userPostCounts[a] > userPostCounts[b] ? a : b);
-          const topUserProfile = postsData.find(p => p.user_id === topUserId)?.profiles;
+      // 1. Forzar actualización de tendencias en DB (Opcional, pero asegura frescura)
+      await api.updateTrendingPosts();
 
-          if (topUserProfile) {
-              setFeaturedUser({
-                  id: topUserId,
-                  name: (topUserProfile as any).full_name || 'Usuario',
-                  handle: (topUserProfile as any).username ? `@${(topUserProfile as any).username}` : '@usuario',
-                  faculty: (topUserProfile as any).faculty || 'Comunidad',
-                  reason: 'Usuario del día'
-              });
+      // 2. Obtener posts tendencia desde el RPC optimizado
+      const { data: trendingPosts, error: trendingError } = await api.getTrendingPosts('day');
+      
+      let postsToUse = trendingPosts || [];
+
+      // FALLBACK: Si no hay tendencias "reales", usar posts más recientes con algo de interacción
+      if (!trendingError && postsToUse.length === 0) {
+          const { data: fallbackPosts } = await supabase
+            .from('posts')
+            .select(`
+                *,
+                author_data:profiles!user_id (id, full_name, avatar_url, user_type, username, faculty),
+                likes (count),
+                comments (count),
+                shares (count)
+            `)
+            .is('deleted_at', null)
+            .order('created_at', { ascending: false })
+            .limit(5);
+            
+          if (fallbackPosts) {
+              postsToUse = fallbackPosts.map(p => ({
+                   ...p,
+                   likes_count: p.likes?.[0]?.count || 0,
+                   comments_count: p.comments?.[0]?.count || 0,
+                   shares_count: p.shares?.[0]?.count || 0,
+                   quotes_count: 0,
+                   score: 0
+              }));
           }
       }
 
-      // 2. Post Destacado (Oficiales primero, luego más likes)
-      const officialPosts = postsData.filter(p => p.is_official === true);
-      let topPost = null;
-
-      const getCount = (val: any) => {
-          if (!val) return 0;
-          if (typeof val === 'number') return val;
-          if (Array.isArray(val)) return val.length;
-          if (typeof val === 'object' && val.count !== undefined) return val.count;
-          return 0;
-      };
-
-      if (officialPosts.length > 0) {
-          topPost = officialPosts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0];
+      if (postsToUse.length > 0) {
+          // Tomar el mejor post para el widget
+          const topPost = postsToUse[0];
           setFeaturedPost({
               id: topPost.id,
-              author: (topPost.profiles as any)?.full_name || 'Institucional',
+              author: (topPost.author_data as any)?.full_name || 'Usuario',
               content: topPost.content,
-              likes: getCount(topPost.likes),
-              comments: getCount(topPost.comments),
-              reason: 'Aviso Universitario'
-          });
-      } else {
-          const sortedByLikes = [...postsData].sort((a, b) => {
-              const likesA = getCount(a.likes);
-              const likesB = getCount(b.likes);
-              return likesB - likesA;
+              likes: parseInt(topPost.likes_count || '0'),
+              comments: parseInt(topPost.comments_count || '0'),
+              shares: parseInt(topPost.shares_count || '0'),
+              quotes: parseInt(topPost.quotes_count || '0'),
+              reason: 'Post top del día'
           });
 
-          if (sortedByLikes.length > 0) {
-              topPost = sortedByLikes[0];
-              setFeaturedPost({
-                  id: topPost.id,
-                  author: (topPost.profiles as any)?.full_name || 'Usuario',
-                  content: topPost.content,
-                  likes: getCount(topPost.likes),
-                  comments: getCount(topPost.comments),
-                  reason: 'Post destacado'
+          // 3. Usuario Destacado
+          const topUser = topPost.author_data;
+          if (topUser) {
+              setFeaturedUser({
+                  id: topUser.id,
+                  name: topUser.full_name || 'Usuario',
+                  handle: topUser.username ? `@${topUser.username}` : '@usuario',
+                  faculty: topUser.faculty || 'Comunidad',
+                  reason: 'Más activo del día'
               });
           }
       }
 
-      // 3. Temas (Hashtags)
+      // 4. Temas (Hashtags) - Ampliamos a 30 días para asegurar que salgan temas
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      
+      const { data: recentPosts } = await supabase
+        .from('posts')
+        .select('content')
+        .gte('created_at', thirtyDaysAgo.toISOString())
+        .limit(300);
+
       const hashtagCounts: Record<string, number> = {};
-      postsData.forEach(post => {
+      (recentPosts || []).forEach(post => {
           const tags = post.content?.match(/#[a-zA-Z0-9_ñáéíóú]+/g);
           if (tags) {
               tags.forEach((tag: string) => {
@@ -132,8 +118,7 @@ const TrendsAside = () => {
     fetchTrendsData();
     
     // --- REALTIME FOR TRENDS ---
-    // Suscribirse a cambios en posts, likes y comments para refrescar tendencias
-    const channels = ['posts', 'likes', 'comments'].map(table => 
+    const channels = ['posts', 'likes', 'comments', 'shares', 'quotes'].map(table => 
       supabase
         .channel(`trends-refresh-${table}`)
         .on('postgres_changes', { event: '*', schema: 'public', table }, () => {
@@ -182,13 +167,23 @@ const TrendsAside = () => {
             <Link to={`/post/${featuredPost.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
             <div className="trend-item featured-item">
                 <div className="trend-header">
-                <MessageSquare size={16} className="trend-icon" />
+                <MessageCircle size={16} className="trend-icon" />
                 <span className="trend-label">{featuredPost.reason}</span>
                 </div>
                 <div className="trend-content">
                 <span className="trend-name">{featuredPost.author}</span>
                 <p className="trend-snippet">"{featuredPost.content?.substring(0, 50)}{featuredPost.content?.length > 50 ? '...' : ''}"</p>
-                <span className="trend-meta">{featuredPost.likes} Likes • {featuredPost.comments} Comentarios</span>
+                <div style={{ display: 'flex', gap: '12px', marginTop: '8px', fontSize: '0.8rem', color: 'var(--text-secondary, #64748b)' }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Heart size={14} /> {featuredPost.likes}
+                  </span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <MessageCircle size={14} /> {featuredPost.comments}
+                  </span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Share2 size={14} /> {featuredPost.shares + featuredPost.quotes}
+                  </span>
+                </div>
                 </div>
             </div>
             </Link>

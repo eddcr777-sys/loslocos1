@@ -21,44 +21,53 @@ function HomePage() {
   });
 
   // AGGREGATION ALGORITHM
-  // 1. Group Reposts by original_post_id
+  // We use a Map to group reposts of the same original post.
+  // We also track processed IDs to avoid showing the same content twice.
   const processedPosts: any[] = [];
-  const repostsMap = new Map<string, { main: any, reposters: any[] }>();
-  const processedIds = new Set<string>();
+  const entriesMap = new Map<string, any>(); // original_post_id -> entry index in processedPosts
 
-  // Sort by date descending first (assuming 'posts' is already sorted, but good to be safe)
   const sortedPosts = [...baseFilteredPosts].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
   sortedPosts.forEach(post => {
-      // If it's a "Repost" (has original_post but no content)
-      if (post.original_post && !post.content) {
-          const originalId = post.original_post.id;
+      const isShare = post.item_type === 'share' || (post.original_post && !post.content && !post.is_quote);
+      const isQuote = post.item_type === 'quote' || post.is_quote;
+      
+      const originalId = isShare ? (post.original_post ? post.original_post.id : post.original_post_id) : post.id;
+      
+      if (!originalId) return;
+
+      // Quotes are unique pieces of content, they DON'T merge with other things
+      if (isQuote) {
+          processedPosts.push({ main: post, reposters: [] });
+          return;
+      }
+
+      // Check if this (Original) post content is already in the feed
+      if (entriesMap.has(originalId)) {
+          const entry = entriesMap.get(originalId);
           
-          if (repostsMap.has(originalId)) {
-               // Existing group found, add reposter
-               // Ensure profiles is an object, though api.ts should now guarantee it.
-               const profile = Array.isArray(post.profiles) ? post.profiles[0] : post.profiles;
-               if (profile) {
-                   repostsMap.get(originalId)?.reposters.push(profile);
-               }
-          } else {
-              // New Repost Group
+          if (isShare) {
+              // Add this reposter to the existing entry
               const profile = Array.isArray(post.profiles) ? post.profiles[0] : post.profiles;
-              const entry = {
-                  main: post, 
-                  reposters: profile ? [profile] : []
-              };
-              repostsMap.set(originalId, entry);
-              processedPosts.push(entry);
+              if (profile && !entry.reposters.some((r: any) => r.id === profile.id)) {
+                  entry.reposters.push(profile);
+              }
+          } else {
+              // This is the actual post content. 
+              // We might want to prefer the data from the 'post' object over the 'share.original_post' object
+              // if it has more up-to-date counts.
+              entry.main = { ...entry.main, ...post }; // Merge data, prioritizing post record counts
           }
       } else {
-          // Normal Post or Quote (Quotes are treated as unique posts)
-          processedPosts.push({ main: post, reposters: [] });
-
-          // Optimization: If we encounter the ORIGINAL post later (or earlier), we might want to merge logic.
-          // But strict logic: If the Original Post is ALSO in the feed, we should probably prefer showing the Original Post card
-          // and attaching "X reposted this" to it.
-          // Current simplified logic: Reposts group with Reposts. Original stays separate if it appears.
+          // New entry
+          const profile = Array.isArray(post.profiles) ? post.profiles[0] : post.profiles;
+          const entry = {
+              main: isShare && post.original_post ? post.original_post : post,
+              reposters: isShare && profile ? [profile] : [],
+              isRepostGroup: isShare
+          };
+          entriesMap.set(originalId, entry);
+          processedPosts.push(entry);
       }
   });
 

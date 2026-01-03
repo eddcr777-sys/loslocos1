@@ -31,6 +31,11 @@ export interface Post {
     original_post?: Post; // Recursive definition for quoted post
     original_post_id?: string | null;
     deleted_at?: string | null;
+    is_quote?: boolean; // New Flag
+    item_type?: 'post' | 'share' | 'quote'; // New Discrimination Field
+    likes_count?: any;
+    comments_count?: any;
+    shares_count?: any;
 }
 
 export interface Comment {
@@ -166,7 +171,15 @@ export const api = {
     // --- POSTS ---
     getPosts: async () => {
         // Use the complete feed RPC that includes both posts and reposts
-        const { data, error } = await supabase.rpc('get_complete_feed');
+        const { data, error } = await supabase.rpc('get_complete_feed')
+            .select(`
+                *,
+                author:profiles!user_id (id, full_name, avatar_url, user_type, faculty),
+                original_post:posts!original_post_id (
+                    *,
+                    author:profiles!user_id (id, full_name, avatar_url, user_type)
+                )
+            `);
 
         if (error) {
             console.warn("Complete feed RPC failed. Falling back...", error);
@@ -348,6 +361,9 @@ export const api = {
         const originalData = p.original_post_data || p.original_post;
         const mappedOriginal = originalData ? api.mapPostData(originalData) : null;
 
+        // NEW LOGIC: If item_type is 'quote', map accordingly
+        const isQuoteItem = p.item_type === 'quote';
+
         return {
             ...p,
             id: p.id,
@@ -356,11 +372,12 @@ export const api = {
             image_url: p.image_url,
             created_at: p.created_at,
             profiles: author || p.reposter_data || p.author_data || p.profiles,
-            likes: { count: likesCount },
-            comments: { count: commentsCount },
-            shares: { count: sharesCount },
+            likes: { count: likesCount || 0 },
+            comments: { count: commentsCount || 0 },
+            shares: { count: sharesCount || 0 },
             original_post: mappedOriginal,
-            is_repost_from_shares: p.is_repost || p.is_repost_from_shares || (!!mappedOriginal && !p.content)
+            is_repost_from_shares: p.is_repost || p.is_repost_from_shares || (!!mappedOriginal && !p.content && !isQuoteItem),
+            is_quote: isQuoteItem || (!!mappedOriginal && !!p.content)
         };
     },
 
@@ -387,13 +404,50 @@ export const api = {
     },
 
     createPost: async (content: string, userId: string, imageUrl: string | null = null, isOfficial: boolean = false, originalPostId: string | null = null) => {
-        // SEGURIDAD: Sanitización contra XSS y validación de contenido
+        // SEGURIDAD: Sanitización
         const sanitizedContent = content ? content.replace(/<[^>]*>?/gm, '').trim() : '';
 
         if (!sanitizedContent && !imageUrl && !originalPostId) {
             return { error: { message: 'La publicación no puede estar vacía.' } };
         }
 
+        // --- BRANCH LOGIC: QUOTE vs POST ---
+        if (originalPostId && sanitizedContent) {
+            // IT IS A QUOTE -> Insert into 'quotes' table
+            const { data, error } = await supabase
+                .from('quotes')
+                .insert({
+                    user_id: userId,
+                    content: sanitizedContent,
+                    original_post_id: originalPostId,
+                    is_official: isOfficial
+                })
+                .select(`
+                    *,
+                    author:profiles!user_id (id, full_name, avatar_url, user_type, faculty),
+                    original_post:posts!original_post_id (
+                        *,
+                        author:profiles!user_id (id, full_name, avatar_url, user_type)
+                    )
+                `)
+                .single();
+
+            if (!error && originalPostId) {
+                // Increment quotes count (not shares? or should quotes count as shares too?)
+                // For now, let's assume get_complete_feed counts them separately, but maybe we want to bump shares too?
+                // The prompt says "quotes tengan una tabla propia", usually implies distinct count.
+                // But for now let's keep share increment if desired, OR just rely on the new architecture.
+                // Let's increment shares too for visibility if the logic demands it, but standard is separate.
+                await supabase.rpc('increment_shares_count', { post_id_param: originalPostId });
+            }
+
+            return {
+                data: data ? api.mapPostData({ ...data, item_type: 'quote' }) : null,
+                error
+            };
+        }
+
+        // NORMAL POST (or empty repost if that logic still exists here, though reposts are usually shares table)
         const { data, error } = await supabase
             .from('posts')
             .insert({
@@ -401,17 +455,15 @@ export const api = {
                 content: sanitizedContent,
                 image_url: imageUrl,
                 is_official: isOfficial,
-                original_post_id: originalPostId
+                // original_post_id: originalPostId // NO LONGER USED FOR QUOTES IN POSTS TABLE
             })
-            .select()
+            .select(`
+                *,
+                author:profiles!user_id (id, full_name, avatar_url, user_type, faculty)
+            `)
             .single();
 
-        // If it's a quote, increment share count of original
-        if (!error && originalPostId) {
-            await supabase.rpc('increment_shares_count', { post_id_param: originalPostId });
-        }
-
-        return { data, error };
+        return { data: data ? api.mapPostData(data) : null, error };
     },
 
     deletePost: async (postId: string) => {
@@ -995,7 +1047,7 @@ export const api = {
                     id,
                     created_at,
                     user_id,
-                    profiles:profiles!user_id (id, full_name, avatar_url, user_type, faculty),
+                    author:profiles!user_id (id, full_name, avatar_url, user_type, faculty),
                     post:posts!post_id (
                         *,
                         author:profiles!user_id (id, full_name, avatar_url, user_type, faculty),
@@ -1009,11 +1061,30 @@ export const api = {
                     )
                 `)
                 .in('user_id', followingIds)
-                .is('post.deleted_at', null) // Only non-deleted
+                .is('post.deleted_at', null)
                 .order('created_at', { ascending: false })
                 .limit(50);
 
-            const [postsResult, sharesResult] = await Promise.all([postsPromise, sharesPromise]);
+            // 4. Fetch QUOTES from these users
+            const quotesPromise = supabase
+                .from('quotes')
+                .select(`
+                    *,
+                    author:profiles!user_id (id, full_name, avatar_url, user_type, faculty),
+                    original_post:posts!original_post_id (
+                        *,
+                        author:profiles!user_id (id, full_name, avatar_url, user_type)
+                    )
+                `)
+                .in('user_id', followingIds)
+                .order('created_at', { ascending: false })
+                .limit(50);
+
+            const [postsResult, sharesResult, quotesResult] = await Promise.all([
+                postsPromise,
+                sharesPromise,
+                quotesPromise
+            ]);
 
             if (postsResult.error) throw postsResult.error;
             // If shares table doesn't exist or error, we might just ignore shares, but let's log it.
@@ -1033,13 +1104,18 @@ export const api = {
                 return api.mapPostData({
                     share_id: s.id,
                     shared_at: s.created_at,
-                    reposter_data: s.profiles,
+                    reposter_data: s.author,
                     original_post_data: s.post
                 });
             }).filter(Boolean);
 
-            // 6. Merge and Sort
-            const combinedFeed = [...mappedPosts, ...mappedShares].sort((a, b) =>
+            // 6. Map Quotes
+            const mappedQuotes = (quotesResult.data || []).map((q: any) => ({
+                ...api.mapPostData({ ...q, item_type: 'quote' }),
+            }));
+
+            // 7. Merge and Sort
+            const combinedFeed = [...mappedPosts, ...mappedShares, ...mappedQuotes].sort((a, b) =>
                 new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
             );
 

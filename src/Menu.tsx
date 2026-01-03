@@ -4,7 +4,12 @@ import { useAuth } from './context/AuthContext';
 import { Settings, LogOut, Shield } from 'lucide-react';
 import './Menu.css';
 
-const Menu = () => {
+interface MenuProps {
+  hideAdmin?: boolean;
+  hideInstitutional?: boolean;
+}
+
+const Menu: React.FC<MenuProps> = ({ hideAdmin = false, hideInstitutional = false }) => {
   const { logout, user, isAdmin, isInstitutional } = useAuth();
   const navigate = useNavigate();
 
@@ -20,14 +25,14 @@ const Menu = () => {
 
   return (
     <nav className="user-menu">
-      {isAdmin && (
+      {isAdmin && !hideAdmin && (
         <button onClick={() => navigate('/admin')} className="user-menu-item admin-highlight">
           <Shield size={20} color="#f59e0b" />
           <span>Panel Administrador</span>
         </button>
       )}
 
-      {isInstitutional && (
+      {isInstitutional && !hideInstitutional && (
         <button onClick={() => navigate('/institutional')} className="user-menu-item admin-highlight">
           <Shield size={20} color="#10b981" />
           <span>Panel Institucional</span>

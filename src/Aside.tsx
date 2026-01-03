@@ -75,7 +75,7 @@ const Aside = () => {
       </div>
       {/* Menú de usuario en la parte inferior */}
       <div className="aside-menu">
-        <Menu />
+        <Menu hideAdmin={true} hideInstitutional={true} />
       </div>
     </aside>
   );
