@@ -5,6 +5,8 @@ import { FeedProvider } from './context/FeedContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import AdminRoute from './components/auth/AdminRoute';
 import ThemeColorSync from './components/layout/ThemeColorSync';
+import BottomNav from './BottomNav';
+import { usePWAStatus } from './hooks/usePWAStatus';
 import './styles/App.css';
 
 // Lazy loading pages for performance
@@ -142,6 +144,8 @@ const AppRoutes = () => (
 );
 
 function App() {
+  const { isStandalone, isMobile } = usePWAStatus();
+
   return (
     <Router>
       <ThemeInitializer />
@@ -149,6 +153,7 @@ function App() {
       <AuthProvider>
         <FeedProvider>
           <AppRoutes />
+          {isMobile && isStandalone && <BottomNav />}
         </FeedProvider>
       </AuthProvider>
     </Router>
