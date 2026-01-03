@@ -51,10 +51,14 @@ const MobileHeader = () => {
   return (
     <header className="mobile-header">
       <div className="mobile-header-content">
-            <Logo size="small" variant="icon" to="/home" className="header-logo" />
+            {isStandalone ? (
+              <div className="header-spacer" style={{ width: '40px' }} />
+            ) : (
+              <Logo size="small" variant="icon" text="UniFeed" to="/home" className="header-logo" />
+            )}
 
-            <nav className="mobile-header-nav">
-              {!isStandalone && (
+            <nav className={`mobile-header-nav ${isStandalone ? 'standalone-nav' : ''}`}>
+              {!isStandalone ? (
                 <>
                   <NavLink to="/home" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
                     <Home size={24} />
@@ -62,18 +66,12 @@ const MobileHeader = () => {
                   <NavLink to="/search" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
                     <Search size={24} />
                   </NavLink>
-                </>
-              )}
-              
-              <NavLink to="/events" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
-                <Calendar size={24} />
-              </NavLink>
-              <NavLink to="/trends" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
-                <TrendingUp size={24} />
-              </NavLink>
-
-              {!isStandalone && (
-                <>
+                  <NavLink to="/events" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
+                    <Calendar size={24} />
+                  </NavLink>
+                  <NavLink to="/trends" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
+                    <TrendingUp size={24} />
+                  </NavLink>
                   <NavLink to="/notifications" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
                     <div className="nav-item-container">
                       <Bell size={24} />
@@ -86,12 +84,24 @@ const MobileHeader = () => {
                     <User size={24} />
                   </NavLink>
                 </>
+              ) : (
+                <>
+                  <NavLink to="/events" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
+                    <Calendar size={24} />
+                  </NavLink>
+                  
+                  <Logo size="small" variant="text" text="UniFeed" to="/home" className="standalone-header-logo" />
+
+                  <NavLink to="/trends" className={({ isActive }) => isActive ? 'header-nav-item active' : 'header-nav-item'}>
+                    <TrendingUp size={24} />
+                  </NavLink>
+                </>
               )}
             </nav>
 
 
         <div className="menu-section" ref={menuRef}>
-          <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="menu-button">
+          <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="menu-button" style={{ width: '40px' }}>
             {isMenuOpen ? <X size={24} /> : <MenuIcon size={24} />}
           </button>
           {isMenuOpen && (

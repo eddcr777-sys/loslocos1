@@ -32,6 +32,17 @@
   gap: 0.5rem;
 }
 
+.mobile-header-nav.standalone-nav {
+  flex: 1;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.standalone-header-logo {
+  margin: 0;
+  white-space: nowrap;
+}
+
 .header-nav-item {
   display: flex;
   align-items: center;
