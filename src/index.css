@@ -154,6 +154,16 @@ button {
   cursor: pointer;
 }
 
+input,
+textarea {
+  color: var(--text-primary) !important;
+  background-color: var(--surface-hover);
+}
+
+::placeholder {
+  color: var(--text-muted);
+}
+
 /* Skeleton Loading Animation */
 .skeleton {
   background: linear-gradient(90deg,
