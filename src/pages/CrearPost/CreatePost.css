@@ -105,7 +105,7 @@
     font-size: 1.15rem;
     line-height: 1.5;
     outline: none;
-    color: var(--text-primary);
+    color: var(--text-primary) !important;
     font-family: inherit;
     background: transparent;
 }

@@ -76,25 +76,28 @@ const styles: { [key: string]: React.CSSProperties } = {
   input: {
     flex: 1,
     padding: '10px 16px',
-    borderRadius: '24px',
-    border: '1px solid #e2e8f0',
+    borderRadius: 'var(--radius-full)',
+    border: '1px solid var(--border-color)',
     fontSize: '0.9rem',
     resize: 'none',
     overflow: 'hidden',
     fontFamily: 'inherit',
     lineHeight: '1.4',
     minHeight: '42px',
-    backgroundColor: '#f8fafc'
+    backgroundColor: 'var(--surface-hover)',
+    color: 'var(--text-primary)',
+    outline: 'none'
   },
   button: {
     padding: '8px 16px',
-    borderRadius: '24px',
+    borderRadius: 'var(--radius-full)',
     border: 'none',
-    backgroundColor: '#000', // Black for premium look
-    color: '#fff',
+    backgroundColor: 'var(--accent-color)',
+    color: 'var(--text-on-accent)',
     cursor: 'pointer',
     fontSize: '0.9rem',
     fontWeight: 600,
+    transition: 'all 0.2s ease'
   },
 };
 
