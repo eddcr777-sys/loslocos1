@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { api, Post as PostType } from '../../services/api';
 import CommentSection from './comments/CommentSection';
 import { useAuth } from '../../context/AuthContext';
@@ -58,18 +58,6 @@ const Post: React.FC<PostProps> = ({
   const isRepost = (post as any).is_repost_from_shares || (post as any).is_repost_wrapper || (post as any).is_repost || (!!post.original_post && !post.content);
   const isQuote = (post as any).is_quote || (!!post.original_post && !!post.content && !(post as any).is_repost_from_shares && !(post as any).is_repost_wrapper);
 
-  // DEBUG: Log para ver qué está pasando con los quotes
-  if ((post as any).original_post_id) {
-    console.log('🎯 POST COMPONENT - Quote/Repost:', {
-      postId: post.id,
-      original_post_id: (post as any).original_post_id,
-      hasOriginalPost: !!post.original_post,
-      originalPostData: post.original_post,
-      isQuote,
-      isRepost,
-      content: post.content?.substring(0, 30)
-    });
-  }
 
   // DETERMINE INTERACTION TARGET
   // If it's a pure Repost, we interact with the ORIGINAL post (Like/Comment/Share count refers to original)
@@ -310,6 +298,8 @@ const Post: React.FC<PostProps> = ({
             src={isRepost ? post.original_post?.image_url || '' : post.image_url || ''} 
             alt="Contenido del post" 
             className="post-image" 
+            loading="lazy"
+            decoding="async"
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsLightboxOpen(true); }}
             style={{ cursor: 'zoom-in', width: '100%', display: 'block' }}
           />
@@ -422,4 +412,4 @@ const Post: React.FC<PostProps> = ({
   );
 };
 
-export default Post;
+export default memo(Post);

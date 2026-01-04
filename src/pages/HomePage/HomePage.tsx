@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useFeed } from '../../context/FeedContext';
 import CreatePost from '../CrearPost/CreatePost';
@@ -20,13 +20,13 @@ function HomePage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const pullThreshold = 120; // px to trigger refresh
 
-  const handleTouchStart = (e: React.TouchEvent) => {
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
     if (window.scrollY === 0) {
       setPullStartY(e.touches[0].clientY);
     }
-  };
+  }, []);
 
-  const handleTouchMove = (e: React.TouchEvent) => {
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
     if (pullStartY > 0 && window.scrollY === 0) {
       const currentY = e.touches[0].clientY;
       const diff = currentY - pullStartY;
@@ -34,9 +34,9 @@ function HomePage() {
         setPullMoveY(diff);
       }
     }
-  };
+  }, [pullStartY]);
 
-  const handleTouchEnd = async () => {
+  const handleTouchEnd = useCallback(async () => {
     if (pullMoveY > pullThreshold && !isRefreshing) {
       setIsRefreshing(true);
       setPullMoveY(pullThreshold); // Lock visual position
@@ -45,7 +45,7 @@ function HomePage() {
     }
     setPullStartY(0);
     setPullMoveY(0);
-  };
+  }, [pullMoveY, isRefreshing, refreshFeed]);
 
   // Filtrado según la pestaña activa
   const baseFilteredPosts = posts.filter(post => {
@@ -53,56 +53,47 @@ function HomePage() {
     return true; 
   });
 
-  // AGGREGATION ALGORITHM
-  // We use a Map to group reposts of the same original post.
-  // We also track processed IDs to avoid showing the same content twice.
-  const processedPosts: any[] = [];
-  const entriesMap = new Map<string, any>(); // original_post_id -> entry index in processedPosts
+  const processedPosts = useMemo(() => {
+    const sortedPosts = [...baseFilteredPosts].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    const result: any[] = [];
+    const entriesMap = new Map<string, any>();
 
-  const sortedPosts = [...baseFilteredPosts].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    sortedPosts.forEach(post => {
+        const isShare = post.item_type === 'share' || (post.original_post && !post.content && !post.is_quote);
+        const isQuote = post.item_type === 'quote' || post.is_quote;
+        
+        const originalId = isShare ? (post.original_post ? post.original_post.id : post.original_post_id) : post.id;
+        
+        if (!originalId) return;
 
-  sortedPosts.forEach(post => {
-      const isShare = post.item_type === 'share' || (post.original_post && !post.content && !post.is_quote);
-      const isQuote = post.item_type === 'quote' || post.is_quote;
-      
-      const originalId = isShare ? (post.original_post ? post.original_post.id : post.original_post_id) : post.id;
-      
-      if (!originalId) return;
+        if (isQuote) {
+            result.push({ main: post, reposters: [] });
+            return;
+        }
 
-      // Quotes are unique pieces of content, they DON'T merge with other things
-      if (isQuote) {
-          processedPosts.push({ main: post, reposters: [] });
-          return;
-      }
-
-      // Check if this (Original) post content is already in the feed
-      if (entriesMap.has(originalId)) {
-          const entry = entriesMap.get(originalId);
-          
-          if (isShare) {
-              // Add this reposter to the existing entry
-              const profile = Array.isArray(post.profiles) ? post.profiles[0] : post.profiles;
-              if (profile && !entry.reposters.some((r: any) => r.id === profile.id)) {
-                  entry.reposters.push(profile);
-              }
-          } else {
-              // This is the actual post content. 
-              // We might want to prefer the data from the 'post' object over the 'share.original_post' object
-              // if it has more up-to-date counts.
-              entry.main = { ...entry.main, ...post }; // Merge data, prioritizing post record counts
-          }
-      } else {
-          // New entry
-          const profile = Array.isArray(post.profiles) ? post.profiles[0] : post.profiles;
-          const entry = {
-              main: isShare && post.original_post ? post.original_post : post,
-              reposters: isShare && profile ? [profile] : [],
-              isRepostGroup: isShare
-          };
-          entriesMap.set(originalId, entry);
-          processedPosts.push(entry);
-      }
-  });
+        if (entriesMap.has(originalId)) {
+            const entry = entriesMap.get(originalId);
+            if (isShare) {
+                const profile = Array.isArray(post.profiles) ? post.profiles[0] : post.profiles;
+                if (profile && !entry.reposters.some((r: any) => r.id === profile.id)) {
+                    entry.reposters.push(profile);
+                }
+            } else {
+                entry.main = { ...entry.main, ...post };
+            }
+        } else {
+            const profile = Array.isArray(post.profiles) ? post.profiles[0] : post.profiles;
+            const entry = {
+                main: isShare && post.original_post ? post.original_post : post,
+                reposters: isShare && profile ? [profile] : [],
+                isRepostGroup: isShare
+            };
+            entriesMap.set(originalId, entry);
+            result.push(entry);
+        }
+    });
+    return result;
+  }, [baseFilteredPosts]);
 
 
   return (
@@ -160,7 +151,22 @@ function HomePage() {
         />
 
         {loading ? (
-          <p>Cargando publicaciones...</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginTop: '1rem' }}>
+            {[1, 2, 3].map(i => (
+              <div key={i} className="post-card" style={{ padding: '1rem', background: 'var(--card-bg)', borderRadius: 'var(--radius-xl)' }}>
+                <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+                  <div className="skeleton skeleton-avatar" />
+                  <div style={{ flex: 1 }}>
+                    <div className="skeleton skeleton-text" style={{ width: '40%' }} />
+                    <div className="skeleton skeleton-text" style={{ width: '20%' }} />
+                  </div>
+                </div>
+                <div className="skeleton skeleton-text" />
+                <div className="skeleton skeleton-text" />
+                <div className="skeleton skeleton-image" style={{ marginTop: '1rem' }} />
+              </div>
+            ))}
+          </div>
         ) : (
           processedPosts.map(({ main, reposters }) => (
             <Post 

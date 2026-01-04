@@ -3,6 +3,11 @@
   /* Ensure images don't bleed out */
   display: flex;
   flex-direction: column;
+  /* Performance optimizations */
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  contain: layout style paint;
 }
 
 .post-padded-content {
@@ -62,6 +67,10 @@
   background-color: var(--surface-color);
   border-top: 1px solid var(--border-color);
   border-bottom: 1px solid var(--border-color);
+  /* Performance optimizations */
+  will-change: transform;
+  transform: translateZ(0);
+  image-rendering: -webkit-optimize-contrast;
 }
 
 
