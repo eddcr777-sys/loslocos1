@@ -24,3 +24,13 @@
     /* Margen lateral para que no se peguen a los bordes */
   }
 }
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}

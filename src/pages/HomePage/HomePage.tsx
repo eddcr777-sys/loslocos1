@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Loader2 } from 'lucide-react';
 import { useFeed } from '../../context/FeedContext';
 import CreatePost from '../CrearPost/CreatePost';
 import Post from '../../components/posts/Post';
@@ -12,7 +13,39 @@ import WelcomeModal from '../../components/layout/WelcomeModal';
 
 function HomePage() {
   const { posts, loading, refreshFeed, activeTab } = useFeed();
-  const [quotePost, setQuotePost] = useState<any>(null); // State for post being quoted
+  
+  // Pull to Refresh State
+  const [pullStartY, setPullStartY] = useState(0);
+  const [pullMoveY, setPullMoveY] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const pullThreshold = 120; // px to trigger refresh
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (window.scrollY === 0) {
+      setPullStartY(e.touches[0].clientY);
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (pullStartY > 0 && window.scrollY === 0) {
+      const currentY = e.touches[0].clientY;
+      const diff = currentY - pullStartY;
+      if (diff > 0) {
+        setPullMoveY(diff);
+      }
+    }
+  };
+
+  const handleTouchEnd = async () => {
+    if (pullMoveY > pullThreshold && !isRefreshing) {
+      setIsRefreshing(true);
+      setPullMoveY(pullThreshold); // Lock visual position
+      await refreshFeed();
+      setIsRefreshing(false);
+    }
+    setPullStartY(0);
+    setPullMoveY(0);
+  };
 
   // Filtrado según la pestaña activa
   const baseFilteredPosts = posts.filter(post => {
@@ -73,20 +106,57 @@ function HomePage() {
 
 
   return (
-    <div className="home-container">
+    <div 
+        className="home-container"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+    >
       <WelcomeModal />
+      
+      {/* Pull to Refresh Indicator */}
+      <div style={{
+          height: `${Math.min(pullMoveY, pullThreshold)}px`,
+          overflow: 'hidden',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          transition: isRefreshing ? 'height 0.2s' : 'height 0s',
+          backgroundColor: 'var(--bg-color)',
+          color: 'var(--text-secondary)'
+      }}>
+           <div style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                backgroundColor: 'var(--card-bg)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transform: `scale(${Math.min(pullMoveY / pullThreshold, 1)})`,
+                transition: 'transform 0.1s ease-out'
+           }}>
+             <Loader2 
+                size={20} 
+                color="var(--primary-color)" 
+                style={{ 
+                    animation: isRefreshing ? 'spin 0.8s linear infinite' : 'none',
+                    transform: isRefreshing ? 'none' : `rotate(${pullMoveY * 2}deg)`
+                }}
+             />
+           </div>
+      </div>
+
       <div className="feed-container">
         <Stories />
         <FeedFilters />
 
-        {/* CreatePost now handles normal creation AND Quoting */}
+        {/* CreatePost handles normal creation */}
         <CreatePost 
             onPostCreated={() => {
                 refreshFeed();
-                setQuotePost(null);
             }} 
-            quotedPost={quotePost}
-            onCancelQuote={() => setQuotePost(null)}
         />
 
         {loading ? (
@@ -98,11 +168,6 @@ function HomePage() {
                 post={main} 
                 reposters={reposters}
                 onPostDeleted={refreshFeed} 
-                onRepost={(p) => {
-                    setQuotePost(p);
-                    // Scroll to top to see CreatePost?
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
             />
           ))
         )}

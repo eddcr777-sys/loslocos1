@@ -16,6 +16,7 @@ import EmbeddedPost from './EmbeddedPost';
 import RepostersHeader from './RepostersHeader';
 import Avatar from '../ui/Avatar';
 import RepostersListModal from './RepostersListModal';
+import QuoteModal from '../modals/QuoteModal';
 
 
 import { DEFAULT_AVATAR_URL } from '../../utils/constants';
@@ -99,6 +100,7 @@ const Post: React.FC<PostProps> = ({
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isRepostersModalOpen, setIsRepostersModalOpen] = useState(false);
+  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
 
   // Header Logic for Reposters
   let repostHeader = null;
@@ -201,11 +203,7 @@ const Post: React.FC<PostProps> = ({
 
   const handleQuoteAction = () => {
     setIsShareModalOpen(false);
-    if (onRepost) {
-        onRepost(effectivePost); 
-    } else {
-        alert("Función de citar disponible pronto en el feed principal.");
-    }
+    setIsQuoteModalOpen(true);
   };
 
   return (
@@ -409,6 +407,16 @@ const Post: React.FC<PostProps> = ({
         isOpen={isRepostersModalOpen}
         onClose={() => setIsRepostersModalOpen(false)}
         reposters={repostersData}
+      />
+
+      
+      <QuoteModal 
+        isOpen={isQuoteModalOpen} 
+        onClose={() => setIsQuoteModalOpen(false)} 
+        quotedPost={effectivePost}
+        onPostCreated={() => {
+            console.log("Quote post created via modal");
+        }}
       />
     </div>
   );
