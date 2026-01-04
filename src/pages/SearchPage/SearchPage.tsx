@@ -93,17 +93,18 @@ const SearchPage = () => {
         onChange={(e) => setQuery(e.target.value)}
         style={{
           width: '100%',
-          padding: '12px 20px',
-          borderRadius: 'var(--radius-full)',
+          padding: '14px 22px',
+          borderRadius: 'var(--radius-lg)',
           border: '1px solid var(--border-color)',
           background: 'var(--surface-color)',
           color: 'var(--text-primary)',
-          fontSize: '1rem',
-          marginBottom: '1.5rem',
+          fontSize: '0.95rem',
+          marginBottom: '1.25rem',
           outline: 'none',
           boxSizing: 'border-box',
           boxShadow: 'var(--shadow-sm)',
-          transition: 'all 0.2s ease'
+          transition: 'all 0.2s ease',
+          fontWeight: '500'
         }}
       />
       </div>

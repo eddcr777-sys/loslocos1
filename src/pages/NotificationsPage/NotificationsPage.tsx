@@ -140,13 +140,11 @@ const NotificationsPage = () => {
               key={notif.id} 
               style={{ 
                 marginBottom: 0, 
-                padding: '1.25rem', 
+                padding: '1rem', 
                 cursor: 'pointer',
-                transition: 'all 0.2s ease',
+                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                 backgroundColor: !notif.read ? 'var(--accent-soft)' : 'var(--surface-color)',
                 borderColor: !notif.read ? 'var(--accent-color)' : 'var(--border-color)',
-                borderWidth: '1px',
-                borderStyle: 'solid'
               }}
 
               onClick={() => {

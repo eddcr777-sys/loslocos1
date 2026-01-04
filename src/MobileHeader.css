@@ -8,10 +8,10 @@
   -webkit-backdrop-filter: var(--glass-blur);
   border-bottom: 1px solid var(--glass-border);
   z-index: 100;
-  height: 56px;
-  /* Reduced height to feel more compact and integrated */
   padding-top: env(safe-area-inset-top);
-  height: calc(56px + env(safe-area-inset-top));
+  height: calc(52px + env(safe-area-inset-top));
+  /* Slightly more delicate height */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
 }
 
 .mobile-header-content {

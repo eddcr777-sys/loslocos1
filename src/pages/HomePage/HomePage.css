@@ -20,8 +20,9 @@
   }
 
   .feed-container {
-    padding: 10px 0;
-    /* Margen lateral para que no se peguen a los bordes */
+    padding: 0.5rem 0;
+    /* Vertical spacing */
+    width: 100%;
   }
 }
 

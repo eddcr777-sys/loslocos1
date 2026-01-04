@@ -22,10 +22,11 @@ const Card: React.FC<CardProps> = ({ children, className = '', style, onClick })
 const defaultStyles: React.CSSProperties = {
   backgroundColor: 'var(--surface-color)',
   border: '1px solid var(--border-color)',
-  borderRadius: 'var(--radius-md)',
+  borderRadius: 'var(--radius-lg)',
   padding: '0', 
-  marginBottom: '1.5rem',
-  boxShadow: 'none',
+  marginBottom: '1rem',
+  boxShadow: 'var(--shadow-sm)',
+  transition: 'transform 0.2s ease, box-shadow 0.2s ease',
 };
 
 

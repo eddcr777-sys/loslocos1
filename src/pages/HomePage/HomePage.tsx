@@ -18,7 +18,8 @@ function HomePage() {
   const [pullStartY, setPullStartY] = useState(0);
   const [pullMoveY, setPullMoveY] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const pullThreshold = 120; // px to trigger refresh
+  const pullThreshold = 80; // Standard native threshold
+  const maxPull = 120; // Max visual distance
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     if (window.scrollY === 0) {
@@ -31,15 +32,18 @@ function HomePage() {
       const currentY = e.touches[0].clientY;
       const diff = currentY - pullStartY;
       if (diff > 0) {
-        setPullMoveY(diff);
+        // Logarithmic resistance for a 'native' feel
+        const resistance = 0.5;
+        const constrainedDiff = Math.min(diff * resistance, maxPull);
+        setPullMoveY(constrainedDiff);
       }
     }
   }, [pullStartY]);
 
   const handleTouchEnd = useCallback(async () => {
-    if (pullMoveY > pullThreshold && !isRefreshing) {
+    if (pullMoveY >= pullThreshold && !isRefreshing) {
       setIsRefreshing(true);
-      setPullMoveY(pullThreshold); // Lock visual position
+      setPullMoveY(60); // Position while loading
       await refreshFeed();
       setIsRefreshing(false);
     }
@@ -105,35 +109,35 @@ function HomePage() {
     >
       <WelcomeModal />
       
-      {/* Pull to Refresh Indicator */}
+      {/* Native-style Pull to Refresh Indicator (Overlay) */}
       <div style={{
-          height: `${Math.min(pullMoveY, pullThreshold)}px`,
-          overflow: 'hidden',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          transition: isRefreshing ? 'height 0.2s' : 'height 0s',
-          backgroundColor: 'var(--bg-color)',
-          color: 'var(--text-secondary)'
+          position: 'fixed',
+          top: `calc(${pullMoveY}px + env(safe-area-inset-top) + 10px)`,
+          left: '50%',
+          transform: `translateX(-50%) scale(${Math.min(pullMoveY / 40, 1)})`,
+          zIndex: 2000,
+          opacity: pullMoveY > 20 ? 1 : 0,
+          transition: isRefreshing ? 'top 0.2s, opacity 0.2s' : (pullMoveY === 0 ? 'all 0.3s ease' : 'none'),
+          pointerEvents: 'none'
       }}>
-           <div style={{
-                width: '32px',
-                height: '32px',
+           <div className="glass" style={{
+                width: '40px',
+                height: '40px',
                 borderRadius: '50%',
-                backgroundColor: 'var(--card-bg)',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                backgroundColor: 'var(--surface-color)',
+                boxShadow: 'var(--shadow-lg)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                transform: `scale(${Math.min(pullMoveY / pullThreshold, 1)})`,
-                transition: 'transform 0.1s ease-out'
+                border: '1px solid var(--border-color)'
            }}>
              <Loader2 
-                size={20} 
-                color="var(--primary-color)" 
+                size={22} 
+                color="var(--accent-color)" 
                 style={{ 
-                    animation: isRefreshing ? 'spin 0.8s linear infinite' : 'none',
-                    transform: isRefreshing ? 'none' : `rotate(${pullMoveY * 2}deg)`
+                    animation: isRefreshing ? 'spin 1s linear infinite' : 'none',
+                    transform: isRefreshing ? 'none' : `rotate(${pullMoveY * 5}deg)`,
+                    opacity: 0.8
                 }}
              />
            </div>

@@ -110,29 +110,37 @@
   }
 }
 
-/* Mobile optimizations: Remove borders for a cleaner, immersive look */
+/* Mobile optimizations: Refined card look instead of flat */
 @media (max-width: 1024px) {
   .post-card {
-    border: none;
-    border-radius: 0;
-    margin-left: 0;
-    margin-right: 0;
-    border-bottom: 1px solid var(--border-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    margin: 0.75rem 0.5rem;
+    /* Tiny bit of breathing room at edges */
+    box-shadow: var(--shadow-sm);
   }
 
   .post-wrapper {
-    border-radius: 0;
+    border-radius: var(--radius-lg);
   }
 
   .post-image {
     border-left: none;
     border-right: none;
-    border-radius: 0;
+    /* Maintain immersive feel but within the refined card */
   }
 
   .post-padded-content {
-    padding-left: 1rem;
-    padding-right: 1rem;
+    padding: 1rem 0.85rem;
+  }
+
+  .post-author-name {
+    font-size: 0.95rem;
+  }
+
+  .post-content-text {
+    font-size: 0.95rem;
+    line-height: 1.55;
   }
 }
 
