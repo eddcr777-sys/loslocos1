@@ -410,6 +410,16 @@ export const api = {
         return { error };
     },
 
+    deleteNotification: async (id: string) => {
+        const { error } = await supabase.from('notifications').delete().eq('id', id);
+        return { error };
+    },
+
+    deleteAllNotifications: async (userId: string) => {
+        const { error } = await supabase.from('notifications').delete().eq('user_id', userId);
+        return { error };
+    },
+
     broadcastNotification: async (title: string, content: string, entityId?: string) => {
         const { error } = await supabase.rpc('broadcast_official_announcement', { title_param: title, content_param: content, entity_id_param: entityId });
         return { success: !error, error };
@@ -457,6 +467,27 @@ export const api = {
     searchUsers: async (query: string) => {
         const { data, error } = await supabase.from('profiles').select('*').or(`full_name.ilike.%${query}%,username.ilike.%${query}%`).limit(10);
         return { data, error };
+    },
+
+    searchPosts: async (query: string) => {
+        const { data, error } = await supabase.from('posts')
+            .select(`
+                *,
+                profiles:user_id (id, full_name, avatar_url, user_type, faculty),
+                likes (count),
+                comments (count),
+                shares (count),
+                original_post:posts!original_post_id (
+                    *,
+                    profiles:user_id (id, full_name, avatar_url, user_type, faculty)
+                )
+            `)
+            .ilike('content', `%${query}%`)
+            .is('deleted_at', null)
+            .order('created_at', { ascending: false })
+            .limit(20);
+
+        return { data: (data || []).map(api.mapPostData), error };
     },
 
     getTrendingPosts: async (period: string = 'day') => {

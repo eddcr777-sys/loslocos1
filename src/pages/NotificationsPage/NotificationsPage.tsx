@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import Avatar from '../../components/ui/Avatar';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
-import { Check, CheckCheck, Heart, Megaphone, MessageCircle, Reply, UserPlus, Repeat, Quote, AtSign } from 'lucide-react';
+import { Check, CheckCheck, Heart, Megaphone, MessageCircle, Reply, UserPlus, Repeat, Quote, AtSign, Trash2, Trash } from 'lucide-react';
 import { timeAgo } from '../../utils/dateUtils';
 
 const DEFAULT_AVATAR = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
@@ -65,6 +65,27 @@ const NotificationsPage = () => {
     }
   };
 
+  const handleDeleteNotification = async (id: string, wasUnread: boolean) => {
+    try {
+      await api.deleteNotification(id);
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
+      if (wasUnread) decrementUnreadNotifications();
+    } catch (error) {
+      console.error('Error al eliminar notificación:', error);
+    }
+  };
+
+  const handleClearAll = async () => {
+    if (!user || !window.confirm('¿Estás seguro de que quieres eliminar todas las notificaciones?')) return;
+    try {
+      await api.deleteAllNotifications(user.id);
+      setNotifications([]);
+      clearUnreadNotifications();
+    } catch (error) {
+      console.error('Error al limpiar notificaciones:', error);
+    }
+  };
+
   if (loading) return <div style={{ padding: '2rem' }}>Cargando notificaciones...</div>;
 
   if (error) return (
@@ -82,14 +103,22 @@ const NotificationsPage = () => {
 
   return (
     <div style={{ padding: '1rem', width: '100%', maxWidth: '600px', margin: '0 auto', boxSizing: 'border-box' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', gap: '8px' }}>
         <h1 style={{ margin: 0, color: 'var(--text-primary)', fontWeight: '800' }}>Notificaciones</h1>
-        {notifications.some((n) => !n.read) && (
-          <Button variant="ghost" size="small" onClick={handleMarkAllAsRead}>
-            <CheckCheck size={16} />
-            Marcar todas leídas
-          </Button>
-        )}
+        <div style={{ display: 'flex', gap: '8px' }}>
+           {notifications.some((n) => !n.read) && (
+            <Button variant="ghost" size="small" onClick={handleMarkAllAsRead} title="Marcar todas como leídas">
+              <CheckCheck size={16} />
+              <span className="hide-mobile">Leer todas</span>
+            </Button>
+          )}
+          {notifications.length > 0 && (
+            <Button variant="ghost" size="small" onClick={handleClearAll} style={{ color: 'var(--error)' }} title="Eliminar todas las notificaciones">
+                <Trash size={16} />
+                <span className="hide-mobile">Limpiar</span>
+            </Button>
+          )}
+        </div>
       </div>
 
       {notifications.length === 0 ? (
@@ -211,7 +240,7 @@ const NotificationsPage = () => {
                   <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{timeAgo(notif.created_at)}</span>
                 </div>
                 {!notif.read && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--accent-color)' }} />
                     <Button
                       variant="ghost"
@@ -227,6 +256,18 @@ const NotificationsPage = () => {
                     </Button>
                   </div>
                 )}
+                <Button
+                  variant="ghost"
+                  size="small"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteNotification(notif.id, !notif.read);
+                  }}
+                  title="Eliminar notificación"
+                  style={{ padding: '4px', minWidth: 'auto', height: '32px', width: '32px', borderRadius: '50%', color: 'var(--text-muted)' }}
+                >
+                  <Trash2 size={16} />
+                </Button>
               </div>
             </Card>
           ))}

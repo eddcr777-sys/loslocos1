@@ -253,3 +253,10 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* Utility Classes */
+@media (max-width: 600px) {
+  .hide-mobile {
+    display: none !important;
+  }
+}
