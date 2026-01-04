@@ -68,16 +68,6 @@ export const FeedProvider: FC<{children: ReactNode}> = ({ children }) => {
           refreshFeed(); // Refresh to update "reposters header"
         }
       )
-        .on(
-          'postgres_changes',
-          { event: '*', schema: 'public', table: 'quotes' },
-          () => {
-            console.log('REALTIME: Cambio en citas detectado!');
-            refreshFeed();
-          }
-        )
-        .subscribe();
-
     return () => {
       supabase.removeChannel(postsChannel);
     };

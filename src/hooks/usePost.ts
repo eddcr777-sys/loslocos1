@@ -4,7 +4,6 @@ import { User } from '@supabase/supabase-js';
 import { supabase } from '../utils/supabaseClient';
 
 export const usePost = (post: Post, user: User | null, initialShowComments: boolean = false) => {
-  // Inicializar contadores manejando la estructura de datos de Supabase (puede ser array u objeto)
   const [likes, setLikes] = useState<number>(
     post.likes_count !== undefined ? post.likes_count :
       (post.likes ? (Array.isArray(post.likes) ? (post.likes[0]?.count || 0) : (post.likes.count || 0)) : 0)
@@ -29,7 +28,7 @@ export const usePost = (post: Post, user: User | null, initialShowComments: bool
       checkReposted();
     }
 
-    const cleanId = post.id.startsWith('share_') ? post.id.replace('share_', '') : post.id;
+    const cleanId = post.id.replace('share_', '');
     const channelName = `post-interactions-${cleanId}`;
 
     const interactionChannel = supabase
@@ -40,7 +39,7 @@ export const usePost = (post: Post, user: User | null, initialShowComments: bool
         async (payload) => {
           const pid = (payload.new as any)?.post_id || (payload.old as any)?.post_id;
           if (pid === cleanId) {
-            const { count } = await api.getLikesCount(cleanId);
+            const { count } = await api.getLikesCount(post.id);
             setLikes(count || 0);
             checkLiked();
           }
@@ -52,7 +51,7 @@ export const usePost = (post: Post, user: User | null, initialShowComments: bool
         async (payload) => {
           const pid = (payload.new as any)?.post_id || (payload.old as any)?.post_id;
           if (pid === cleanId) {
-            const { data } = await api.getComments(cleanId);
+            const { data } = await api.getComments(post.id);
             if (data) setCommentsCount(data.length);
           }
         }
@@ -63,7 +62,7 @@ export const usePost = (post: Post, user: User | null, initialShowComments: bool
         async (payload) => {
           const pid = (payload.new as any)?.post_id || (payload.old as any)?.post_id;
           if (pid === cleanId) {
-            const { count } = await api.getSharesCount(cleanId);
+            const { count } = await api.getSharesCount(post.id);
             setSharesCount(count || 0);
             checkReposted();
           }

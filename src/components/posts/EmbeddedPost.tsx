@@ -1,60 +1,123 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Avatar from '../ui/Avatar';
 import VerificationBadge from '../ui/VerificationBadge';
-import { AlertCircle } from 'lucide-react';
-import { Post as PostType } from '../../services/api';
+import { AlertCircle, Loader2 } from 'lucide-react';
+import { Post as PostType, api } from '../../services/api';
 
 interface EmbeddedPostProps {
     post: PostType | null;
+    originalPostId?: string; // New: Accept ID to fetch if post is missing
     isDeleted?: boolean;
 }
 
-const EmbeddedPost: React.FC<EmbeddedPostProps> = ({ post, isDeleted }) => {
-    // Si el post fue borrado o no existe
-    if (!post || isDeleted || post.deleted_at) {
+const EmbeddedPost: React.FC<EmbeddedPostProps> = ({ post: initialPost, originalPostId, isDeleted: initialIsDeleted }) => {
+    const [post, setPost] = useState<PostType | null>(initialPost || null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(false);
+
+    // Sync prop changes
+    useEffect(() => {
+        if (initialPost) {
+            setPost(initialPost);
+        }
+    }, [initialPost]);
+
+    // Self-Healing: Fetch data if missing but ID is available
+    useEffect(() => {
+        let isMounted = true;
+        const loadPost = async () => {
+            if (!post && !initialPost && originalPostId) {
+                setLoading(true);
+                try {
+                    console.log('🔄 Lazy Loading EmbeddedPost:', originalPostId);
+                    const { data, error } = await api.getPost(originalPostId);
+                    if (isMounted) {
+                        if (data) {
+                            console.log('✅ Lazy Load Success:', data.id);
+                            setPost(data);
+                        } else {
+                            console.warn('⚠️ Lazy Load Failed:', error); // RLS or truly deleted
+                            setError(true);
+                        }
+                    }
+                } catch (err) {
+                    console.error('❌ Lazy Load Error:', err);
+                    if (isMounted) setError(true);
+                } finally {
+                    if (isMounted) setLoading(false);
+                }
+            }
+        };
+
+        // Only try to fetch if we have NO data, but we DO have an ID
+        if ((!post && !initialPost) && originalPostId) {
+            loadPost();
+        }
+    }, [originalPostId, post, initialPost]);
+
+    if (loading) {
+        return (
+            <div style={{
+                border: '1px solid var(--border-color)',
+                borderRadius: 'var(--radius-lg)',
+                padding: '2rem',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: 'var(--bg-color)',
+                opacity: 0.6
+            }}>
+                <Loader2 size={24} className="animate-spin" color="var(--primary)" />
+            </div>
+        );
+    }
+
+    const isDeleted = initialIsDeleted || error || (post && post.deleted_at);
+
+    // If completely missing or deleted
+    if (!post || isDeleted) {
         return (
             <div style={{
                 border: '2px dashed var(--border-color)',
                 borderRadius: 'var(--radius-lg)',
-                padding: '2rem',
+                padding: '1.5rem',
                 backgroundColor: 'var(--surface-color)',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                gap: '0.75rem',
+                gap: '0.5rem',
                 opacity: 0.7
             }}>
                 <div style={{
-                    width: '48px',
-                    height: '48px',
+                    width: '40px',
+                    height: '40px',
                     borderRadius: 'var(--radius-full)',
                     background: 'var(--error-soft)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center'
                 }}>
-                    <AlertCircle size={24} color="var(--error)" />
+                    <AlertCircle size={20} color="var(--error)" />
                 </div>
                 <div style={{
                     textAlign: 'center',
                     color: 'var(--text-secondary)'
                 }}>
-                    <div style={{
-                        fontWeight: '600',
-                        fontSize: '1rem',
-                        marginBottom: '0.25rem'
-                    }}>
+                    <div style={{ fontWeight: '600', fontSize: '0.95rem' }}>
                         Contenido no disponible
                     </div>
-                    <div style={{ fontSize: '0.875rem' }}>
-                        Esta publicación fue eliminada
-                    </div>
+                    {/* Only show "deleted" message if we actually know it was deleted, otherwise it might just be loading error */}
+                    {isDeleted && (
+                        <div style={{ fontSize: '0.875rem' }}>
+                            Esta publicación no está disponible
+                        </div>
+                    )}
                 </div>
             </div>
         );
     }
 
-    // Post normal embebido
+    // Normal Render
     return (
         <div style={{
             border: '1px solid var(--border-color)',
@@ -62,7 +125,8 @@ const EmbeddedPost: React.FC<EmbeddedPostProps> = ({ post, isDeleted }) => {
             padding: '1rem',
             backgroundColor: 'var(--bg-color)',
             cursor: 'pointer',
-            transition: 'all 0.2s'
+            transition: 'all 0.2s',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
         }}
         onMouseEnter={(e) => {
             e.currentTarget.style.backgroundColor = 'var(--hover-bg)';
@@ -75,7 +139,7 @@ const EmbeddedPost: React.FC<EmbeddedPostProps> = ({ post, isDeleted }) => {
             window.location.href = `/post/${post.id}`;
         }}
         >
-            {/* Header del post embebido */}
+            {/* Header */}
             <div style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -120,7 +184,7 @@ const EmbeddedPost: React.FC<EmbeddedPostProps> = ({ post, isDeleted }) => {
                 </div>
             </div>
 
-            {/* Contenido del post */}
+            {/* Content */}
             {post.content && (
                 <p style={{
                     margin: '0 0 0.75rem 0',
@@ -136,7 +200,7 @@ const EmbeddedPost: React.FC<EmbeddedPostProps> = ({ post, isDeleted }) => {
                 </p>
             )}
 
-            {/* Imagen si existe */}
+            {/* Image */}
             {post.image_url && (
                 <img
                     src={post.image_url}

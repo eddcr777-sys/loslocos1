@@ -57,6 +57,19 @@ const Post: React.FC<PostProps> = ({
   const isRepost = (post as any).is_repost_from_shares || (post as any).is_repost_wrapper || (post as any).is_repost || (!!post.original_post && !post.content);
   const isQuote = (post as any).is_quote || (!!post.original_post && !!post.content && !(post as any).is_repost_from_shares && !(post as any).is_repost_wrapper);
 
+  // DEBUG: Log para ver qué está pasando con los quotes
+  if ((post as any).original_post_id) {
+    console.log('🎯 POST COMPONENT - Quote/Repost:', {
+      postId: post.id,
+      original_post_id: (post as any).original_post_id,
+      hasOriginalPost: !!post.original_post,
+      originalPostData: post.original_post,
+      isQuote,
+      isRepost,
+      content: post.content?.substring(0, 30)
+    });
+  }
+
   // DETERMINE INTERACTION TARGET
   // If it's a pure Repost, we interact with the ORIGINAL post (Like/Comment/Share count refers to original)
   // If it's a Quote or Normal, we interact with THIS post.
@@ -281,11 +294,12 @@ const Post: React.FC<PostProps> = ({
             </div>
 
             {/* QUOTE UI */}
-            {isQuote && post.original_post_id && (
+            {isQuote && (post as any).original_post_id && (
                 <div style={{ marginTop: '1rem' }}>
                     <EmbeddedPost 
                         post={post.original_post || null}
-                        isDeleted={!post.original_post || !!post.original_post.deleted_at}
+                        originalPostId={(post as any).original_post_id}
+                        isDeleted={!!post.original_post?.deleted_at}
                     />
                 </div>
             )}

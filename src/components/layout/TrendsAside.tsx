@@ -18,8 +18,8 @@ const TrendsAside = () => {
     try {
       setLoading(true);
       
-      // 1. Forzar actualización de tendencias en DB (Opcional, pero asegura frescura)
-      await api.updateTrendingPosts();
+      // Ya no forzamos actualización en tiempo real aquí.
+      // La base de datos se encargará de actualizarse según el horario configurado.
 
       // 2. Obtener posts tendencia desde el RPC optimizado
       const { data: trendingPosts, error: trendingError } = await api.getTrendingPosts('day');
@@ -116,20 +116,7 @@ const TrendsAside = () => {
 
   useEffect(() => {
     fetchTrendsData();
-    
-    // --- REALTIME FOR TRENDS ---
-    const channels = ['posts', 'likes', 'comments', 'shares', 'quotes'].map(table => 
-      supabase
-        .channel(`trends-refresh-${table}`)
-        .on('postgres_changes', { event: '*', schema: 'public', table }, () => {
-          fetchTrendsData();
-        })
-        .subscribe()
-    );
-
-    return () => {
-      channels.forEach(channel => supabase.removeChannel(channel));
-    };
+    // Se ha eliminado el tiempo real para tendencias por requerimiento de usuario (actualización diaria).
   }, [fetchTrendsData]);
 
   if (loading) return (
